@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - KMIZRD</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo-wrapper">
+                <img src="../assets/logo.jpg" alt="KMIZRD Logo" class="admin-logo-img">
+            </div>
+            <nav class="admin-nav">
+                <a href="#" class="admin-nav-item active" data-target="upload-section">
+                    <i data-lucide="plus-circle"></i> Subir Producto
+                </a>
+                <a href="#" class="admin-nav-item" data-target="manage-section">
+                    <i data-lucide="list"></i> Gestionar Productos
+                </a>
+                <a href="#" class="admin-nav-item" data-target="settings-section">
+                    <i data-lucide="settings"></i> Ajustes de Pago
+                </a>
+                <a href="#" class="admin-nav-item" data-target="orders-section">
+                    <i data-lucide="receipt"></i> Ventas y Recibos
+                </a>
+                <a href="#" class="admin-nav-item" data-target="custom-requests-section">
+                    <i data-lucide="edit-3"></i> Personalizados
+                </a>
+                <a href="../" class="admin-nav-item back-to-store">
+                    <i data-lucide="shopping-bag"></i> Ir a la tienda
+                </a>
+            </nav>
+            <div class="admin-sidebar-footer">
+                <p>KMIZRD Admin Panel v1.0</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <h2>Panel de Administración</h2>
+                <div class="admin-profile">
+                    <span>Administrador</span>
+                    <div class="admin-avatar"><i data-lucide="user"></i></div>
+                </div>
+            </header>
+
+            <!-- Upload Section -->
+            <section id="upload-section" class="admin-content-section active">
+                <div class="admin-card">
+                    <h3>Nuevo Producto</h3>
+                    <p class="card-subtitle">Completa los datos para publicar un nuevo artículo en la tienda.</p>
+                    
+                    <form id="product-form" class="admin-form">
+                        <div class="form-grid">
+                            <!-- Left Column -->
+                            <div class="form-column">
+                                <div class="form-group">
+                                    <label for="prod-name">Nombre del Producto *</label>
+                                    <input type="text" id="prod-name" required placeholder="Ej. Camiseta Chaos Oversize">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="prod-price">Precio (RD$) *</label>
+                                        <input type="number" id="prod-price" step="0.01" min="0" required placeholder="2000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="prod-category">Categoría *</label>
+                                        <select id="prod-category" required>
+                                            <option value="CAMISETAS">Camisetas</option>
+                                            <option value="HOODIES">Hoodies</option>
+                                            <option value="ACCESORIOS">Accesorios</option>
+                                            <option value="BOLSAS">Bolsas</option>
+                                            <option value="COLECCIONES">Colecciones</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prod-desc">Descripción del Producto *</label>
+                                    <textarea id="prod-desc" required placeholder="Detalles de la prenda, material, calce..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column -->
+                            <div class="form-column">
+                                <div class="form-group">
+                                    <label>Tallas Disponibles *</label>
+                                    <div class="size-selector-grid">
+                                        <button type="button" class="size-btn" data-size="XS">XS</button>
+                                        <button type="button" class="size-btn" data-size="S">S</button>
+                                        <button type="button" class="size-btn" data-size="M">M</button>
+                                        <button type="button" class="size-btn" data-size="L">L</button>
+                                        <button type="button" class="size-btn" data-size="XL">XL</button>
+                                        <button type="button" class="size-btn" data-size="XXL">XXL</button>
+                                        <button type="button" class="size-btn" data-size="Única">Única</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Imagen del Producto *</label>
+                                    <div class="image-drag-area" id="image-drag-area">
+                                        <i data-lucide="upload-cloud" class="drag-icon"></i>
+                                        <p class="drag-text">Arrastra una imagen aquí o <span>haz clic para buscar</span></p>
+                                        <input type="file" id="prod-image-file" accept="image/*" style="display: none;">
+                                        <div id="image-preview-container" class="image-preview-container" style="display: none;">
+                                            <img id="image-preview" src="" alt="Vista previa">
+                                            <button type="button" id="remove-preview-btn" class="remove-preview-btn"><i data-lucide="trash-2"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="admin-btn btn-primary"><i data-lucide="upload"></i> Publicar Producto</button>
+                            <button type="reset" id="btn-reset-form" class="admin-btn btn-secondary"><i data-lucide="refresh-cw"></i> Limpiar</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Manage Inventory Section -->
+            <section id="manage-section" class="admin-content-section">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3>Inventario de Productos</h3>
+                        <div class="search-bar">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="admin-search-input" placeholder="Buscar por nombre o categoría...">
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Imagen</th>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Tallas</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-products-tbody">
+                                <!-- Dynamic rows go here -->
+                            </tbody>
+                        </table>
+                        <div id="no-products-msg" class="empty-state" style="display:none;">
+                            <i data-lucide="package-open"></i>
+                            <p>No hay productos subidos todavía.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Payment Settings Section -->
+            <section id="settings-section" class="admin-content-section">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h2><i data-lucide="settings"></i> Ajustes de Pasarelas de Pago</h2>
+                        <p>Activa y configura las credenciales de tus métodos de pago para que la tienda procese compras de forma automática sin necesidad de reprogramarla.</p>
+                    </div>
+                    <form id="payment-settings-form">
+                        <!-- WhatsApp Checkout Settings -->
+                        <div class="settings-group-card">
+                            <div class="settings-group-header">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fab fa-whatsapp" style="color: #25d366; font-size: 24px;"></i>
+                                    <h3>Cobro por WhatsApp</h3>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting-whatsapp-active">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-group-body">
+                                <div class="form-group" style="text-align: left;">
+                                    <label for="setting-whatsapp-number">Número de WhatsApp (con código de país, ej. 18092223333) *</label>
+                                    <input type="text" id="setting-whatsapp-number" placeholder="Ej. 18090000000">
+                                    <p class="field-hint">Los pedidos se enviarán a este chat de WhatsApp formateados con tallas, productos y subtotales.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PayPal Checkout Settings -->
+                        <div class="settings-group-card">
+                            <div class="settings-group-header">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fab fa-paypal" style="color: #003087; font-size: 24px;"></i>
+                                    <h3>Cobro por PayPal</h3>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting-paypal-active">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-group-body">
+                                <div class="form-group" style="text-align: left;">
+                                    <label for="setting-paypal-client-id">PayPal Client ID (Producción o Sandbox) *</label>
+                                    <input type="text" id="setting-paypal-client-id" placeholder="Introduce tu Client ID de PayPal Developer">
+                                    <p class="field-hint">Obtén tu credencial en el panel de desarrolladores de PayPal.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stripe Checkout Settings -->
+                        <div class="settings-group-card">
+                            <div class="settings-group-header">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fab fa-stripe-s" style="color: #635bff; font-size: 24px;"></i>
+                                    <h3>Cobro por Tarjeta (Stripe)</h3>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting-stripe-active">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-group-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group" style="text-align: left;">
+                                    <label for="setting-stripe-pk">Publishable Key *</label>
+                                    <input type="text" id="setting-stripe-pk" placeholder="pk_live_...">
+                                </div>
+                                <div class="form-group" style="text-align: left;">
+                                    <label for="setting-stripe-sk">Secret Key *</label>
+                                    <input type="password" id="setting-stripe-sk" placeholder="sk_live_...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Azul Checkout Settings -->
+                        <div class="settings-group-card">
+                            <div class="settings-group-header">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa fa-credit-card" style="color: #007bc1; font-size: 24px;"></i>
+                                    <h3>Cobro por Azul (República Dominicana)</h3>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting-azul-active">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-group-body" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group" style="text-align: left;">
+                                    <label for="setting-azul-merchant-id">Merchant ID (Código de Comercio) *</label>
+                                    <input type="text" id="setting-azul-merchant-id" placeholder="Ej. 391283719">
+                                </div>
+                                <div class="form-group" style="text-align: left;">
+                                    <label for="setting-azul-auth-key">Clave de Autenticación (AuthKey / Llave Firma) *</label>
+                                    <input type="password" id="setting-azul-auth-key" placeholder="Llave provista por el Popular">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions" style="margin-top: 30px;">
+                            <button type="submit" class="admin-btn btn-primary"><i data-lucide="save"></i> Guardar Ajustes de Pago</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Sales Log / Receipts Section -->
+            <section id="orders-section" class="admin-content-section">
+                <!-- Metrics Summary Cards -->
+                <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+                    <div class="metric-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); text-align: left;">
+                        <h4 style="font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Ventas Totales (RD$)</h4>
+                        <p id="metric-total-sales" style="font-size: 28px; font-weight: 900; color: #0f172a; margin: 0;">RD$0.00</p>
+                    </div>
+                    <div class="metric-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); text-align: left;">
+                        <h4 style="font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Pedidos Recibidos</h4>
+                        <p id="metric-total-orders" style="font-size: 28px; font-weight: 900; color: #0f172a; margin: 0;">0</p>
+                    </div>
+                    <div class="metric-card" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); text-align: left;">
+                        <h4 style="font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Aprobados en Línea</h4>
+                        <p id="metric-approved-payments" style="font-size: 28px; font-weight: 900; color: #0f172a; margin: 0;">0</p>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-card-header" style="margin-bottom: 20px;">
+                        <h2><i data-lucide="receipt"></i> Registro de Ventas y Recibos</h2>
+                        <p>Visualiza el historial financiero de tu tienda, métodos utilizados y referencias de pago.</p>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID Pedido</th>
+                                    <th>Cliente</th>
+                                    <th>Productos</th>
+                                    <th>Total</th>
+                                    <th>Método</th>
+                                    <th>Referencia / Tarjeta</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-orders-tbody">
+                                <!-- Dynamic order rows go here -->
+                            </tbody>
+                        </table>
+                        <div id="no-orders-msg" class="empty-state" style="display:none; text-align: center; padding: 40px 0; color: #64748b;">
+                            <i data-lucide="receipt" style="width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 15px;"></i>
+                            <p style="font-weight: 600;">No se han registrado ventas todavía.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Custom Requests Section -->
+            <section id="custom-requests-section" class="admin-content-section">
+                <div class="admin-card">
+                    <div class="admin-card-header" style="margin-bottom: 20px;">
+                        <h2><i data-lucide="edit-3"></i> Solicitudes de Personalización</h2>
+                        <p>Gestiona los pedidos de prendas personalizadas que han enviado los clientes a través del sitio web.</p>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>WhatsApp / Correo</th>
+                                    <th>Prenda</th>
+                                    <th>Color</th>
+                                    <th>Talla</th>
+                                    <th>Descripción de Diseño</th>
+                                    <th>Imagen Ref.</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-custom-requests-tbody">
+                                <!-- Dynamic custom request rows go here -->
+                            </tbody>
+                        </table>
+                        <div id="no-custom-requests-msg" class="empty-state" style="display:none; text-align: center; padding: 40px 0; color: #64748b;">
+                            <i data-lucide="edit-3" style="width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 15px;"></i>
+                            <p style="font-weight: 600;">No hay solicitudes de personalización recibidas.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../admin.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
