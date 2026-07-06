@@ -215,8 +215,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? prod.price 
                     : `RD$${parseFloat(prod.price).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
+                const imgSrc = (prod.image && !prod.image.startsWith('data:') && !prod.image.startsWith('http')) 
+                    ? `../${prod.image}` 
+                    : prod.image;
+
                 tr.innerHTML = `
-                    <td><img src="${prod.image}" alt="${prod.name}" class="table-img"></td>
+                    <td><img src="${imgSrc}" alt="${prod.name}" class="table-img"></td>
                     <td>
                         <div class="table-prod-name">${prod.name}</div>
                         <div class="table-prod-desc">${prod.description}</div>
