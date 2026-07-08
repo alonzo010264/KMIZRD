@@ -94,6 +94,19 @@
                             <!-- Right Column -->
                             <div class="form-column">
                                 <div class="form-group">
+                                    <label>Imagen del Producto *</label>
+                                    <div class="image-drag-area" id="image-drag-area" style="min-height: 180px;">
+                                        <i data-lucide="upload-cloud" class="drag-icon"></i>
+                                        <p class="drag-text">Arrastra una imagen aquí o <span>haz clic para buscar</span></p>
+                                        <input type="file" id="prod-image-file" accept="image/*" style="display: none;">
+                                        <div id="image-preview-container" class="image-preview-container" style="display: none;">
+                                            <img id="image-preview" src="" alt="Vista previa">
+                                            <button type="button" id="remove-preview-btn" class="remove-preview-btn"><i data-lucide="trash-2"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-top: 20px;">
                                     <label>Tallas Disponibles *</label>
                                     <div class="size-selector-grid">
                                         <button type="button" class="size-btn" data-size="XS">XS</button>
@@ -103,19 +116,6 @@
                                         <button type="button" class="size-btn" data-size="XL">XL</button>
                                         <button type="button" class="size-btn" data-size="XXL">XXL</button>
                                         <button type="button" class="size-btn" data-size="Única">Única</button>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label>Imagen del Producto *</label>
-                                    <div class="image-drag-area" id="image-drag-area">
-                                        <i data-lucide="upload-cloud" class="drag-icon"></i>
-                                        <p class="drag-text">Arrastra una imagen aquí o <span>haz clic para buscar</span></p>
-                                        <input type="file" id="prod-image-file" accept="image/*" style="display: none;">
-                                        <div id="image-preview-container" class="image-preview-container" style="display: none;">
-                                            <img id="image-preview" src="" alt="Vista previa">
-                                            <button type="button" id="remove-preview-btn" class="remove-preview-btn"><i data-lucide="trash-2"></i></button>
-                                        </div>
                                     </div>
                                 </div>
                             </div>

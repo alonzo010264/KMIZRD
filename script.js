@@ -435,64 +435,45 @@ document.addEventListener('DOMContentLoaded', () => {
             const isColeccion = catLower === 'colección' || catLower === 'colecciones' || catLower === 'coleccion';
 
             if (!isColeccion) {
-                // Close modal
-                closeProductModal();
+                // Open personalization modal
+                const personalizationModal = document.getElementById('personalization-modal');
+                if (personalizationModal) {
+                    // Fill left product preview panel
+                    const modalImg = document.getElementById('custom-modal-product-img');
+                    const modalCat = document.getElementById('custom-modal-product-cat');
+                    const modalName = document.getElementById('custom-modal-product-name');
+                    const modalSize = document.getElementById('custom-modal-product-size');
 
-                // Scroll to personalization form
-                const targetSection = document.getElementById('custom-section');
-                if (targetSection) {
-                    targetSection.scrollIntoView({ behavior: 'smooth' });
-                }
+                    if (modalImg) modalImg.src = currentModalProduct.image;
+                    if (modalCat) modalCat.textContent = currentModalProduct.category;
+                    if (modalName) modalName.textContent = currentModalProduct.name;
+                    if (modalSize) modalSize.textContent = size !== 'Única' ? `Talla: ${size}` : '';
 
-                // Prepopulate form fields
-                const prodTypeSelect = document.getElementById('custom-product-type');
-                if (prodTypeSelect) {
-                    const name = currentModalProduct.name.toLowerCase();
-                    const cat = (currentModalProduct.category || '').toLowerCase();
-                    if (name.includes('camiseta') || cat.includes('camiseta') || name.includes('t-shirt') || name.includes('tshirt')) {
-                        prodTypeSelect.value = 'Camiseta';
-                    } else if (name.includes('hoodie') || cat.includes('hoodie') || name.includes('sueter') || name.includes('abrigo')) {
-                        prodTypeSelect.value = 'Hoodie';
-                    } else if (name.includes('gorra') || cat.includes('gorra') || cat.includes('accesorio') || name.includes('cap')) {
-                        prodTypeSelect.value = 'Gorra / Accesorio';
-                    } else if (name.includes('bolsa') || cat.includes('bolsa') || name.includes('tote') || name.includes('bag')) {
-                        prodTypeSelect.value = 'Bolsa';
-                    }
-                }
+                    // Pre-fill description
+                    const descTextarea = document.getElementById('custom-desc');
+                    if (descTextarea) descTextarea.value = '';
 
-                // Set size in custom selector
-                const customSizesContainer = document.getElementById('custom-sizes');
-                if (customSizesContainer) {
-                    customSizesContainer.querySelectorAll('.custom-size-btn').forEach(btn => {
-                        if (btn.textContent === size) {
-                            btn.classList.add('active');
-                        } else {
-                            btn.classList.remove('active');
-                        }
-                    });
-                }
-
-                // Pre-fill details textarea
-                const descTextarea = document.getElementById('custom-desc');
-                if (descTextarea) {
-                    descTextarea.value = `Quiero una personalización basada en el diseño de: "${currentModalProduct.name}".`;
-                }
-
-                // Set reference image preview
-                if (currentModalProduct.image) {
-                    customBase64Image = currentModalProduct.image;
-                    const previewImg = document.getElementById('custom-image-preview');
-                    const previewCont = document.getElementById('custom-image-preview-container');
-                    if (previewImg) previewImg.src = currentModalProduct.image;
-                    
-                    // Hide default drag text
-                    if (customDragArea) {
-                        const dragIcon = customDragArea.querySelector('.drag-icon');
-                        const dragText = customDragArea.querySelector('.drag-text');
+                    // Pre-load product image as reference (optional)
+                    if (currentModalProduct.image) {
+                        customBase64Image = currentModalProduct.image;
+                        const previewImg = document.getElementById('custom-image-preview');
+                        const previewCont = document.getElementById('custom-image-preview-container');
+                        const dragIcon = customDragArea ? customDragArea.querySelector('.drag-icon') : null;
+                        const dragText = customDragArea ? customDragArea.querySelector('.drag-text') : null;
+                        if (previewImg) previewImg.src = currentModalProduct.image;
                         if (dragIcon) dragIcon.style.display = 'none';
                         if (dragText) dragText.style.display = 'none';
+                        if (previewCont) previewCont.style.display = 'flex';
                     }
-                    if (previewCont) previewCont.style.display = 'flex';
+
+                    // Store product context for form submit
+                    customCurrentProduct = currentModalProduct;
+                    customCurrentSize = size;
+
+                    // Close product detail modal, then open personalization modal
+                    closeProductModal();
+                    personalizationModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
                 }
             } else {
                 // Add item
@@ -1128,23 +1109,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const customRemovePreviewBtn = document.getElementById('custom-remove-preview-btn');
     let customBase64Image = '';
 
-    // Handle smooth scrolling and type selection for customization
-    document.querySelectorAll('.custom-nav-link, .custom-card-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetSection = document.getElementById('custom-section');
-            if (targetSection) {
-                targetSection.scrollIntoView({ behavior: 'smooth' });
-            }
-            
-            const productType = link.getAttribute('data-type');
-            const selectEl = document.getElementById('custom-product-type');
-            if (selectEl && productType) {
-                selectEl.value = productType;
+    // Close personalization modal
+    const customModalCloseBtn = document.getElementById('custom-modal-close-btn');
+    const personalizationModal = document.getElementById('personalization-modal');
+    if (customModalCloseBtn) {
+        customModalCloseBtn.addEventListener('click', () => {
+            if (personalizationModal) personalizationModal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    }
+    if (personalizationModal) {
+        personalizationModal.addEventListener('click', (e) => {
+            if (e.target === personalizationModal) {
+                personalizationModal.classList.remove('active');
+                document.body.style.overflow = '';
             }
         });
-    });
+    }
 
+    // Smooth scroll for catalog nav links
     document.querySelectorAll('.catalog-nav-link, .catalog-card-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1154,6 +1137,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Variables to track which product is being personalized
+    let customCurrentProduct = null;
+    let customCurrentSize = 'Única';
 
     // Custom Size toggle
     const customSizesContainer = document.getElementById('custom-sizes');
@@ -1252,20 +1239,21 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const submitBtn = customForm.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Registrando Solicitud...';
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Enviando...';
 
-            const prodType = document.getElementById('custom-product-type').value;
-            const activeSizeBtn = customSizesContainer ? customSizesContainer.querySelector('.custom-size-btn.active') : null;
-            const size = activeSizeBtn ? activeSizeBtn.textContent : 'S';
+            // Use product context stored when the modal was opened
+            const prodType = customCurrentProduct ? customCurrentProduct.category : 'Personalizado';
+            const size = customCurrentSize || 'Única';
             const activeColorBtn = customColorsContainer ? customColorsContainer.querySelector('.color-circle.active') : null;
             const color = activeColorBtn ? activeColorBtn.getAttribute('data-color') : 'Negro';
             const desc = document.getElementById('custom-desc').value;
             const name = document.getElementById('custom-name').value;
             const phone = document.getElementById('custom-phone').value;
             const email = document.getElementById('custom-email').value;
+            const productName = customCurrentProduct ? customCurrentProduct.name : '';
+            const referenceImage = customBase64Image || (customCurrentProduct ? customCurrentProduct.image : '');
 
             try {
-                // 1. Save to Supabase custom_requests table
                 const { error } = await _supabase
                     .from('custom_requests')
                     .insert([{
@@ -1273,26 +1261,33 @@ document.addEventListener('DOMContentLoaded', () => {
                         customer_phone: phone,
                         customer_email: email,
                         product_type: prodType,
+                        product_name: productName,
                         color: color,
                         size: size,
                         description: desc,
-                        reference_image: customBase64Image,
+                        reference_image: referenceImage,
                         status: 'pending'
                     }]);
 
                 if (error) throw error;
 
                 alert('¡Tu solicitud de personalización ha sido enviada con éxito! Nuestro equipo revisará el diseño y te contactará pronto.');
-                
-                // Reset form
+
+                // Close modal and reset
+                if (personalizationModal) {
+                    personalizationModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
                 customForm.reset();
+                customCurrentProduct = null;
+                customCurrentSize = 'Única';
                 if (customRemovePreviewBtn) customRemovePreviewBtn.click();
             } catch (err) {
                 console.error(err);
                 alert('Ocurrió un error al registrar la solicitud: ' + err.message);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i data-lucide="send"></i> Enviar Solicitud de Personalización';
+                submitBtn.innerHTML = '<i data-lucide="send" style="width: 18px; height: 18px;"></i> Enviar Solicitud';
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             }
         });

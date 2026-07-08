@@ -26,11 +26,11 @@
         </a>
         <nav class="nav-links">
             <a href="#" class="active">INICIO</a>
-            <a href="#custom-section" class="custom-nav-link" data-type="Camiseta">CAMISETAS</a>
-            <a href="#custom-section" class="custom-nav-link" data-type="Hoodie">HOODIES</a>
-            <a href="#custom-section" class="custom-nav-link" data-type="Gorra / Accesorio">ACCESORIOS</a>
+            <a href="#catalog-section" class="catalog-nav-link">CAMISETAS</a>
+            <a href="#catalog-section" class="catalog-nav-link">HOODIES</a>
+            <a href="#catalog-section" class="catalog-nav-link">ACCESORIOS</a>
             <a href="#catalog-section" class="catalog-nav-link">COLECCIONES</a>
-            <a href="#custom-section" class="custom-nav-link" data-type="Otro">NOVEDADES</a>
+            <a href="#catalog-section" class="catalog-nav-link">NOVEDADES</a>
             <a href="#catalog-section" class="catalog-nav-link">OFERTAS</a>
         </nav>
         <div class="nav-icons">
@@ -69,21 +69,21 @@
                 <img src="assets/cat_tshirt.png" alt="Camisetas" class="cat-img">
                 <div class="cat-info">
                     <h3>CAMISETAS</h3>
-                    <a href="#custom-section" class="custom-card-link" data-type="Camiseta">Ver todo &rarr;</a>
+                    <a href="#catalog-section" class="catalog-card-link">Ver todo &rarr;</a>
                 </div>
             </div>
             <div class="category-card">
                 <img src="assets/cat_hoodie.png" alt="Hoodies" class="cat-img">
                 <div class="cat-info">
                     <h3>HOODIES</h3>
-                    <a href="#custom-section" class="custom-card-link" data-type="Hoodie">Ver todo &rarr;</a>
+                    <a href="#catalog-section" class="catalog-card-link">Ver todo &rarr;</a>
                 </div>
             </div>
             <div class="category-card">
                 <img src="assets/cat_cap.png" alt="Accesorios" class="cat-img">
                 <div class="cat-info">
                     <h3>ACCESORIOS</h3>
-                    <a href="#custom-section" class="custom-card-link" data-type="Gorra / Accesorio">Ver todo &rarr;</a>
+                    <a href="#catalog-section" class="catalog-card-link">Ver todo &rarr;</a>
                 </div>
             </div>
             <!-- Bolsas -->
@@ -91,7 +91,7 @@
                 <img src="assets/cat_bag.png" alt="Bolsas" class="cat-img">
                 <div class="cat-info">
                     <h3>BOLSAS</h3>
-                    <a href="#custom-section" class="custom-card-link" data-type="Bolsa">Ver todo &rarr;</a>
+                    <a href="#catalog-section" class="catalog-card-link">Ver todo &rarr;</a>
                 </div>
             </div>
             <!-- Colecciones -->
@@ -184,95 +184,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Personalization Request Section -->
-        <section id="custom-section" class="custom-section">
-            <div class="custom-container">
-                <div class="custom-header">
-                    <h2>PERSONALIZA TU PRENDA</h2>
-                    <p>Elige tu estilo, color, talla, sube tu logo o diseño y nosotros nos encargamos del resto.</p>
-                </div>
-                
-                <div class="custom-layout">
-                    <!-- Form left -->
-                    <div class="custom-form-wrap">
-                        <form id="custom-apparel-form">
-                            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                                <div class="form-group" style="text-align: left;">
-                                    <label for="custom-product-type" style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">Tipo de Prenda</label>
-                                    <select id="custom-product-type" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;" required>
-                                        <option value="Camiseta">Camiseta</option>
-                                        <option value="Hoodie">Hoodie</option>
-                                        <option value="Gorra / Accesorio">Gorra / Accesorio</option>
-                                        <option value="Bolsa">Bolsa</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="text-align: left;">
-                                    <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">Talla</label>
-                                    <div class="size-selector-custom" id="custom-sizes">
-                                        <button type="button" class="custom-size-btn active">S</button>
-                                        <button type="button" class="custom-size-btn">M</button>
-                                        <button type="button" class="custom-size-btn">L</button>
-                                        <button type="button" class="custom-size-btn">XL</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group" style="margin-bottom: 20px; text-align: left;">
-                                <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">Color de Prenda</label>
-                                <div class="color-picker-custom" id="custom-colors">
-                                    <button type="button" class="color-circle active" data-color="Negro" style="background-color: #000;" title="Negro"></button>
-                                    <button type="button" class="color-circle" data-color="Blanco" style="background-color: #fff; border: 1px solid #cbd5e1;" title="Blanco"></button>
-                                    <button type="button" class="color-circle" data-color="Gris" style="background-color: #6b7280;" title="Gris"></button>
-                                    <button type="button" class="color-circle" data-color="Azul Marino" style="background-color: #1e3a8a;" title="Azul Marino"></button>
-                                    <button type="button" class="color-circle" data-color="Rojo" style="background-color: #b91c1c;" title="Rojo"></button>
-                                    <button type="button" class="color-circle" data-color="Beige" style="background-color: #f5f5dc;" title="Beige"></button>
-                                </div>
-                            </div>
-
-                            <div class="form-group" style="margin-bottom: 20px; text-align: left;">
-                                <label for="custom-desc" style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">Detalles del Diseño (Ej: Estampado en el pecho, calavera, etc.)</label>
-                                <textarea id="custom-desc" placeholder="Describe los detalles de tu personalización..." style="width: 100%; height: 100px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; resize: vertical;" required></textarea>
-                            </div>
-
-                            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                                <div class="form-group" style="text-align: left;">
-                                    <label for="custom-name" style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">Tu Nombre</label>
-                                    <input type="text" id="custom-name" placeholder="Ej: Juan Pérez" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;" required>
-                                </div>
-                                <div class="form-group" style="text-align: left;">
-                                    <label for="custom-phone" style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">Tu WhatsApp</label>
-                                    <input type="text" id="custom-phone" placeholder="Ej: 809-555-5555" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;" required>
-                                </div>
-                            </div>
-
-                            <div class="form-group" style="margin-bottom: 20px; text-align: left;">
-                                <label for="custom-email" style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">Tu Correo (Opcional)</label>
-                                <input type="email" id="custom-email" placeholder="Ej: juan@gmail.com" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
-                            </div>
-
-                            <button type="submit" class="btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px; border-radius: 30px;">
-                                <i data-lucide="send"></i> Enviar Solicitud de Personalización
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Upload right -->
-                    <div class="custom-upload-wrap" style="text-align: left;">
-                        <label style="font-size: 13px; font-weight: 700; color: #475569; display: block; margin-bottom: 12px;">Sube tu Logo o Imagen de Referencia</label>
-                        <div class="image-drag-area" id="custom-drag-area" style="height: calc(100% - 32px); min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s;">
-                            <i data-lucide="upload-cloud" class="drag-icon" style="width: 48px; height: 48px; color: #94a3b8; margin-bottom: 15px;"></i>
-                            <p class="drag-text" style="font-size: 14px; color: #64748b;">Arrastra tu logo aquí o <span style="color: var(--accent-color); font-weight: 700;">haz clic para buscar</span></p>
-                            <input type="file" id="custom-image-file" accept="image/*" style="display: none;">
-                            <div id="custom-image-preview-container" class="preview-container" style="display: none; position: relative; width: 100%; height: 100%; max-height: 200px; justify-content: center; align-items: center;">
-                                <img id="custom-image-preview" src="" alt="Vista previa" style="max-width: 100%; max-height: 180px; object-fit: contain; border-radius: 8px;">
-                                <button type="button" id="custom-remove-preview-btn" class="remove-preview-btn" style="position: absolute; top: 10px; right: 10px; background-color: rgba(239, 68, 68, 0.9); color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border: none; cursor: pointer;"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- Footer -->
@@ -335,6 +246,85 @@
             </div>
         </div>
     </footer>
+
+    <!-- Personalization Modal -->
+    <div id="personalization-modal" class="modal-overlay">
+        <div class="modal-container" style="max-width: 780px; padding: 0; overflow: hidden; border-radius: 20px;">
+            <div style="display: grid; grid-template-columns: 220px 1fr;">
+                <!-- Left: Product Preview -->
+                <div style="background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 30px 20px;">
+                    <img id="custom-modal-product-img" src="" alt="Producto" style="width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; margin-bottom: 16px; background: #1e293b;">
+                    <div style="text-align: center;">
+                        <span id="custom-modal-product-cat" style="font-size: 10px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1px;"></span>
+                        <h4 id="custom-modal-product-name" style="font-size: 15px; font-weight: 800; color: #fff; margin: 6px 0 4px;"></h4>
+                        <p id="custom-modal-product-size" style="font-size: 12px; color: #94a3b8;"></p>
+                    </div>
+                    <!-- Reference Image Upload -->
+                    <div style="width: 100%; margin-top: 20px;">
+                        <p style="font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Imagen de Referencia</p>
+                        <div id="custom-drag-area" style="border: 2px dashed #334155; border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; min-height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <i data-lucide="upload-cloud" class="drag-icon" style="width: 28px; height: 28px; color: #475569; margin-bottom: 8px;"></i>
+                            <p class="drag-text" style="font-size: 11px; color: #64748b;">Sube tu logo o diseño</p>
+                            <input type="file" id="custom-image-file" accept="image/*" style="display: none;">
+                            <div id="custom-image-preview-container" style="display: none; position: relative; width: 100%;">
+                                <img id="custom-image-preview" src="" alt="Vista previa" style="max-width: 100%; max-height: 100px; object-fit: contain; border-radius: 6px;">
+                                <button type="button" id="custom-remove-preview-btn" style="position: absolute; top: -8px; right: -8px; background-color: #ef4444; color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;"><i data-lucide="x" style="width: 12px; height: 12px;"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right: Form -->
+                <div style="padding: 30px; background: #fff; position: relative;">
+                    <button class="modal-close-btn" id="custom-modal-close-btn" style="position: absolute; top: 16px; right: 16px;"><i data-lucide="x"></i></button>
+                    <h3 style="font-size: 20px; font-weight: 900; color: #0f172a; margin-bottom: 4px;">Solicitar Personalización</h3>
+                    <p style="font-size: 13px; color: #64748b; margin-bottom: 22px;">Completa los datos y nos pondremos en contacto contigo.</p>
+
+                    <form id="custom-apparel-form">
+                        <!-- Color -->
+                        <div style="margin-bottom: 18px;">
+                            <label style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">COLOR DE PRENDA</label>
+                            <div class="color-picker-custom" id="custom-colors" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button type="button" class="color-circle active" data-color="Negro" style="background-color: #000; width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: all 0.2s;" title="Negro"></button>
+                                <button type="button" class="color-circle" data-color="Blanco" style="background-color: #fff; border: 2px solid #cbd5e1; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; transition: all 0.2s;" title="Blanco"></button>
+                                <button type="button" class="color-circle" data-color="Gris" style="background-color: #6b7280; width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: all 0.2s;" title="Gris"></button>
+                                <button type="button" class="color-circle" data-color="Azul Marino" style="background-color: #1e3a8a; width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: all 0.2s;" title="Azul Marino"></button>
+                                <button type="button" class="color-circle" data-color="Rojo" style="background-color: #b91c1c; width: 30px; height: 30px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; transition: all 0.2s;" title="Rojo"></button>
+                                <button type="button" class="color-circle" data-color="Beige" style="background-color: #f5f5dc; border: 2px solid #cbd5e1; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; transition: all 0.2s;" title="Beige"></button>
+                            </div>
+                        </div>
+
+                        <!-- Design Details -->
+                        <div style="margin-bottom: 18px;">
+                            <label for="custom-desc" style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 8px;">DETALLES DEL DISEÑO *</label>
+                            <textarea id="custom-desc" placeholder="Ej: Logo en el pecho izquierdo, letra en la espalda, colores específicos..." style="width: 100%; height: 90px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; resize: vertical; box-sizing: border-box;" required></textarea>
+                        </div>
+
+                        <!-- Name & Phone -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
+                            <div>
+                                <label for="custom-name" style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">TU NOMBRE *</label>
+                                <input type="text" id="custom-name" placeholder="Juan Pérez" style="width: 100%; padding: 11px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" required>
+                            </div>
+                            <div>
+                                <label for="custom-phone" style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">WHATSAPP *</label>
+                                <input type="text" id="custom-phone" placeholder="809-555-5555" style="width: 100%; padding: 11px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" required>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div style="margin-bottom: 22px;">
+                            <label for="custom-email" style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">CORREO (OPCIONAL)</label>
+                            <input type="email" id="custom-email" placeholder="juan@gmail.com" style="width: 100%; padding: 11px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;">
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 15px; border-radius: 30px; font-size: 15px;">
+                            <i data-lucide="send" style="width: 18px; height: 18px;"></i> Enviar Solicitud
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Product Details Modal -->
     <div id="product-detail-modal" class="modal-overlay">
