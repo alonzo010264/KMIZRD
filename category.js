@@ -158,7 +158,12 @@
             }
             const { data, error } = await query;
             if (error) throw error;
-            allProducts = data || [];
+            allProducts = (data || []).map(p => {
+                const img = (p.image && !p.image.startsWith('data:') && !p.image.startsWith('http'))
+                    ? `../${p.image}`
+                    : p.image;
+                return { ...p, image: img };
+            });
             renderProducts(allProducts);
         } catch (err) {
             console.error('Error loading products:', err);
