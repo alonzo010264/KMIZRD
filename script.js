@@ -449,6 +449,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (modalName) modalName.textContent = currentModalProduct.name;
                     if (modalSize) modalSize.textContent = size !== 'Única' ? `Talla: ${size}` : '';
 
+                    // Initialize preview overlay color
+                    const activeColorBtn = customColorsContainer ? customColorsContainer.querySelector('.color-circle.active') : null;
+                    const chosenColor = activeColorBtn ? activeColorBtn.getAttribute('data-color') : 'Negro';
+                    updateOverlayColor(chosenColor);
+
                     // Pre-fill description
                     const descTextarea = document.getElementById('custom-desc');
                     if (descTextarea) descTextarea.value = '';
@@ -1154,6 +1159,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function updateOverlayColor(colorName) {
+        const overlay = document.getElementById('custom-modal-product-overlay');
+        if (!overlay) return;
+
+        let bg = 'transparent';
+        switch (colorName.toLowerCase()) {
+            case 'negro':
+                bg = 'rgba(20, 20, 20, 0.88)';
+                break;
+            case 'blanco':
+                bg = 'transparent';
+                break;
+            case 'gris':
+                bg = 'rgba(128, 128, 128, 0.75)';
+                break;
+            case 'azul marino':
+            case 'azul':
+                bg = 'rgba(15, 32, 67, 0.85)';
+                break;
+            case 'rojo':
+                bg = 'rgba(185, 28, 28, 0.8)';
+                break;
+            case 'beige':
+                bg = 'rgba(217, 180, 140, 0.6)';
+                break;
+            case 'naranja':
+                bg = 'rgba(234, 88, 12, 0.8)';
+                break;
+            default:
+                bg = 'transparent';
+        }
+        overlay.style.backgroundColor = bg;
+    }
+
     // Custom Color picker circle toggle
     const customColorsContainer = document.getElementById('custom-colors');
     if (customColorsContainer) {
@@ -1162,6 +1201,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btn) {
                 customColorsContainer.querySelectorAll('.color-circle').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                
+                const chosenColor = btn.getAttribute('data-color') || 'Negro';
+                updateOverlayColor(chosenColor);
             }
         });
     }

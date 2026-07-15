@@ -304,6 +304,40 @@
     const customRemovePreviewBtn = document.getElementById('custom-remove-preview-btn');
     const customColorsContainer = document.getElementById('custom-colors');
 
+    function updateOverlayColor(colorName) {
+        const overlay = document.getElementById('custom-modal-product-overlay');
+        if (!overlay) return;
+
+        let bg = 'transparent';
+        switch (colorName.toLowerCase()) {
+            case 'negro':
+                bg = 'rgba(20, 20, 20, 0.88)';
+                break;
+            case 'blanco':
+                bg = 'transparent';
+                break;
+            case 'gris':
+                bg = 'rgba(128, 128, 128, 0.75)';
+                break;
+            case 'azul marino':
+            case 'azul':
+                bg = 'rgba(15, 32, 67, 0.85)';
+                break;
+            case 'rojo':
+                bg = 'rgba(185, 28, 28, 0.8)';
+                break;
+            case 'beige':
+                bg = 'rgba(217, 180, 140, 0.6)';
+                break;
+            case 'naranja':
+                bg = 'rgba(234, 88, 12, 0.8)';
+                break;
+            default:
+                bg = 'transparent';
+        }
+        overlay.style.backgroundColor = bg;
+    }
+
     function openPersonalizationModal(product, size) {
         customCurrentProduct = product;
         customCurrentSize = size || 'Única';
@@ -317,6 +351,12 @@
         if (sizeEl) sizeEl.textContent = size && size !== 'Única' ? `Talla: ${size}` : '';
         const descEl = document.getElementById('custom-desc');
         if (descEl) descEl.value = '';
+        
+        // Initialize preview overlay color
+        const activeColorBtn = customColorsContainer ? customColorsContainer.querySelector('.color-circle.active') : null;
+        const chosenColor = activeColorBtn ? activeColorBtn.getAttribute('data-color') : 'Negro';
+        updateOverlayColor(chosenColor);
+
         // Pre-load product image as reference
         customBase64Image = product.image;
         if (customPreviewImage) customPreviewImage.src = product.image;
@@ -345,6 +385,9 @@
             if (btn) {
                 customColorsContainer.querySelectorAll('.color-circle').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                
+                const chosenColor = btn.getAttribute('data-color') || 'Negro';
+                updateOverlayColor(chosenColor);
             }
         });
     }
