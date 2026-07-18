@@ -34,28 +34,77 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let authMode = 'login';
+    const toggleAuthModeBtn = document.getElementById('toggle-auth-mode');
+    const loginTitle = document.getElementById('login-title');
+    const loginSubtitle = document.getElementById('login-subtitle');
+    const switchText = document.getElementById('switch-text');
+    const loginSuccess = document.getElementById('login-success-msg');
+
+    if (toggleAuthModeBtn) {
+        toggleAuthModeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (loginError) loginError.style.display = 'none';
+            if (loginSuccess) loginSuccess.style.display = 'none';
+
+            if (authMode === 'login') {
+                authMode = 'signup';
+                if (loginTitle) loginTitle.textContent = 'Crear Cuenta Admin';
+                if (loginSubtitle) loginSubtitle.textContent = 'Registra tu correo real para administrar la tienda';
+                if (toggleAuthModeBtn) toggleAuthModeBtn.textContent = 'Inicia sesión';
+                if (switchText) switchText.textContent = '¿Ya tienes cuenta?';
+                const submitBtn = loginForm.querySelector('.login-submit-btn');
+                if (submitBtn) submitBtn.innerHTML = '<span>Registrarse</span> <i class="fa fa-user-plus"></i>';
+            } else {
+                authMode = 'login';
+                if (loginTitle) loginTitle.textContent = 'Panel Administrativo';
+                if (loginSubtitle) loginSubtitle.textContent = 'Ingresa tus credenciales para acceder';
+                if (toggleAuthModeBtn) toggleAuthModeBtn.textContent = 'Regístrate aquí';
+                if (switchText) switchText.textContent = '¿No tienes cuenta?';
+                const submitBtn = loginForm.querySelector('.login-submit-btn');
+                if (submitBtn) submitBtn.innerHTML = '<span>Iniciar Sesión</span> <i class="fa fa-sign-in-alt"></i>';
+            }
+        });
+    }
+
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             if (loginError) loginError.style.display = 'none';
+            if (loginSuccess) loginSuccess.style.display = 'none';
             
             const submitBtn = loginForm.querySelector('.login-submit-btn');
             const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Verificando...';
+            submitBtn.innerHTML = authMode === 'login' 
+                ? '<i class="fa fa-spinner fa-spin"></i> Verificando...'
+                : '<i class="fa fa-spinner fa-spin"></i> Registrando...';
 
             try {
-                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                if (loginOverlay) loginOverlay.style.display = 'none';
-                if (adminContainer) adminContainer.style.display = 'flex';
-                initializePanel();
+                if (authMode === 'login') {
+                    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    if (loginOverlay) loginOverlay.style.display = 'none';
+                    if (adminContainer) adminContainer.style.display = 'flex';
+                    initializePanel();
+                } else {
+                    const { data, error } = await _supabase.auth.signUp({ email, password });
+                    if (error) throw error;
+                    
+                    if (loginSuccess) {
+                        loginSuccess.textContent = '¡Registro exitoso! Revisa tu bandeja de entrada (y la carpeta de spam) para confirmar tu cuenta y poder iniciar sesión.';
+                        loginSuccess.style.display = 'block';
+                    }
+                    // Reset form and switch to login mode
+                    loginForm.reset();
+                    if (toggleAuthModeBtn) toggleAuthModeBtn.click();
+                }
             } catch (err) {
-                console.error('Login error:', err);
+                console.error('Auth error:', err);
                 if (loginError) {
-                    loginError.textContent = err.message || 'Error al iniciar sesión. Verifica tus datos.';
+                    loginError.textContent = err.message || 'Error en autenticación. Verifica tus datos.';
                     loginError.style.display = 'block';
                 }
             } finally {

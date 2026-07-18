@@ -18,8 +18,8 @@
         <div class="login-card">
             <div class="login-header">
                 <img src="../assets/logo.jpg" alt="KMIZRD Logo" class="login-logo">
-                <h1>Panel Administrativo</h1>
-                <p>Ingresa tus credenciales para acceder</p>
+                <h1 id="login-title">Panel Administrativo</h1>
+                <p id="login-subtitle">Ingresa tus credenciales para acceder</p>
             </div>
             <form id="admin-login-form" class="login-form">
                 <div class="form-group">
@@ -37,9 +37,13 @@
                     </div>
                 </div>
                 <div id="login-error-msg" class="login-error-msg" style="display: none;"></div>
-                <button type="submit" class="login-submit-btn">
-                    Iniciar Sesión <i class="fa fa-sign-in-alt"></i>
+                <div id="login-success-msg" class="login-success-msg" style="display: none; color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 600; text-align: left; margin-top: 15px; border-left: 4px solid #28a745;"></div>
+                <button type="submit" id="login-submit-btn" class="login-submit-btn">
+                    <span>Iniciar Sesión</span> <i class="fa fa-sign-in-alt"></i>
                 </button>
+                <div class="login-switch" style="margin-top: 20px; font-size: 13px; color: #64748b; text-align: center;">
+                    <span id="switch-text">¿No tienes cuenta?</span> <a href="#" id="toggle-auth-mode" style="color: var(--accent-color); font-weight: 700; text-decoration: none;">Regístrate aquí</a>
+                </div>
             </form>
         </div>
     </div>
