@@ -352,10 +352,19 @@
     box-shadow: 0 15px 30px rgba(2,114,186,0.15);
 }
 .custom-item-card:hover::before { opacity: 0.05; }
-.custom-item-emoji {
-    font-size: 42px;
+.custom-item-image {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
     margin-bottom: 14px;
-    display: block;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: inline-block;
+}
+.custom-item-card:hover .custom-item-image {
+    transform: scale(1.1);
+}
+.custom-item-emoji {
+    display: none;
 }
 .custom-item-name {
     font-size: 14px;
