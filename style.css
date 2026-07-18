@@ -944,6 +944,7 @@ button {
     padding: 40px;
     background-color: #f8fafc;
     min-height: 100vh;
+    width: calc(100% - 260px);
 }
 
 .admin-header {
@@ -1088,9 +1089,10 @@ button {
 }
 
 /* Size Selector */
-.size-selector {
+.size-selector, .size-selector-grid {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .size-btn {
@@ -1452,6 +1454,7 @@ button {
     .admin-main {
         margin-left: 0;
         padding: 20px;
+        width: 100%;
     }
     .back-to-store {
         margin-top: 0;
