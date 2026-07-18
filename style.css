@@ -1273,6 +1273,7 @@ button {
 
 .admin-table {
     width: 100%;
+    min-width: 1100px;
     border-collapse: collapse;
     text-align: left;
 }
