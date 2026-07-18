@@ -123,10 +123,12 @@ button {
 }
 
 .footer-logo {
-    height: 280px; /* Increased further to match */
+    height: 110px;
     width: auto;
+    border-radius: 12px;
     margin-bottom: 20px;
     display: block;
+    object-fit: contain;
 }
 
 /* Hero Section */
