@@ -82,12 +82,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? '<i class="fa fa-spinner fa-spin"></i> Verificando...'
                 : '<i class="fa fa-spinner fa-spin"></i> Registrando...';
 
+            // Gather client info
+            const clientDevice = navigator.userAgent || 'Unknown';
+            let clientIp = '';
+            try {
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                clientIp = ipData.ip || '';
+            } catch (e) {
+                console.warn('Could not retrieve IP:', e);
+            }
+
             try {
                 if (authMode === 'login') {
                     const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                     if (loginOverlay) loginOverlay.style.display = 'none';
                     if (adminContainer) adminContainer.style.display = 'flex';
+                    // Log login attempt for admin approval
+                    await _supabase.from('admin_logins').insert({
+                        email: email,
+                        ip: clientIp,
+                        device: clientDevice,
+                        status: 'pending'
+                    });
                     initializePanel();
                 } else {
                     const { data, error } = await _supabase.auth.signUp({ email, password });
@@ -741,5 +759,37 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         )
         .subscribe();
+
+        // Real-time admin login notifications
+        _supabase
+            .channel('admin-login-notifications')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_logins' }, async (payload) => {
+                const newLogin = payload.new;
+                if (newLogin && newLogin.status === 'pending') {
+                    const emailEl = document.getElementById('notif-email');
+                    const ipEl = document.getElementById('notif-ip');
+                    const deviceEl = document.getElementById('notif-device');
+                    if (emailEl) emailEl.textContent = newLogin.email || '';
+                    if (ipEl) ipEl.textContent = newLogin.ip || 'N/A';
+                    if (deviceEl) deviceEl.textContent = newLogin.device || 'N/A';
+                    const modal = document.getElementById('admin-login-notif-modal');
+                    if (modal) modal.style.display = 'flex';
+                    const approveBtn = document.getElementById('approve-login-btn');
+                    const denyBtn = document.getElementById('deny-login-btn');
+                    if (approveBtn) {
+                        approveBtn.onclick = async () => {
+                            await _supabase.from('admin_logins').update({ status: 'approved' }).eq('id', newLogin.id);
+                            modal.style.display = 'none';
+                        };
+                    }
+                    if (denyBtn) {
+                        denyBtn.onclick = async () => {
+                            await _supabase.from('admin_logins').update({ status: 'denied' }).eq('id', newLogin.id);
+                            modal.style.display = 'none';
+                        };
+                    }
+                }
+            })
+            .subscribe();
     }
 });

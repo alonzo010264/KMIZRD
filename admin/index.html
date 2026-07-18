@@ -47,10 +47,19 @@
             </form>
         </div>
     </div>
+    <!-- Admin Login Notification Modal -->
+    <div id="admin-login-notif-modal" class="admin-login-overlay" style="display:none;">
+        <div class="login-card" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
+            <h2>Nuevo intento de inicio de sesión</h2>
+            <p id="login-notif-details">Usuario: <span id="notif-email"></span><br>IP: <span id="notif-ip"></span><br>Dispositivo: <span id="notif-device"></span></p>
+            <button id="approve-login-btn" class="admin-btn btn-primary">Permitir acceso</button>
+            <button id="deny-login-btn" class="admin-btn btn-secondary" style="margin-left:10px;">Denegar</button>
+        </div>
+    </div>
 
     <div class="admin-container">
         <!-- Sidebar -->
-        <aside class="admin-sidebar">
+        <aside class="admin-sidebar" style="overflow-y:auto;">
             <div class="admin-logo-wrapper">
                 <img src="../assets/logo.jpg" alt="KMIZRD Logo" class="admin-logo-img">
             </div>

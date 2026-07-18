@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correo Verificado</title>
+    <link rel="stylesheet" href="style.css?v=1.6">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            font-family: 'Inter', sans-serif;
+        }
+        .verified-container {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 2rem 3rem;
+            text-align: center;
+            color: #fff;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .verified-container h1 { margin-bottom: 1rem; font-size: 2rem; }
+        .verified-container p { margin-bottom: 1.5rem; }
+        .verified-container a {
+            display: inline-block;
+            background: #3b82f6;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .verified-container a:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="verified-container">
+        <h1>✅ Correo Verificado</h1>
+        <p>Tu dirección de correo ha sido confirmada exitosamente.</p>
+        <a href="index.html">Volver al Panel</a>
+    </div>
+</body>
+</html>

@@ -1164,6 +1164,65 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Navigation Custom Items Click handler
+    document.querySelectorAll('.nav-custom-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const name = item.getAttribute('data-product-name') || 'Prenda Personalizada';
+            const cat = item.getAttribute('data-product-cat') || 'PERSONALIZACIÓN';
+            const img = item.getAttribute('data-product-img') || 'assets/logo.jpg';
+
+            const personalizationModal = document.getElementById('personalization-modal');
+            if (personalizationModal) {
+                const modalImg = document.getElementById('custom-modal-product-img');
+                const modalCat = document.getElementById('custom-modal-product-cat');
+                const modalName = document.getElementById('custom-modal-product-name');
+                const modalSize = document.getElementById('custom-modal-product-size');
+
+                if (modalImg) modalImg.src = img;
+                if (modalCat) modalCat.textContent = cat;
+                if (modalName) modalName.textContent = name;
+                if (modalSize) modalSize.textContent = 'Talla: M (Estándar)';
+
+                // Reset color picker
+                const customColorsContainer = document.getElementById('custom-colors');
+                if (customColorsContainer) {
+                    customColorsContainer.querySelectorAll('.color-circle').forEach(b => b.classList.remove('active'));
+                    const firstColor = customColorsContainer.querySelector('.color-circle');
+                    if (firstColor) firstColor.classList.add('active');
+                }
+                
+                // Reset preview color overlay
+                const overlay = document.getElementById('custom-modal-product-overlay');
+                if (overlay) overlay.style.backgroundColor = 'transparent';
+
+                // Reset description
+                const descTextarea = document.getElementById('custom-desc');
+                if (descTextarea) descTextarea.value = '';
+
+                // Load product image as reference
+                customBase64Image = img;
+                const previewImg = document.getElementById('custom-image-preview');
+                const previewCont = document.getElementById('custom-image-preview-container');
+                const customDragArea = document.getElementById('custom-drag-area');
+                const dragIcon = customDragArea ? customDragArea.querySelector('.drag-icon') : null;
+                const dragText = customDragArea ? customDragArea.querySelector('.drag-text') : null;
+                
+                if (previewImg) previewImg.src = img;
+                if (dragIcon) dragIcon.style.display = 'none';
+                if (dragText) dragText.style.display = 'none';
+                if (previewCont) previewCont.style.display = 'flex';
+
+                // Store product context
+                customCurrentProduct = { name, category: cat, image: img };
+                customCurrentSize = 'M';
+
+                personalizationModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    });
+
     // Smooth scroll for catalog nav links
     document.querySelectorAll('.catalog-nav-link, .catalog-card-link').forEach(link => {
         link.addEventListener('click', (e) => {

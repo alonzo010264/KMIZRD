@@ -518,6 +518,17 @@
         });
     });
 
+    // Navigation Custom Items Click handler
+    document.querySelectorAll('.nav-custom-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const name = item.getAttribute('data-product-name') || 'Prenda Personalizada';
+            const cat = item.getAttribute('data-product-cat') || 'PERSONALIZACIÓN';
+            const img = item.getAttribute('data-product-img') || '../assets/logo.jpg';
+            openPersonalizationModal({ name, category: cat, image: img }, 'M');
+        });
+    });
+
     // ---------- INIT ----------
     updateCartUI();
     loadDynamicWhatsAppNumber();
