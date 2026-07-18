@@ -1401,7 +1401,7 @@ button {
 }
 
 /* Responsive adjustments */
-@media (max-width: 1250px) {
+@media (max-width: 1350px) {
     .form-grid {
         grid-template-columns: 1fr;
         gap: 30px;
