@@ -4,8 +4,89 @@ const supabaseKey = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
 const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Navigation Tabs Toggle
-    const navItems = document.querySelectorAll('.admin-nav-item[data-target]');
+    const loginOverlay = document.getElementById('admin-login-overlay');
+    const adminContainer = document.querySelector('.admin-container');
+    const loginForm = document.getElementById('admin-login-form');
+    const loginError = document.getElementById('login-error-msg');
+    const logoutBtn = document.getElementById('admin-logout-btn');
+
+    if (adminContainer) adminContainer.style.display = 'none';
+    if (loginOverlay) loginOverlay.style.display = 'flex';
+
+    let isPanelInitialized = false;
+
+    async function checkAuth() {
+        try {
+            const { data: { session }, error } = await _supabase.auth.getSession();
+            if (error) throw error;
+            if (session) {
+                if (loginOverlay) loginOverlay.style.display = 'none';
+                if (adminContainer) adminContainer.style.display = 'flex';
+                initializePanel();
+            } else {
+                if (loginOverlay) loginOverlay.style.display = 'flex';
+                if (adminContainer) adminContainer.style.display = 'none';
+            }
+        } catch (err) {
+            console.error('Error checking auth:', err);
+            if (loginOverlay) loginOverlay.style.display = 'flex';
+            if (adminContainer) adminContainer.style.display = 'none';
+        }
+    }
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if (loginError) loginError.style.display = 'none';
+            
+            const submitBtn = loginForm.querySelector('.login-submit-btn');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Verificando...';
+
+            try {
+                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                if (loginOverlay) loginOverlay.style.display = 'none';
+                if (adminContainer) adminContainer.style.display = 'flex';
+                initializePanel();
+            } catch (err) {
+                console.error('Login error:', err);
+                if (loginError) {
+                    loginError.textContent = err.message || 'Error al iniciar sesión. Verifica tus datos.';
+                    loginError.style.display = 'block';
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (confirm('¿Estás seguro de que quieres cerrar la sesión?')) {
+                try {
+                    await _supabase.auth.signOut();
+                    window.location.reload();
+                } catch (err) {
+                    console.error('Error signing out:', err);
+                }
+            }
+        });
+    }
+
+    checkAuth();
+
+    function initializePanel() {
+        if (isPanelInitialized) return;
+        isPanelInitialized = true;
+
+        // Navigation Tabs Toggle
+        const navItems = document.querySelectorAll('.admin-nav-item[data-target]');
     const sections = document.querySelectorAll('.admin-content-section');
 
     navItems.forEach(item => {
@@ -611,4 +692,5 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         )
         .subscribe();
+    }
 });

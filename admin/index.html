@@ -13,6 +13,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="admin-body">
+    <!-- Admin Login Overlay -->
+    <div id="admin-login-overlay" class="admin-login-overlay" style="display: none;">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="../assets/logo.jpg" alt="KMIZRD Logo" class="login-logo">
+                <h1>Panel Administrativo</h1>
+                <p>Ingresa tus credenciales para acceder</p>
+            </div>
+            <form id="admin-login-form" class="login-form">
+                <div class="form-group">
+                    <label for="login-email">Correo Electrónico</label>
+                    <div class="input-with-icon">
+                        <i class="fa fa-envelope"></i>
+                        <input type="email" id="login-email" required placeholder="admin@kmizrd.com">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="login-password">Contraseña</label>
+                    <div class="input-with-icon">
+                        <i class="fa fa-lock"></i>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                </div>
+                <div id="login-error-msg" class="login-error-msg" style="display: none;"></div>
+                <button type="submit" class="login-submit-btn">
+                    Iniciar Sesión <i class="fa fa-sign-in-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <div class="admin-container">
         <!-- Sidebar -->
         <aside class="admin-sidebar">
@@ -37,6 +68,9 @@
                 </a>
                 <a href="../" class="admin-nav-item back-to-store">
                     <i data-lucide="shopping-bag"></i> Ir a la tienda
+                </a>
+                <a href="#" class="admin-nav-item admin-logout-btn" id="admin-logout-btn" style="color: #fee2e2; margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 15px;">
+                    <i data-lucide="log-out"></i> Cerrar sesión
                 </a>
             </nav>
             <div class="admin-sidebar-footer">
