@@ -2039,3 +2039,135 @@ input:checked + .slider:before {
     box-shadow: 0 8px 16px rgba(2, 114, 186, 0.25);
 }
 
+/* Instagram Carousel Section */
+.instagram-carousel-section {
+    padding: 60px 0;
+    background-color: #fafafa;
+    overflow: hidden;
+    border-top: 1px solid #eaeaea;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.instagram-carousel-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.instagram-header-icon {
+    font-size: 32px;
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.instagram-carousel-header h2 {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #1a1a1a;
+    margin: 5px 0;
+}
+
+.instagram-username {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.instagram-username:hover {
+    opacity: 0.8;
+}
+
+/* Marquee setup */
+.instagram-marquee {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.instagram-track {
+    display: flex;
+    gap: 20px;
+    width: max-content;
+    animation: instagram-scroll 45s linear infinite;
+}
+
+/* Pause scroll when hover over track */
+.instagram-track:hover {
+    animation-play-state: paused;
+}
+
+.instagram-card {
+    position: relative;
+    width: 320px;
+    height: 440px;
+    background-color: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    cursor: pointer;
+    border: 1px solid #eaeaea;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.instagram-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.instagram-card iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    pointer-events: none; /* Prevents focus/scroll stealing, let's hover the card itself */
+}
+
+/* Overlay for styling and hover */
+.instagram-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #fff;
+    opacity: 0;
+    transition: background 0.3s ease, opacity 0.3s ease;
+}
+
+.instagram-card:hover .instagram-card-overlay {
+    background: rgba(2, 114, 186, 0.85); /* Premium brand blue overlay */
+    opacity: 1;
+}
+
+.instagram-card-overlay i {
+    font-size: 36px;
+    transform: scale(0.8);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.instagram-card:hover .instagram-card-overlay i {
+    transform: scale(1);
+}
+
+.instagram-card-overlay span {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes instagram-scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(calc(-340px * 10)); /* (Card width 320px + gap 20px) * 10 cards */
+    }
+}
+
