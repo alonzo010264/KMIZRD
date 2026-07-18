@@ -2103,7 +2103,7 @@ input:checked + .slider:before {
 .instagram-card {
     position: relative;
     width: 320px;
-    height: 440px;
+    height: 520px;
     background-color: #fff;
     border-radius: 16px;
     overflow: hidden;
