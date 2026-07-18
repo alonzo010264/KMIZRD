@@ -10,6 +10,36 @@
     const SUPABASE_KEY = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    let storeWhatsAppNumber = '18090000000';
+
+    async function loadDynamicWhatsAppNumber() {
+        try {
+            const { data, error } = await _supabase
+                .from('store_settings')
+                .select('whatsapp_number')
+                .eq('id', 1)
+                .single();
+            if (data && data.whatsapp_number) {
+                storeWhatsAppNumber = data.whatsapp_number.replace(/\D/g, '') || '18090000000';
+                document.querySelectorAll('a[href*="wa.me"]').forEach(link => {
+                    const currentHref = link.getAttribute('href');
+                    if (currentHref) {
+                        try {
+                            const urlObj = new URL(currentHref);
+                            urlObj.pathname = `/${storeWhatsAppNumber}`;
+                            link.setAttribute('href', urlObj.toString());
+                        } catch (e) {
+                            const newHref = currentHref.replace(/wa\.me\/\d+/, `wa.me/${storeWhatsAppNumber}`);
+                            link.setAttribute('href', newHref);
+                        }
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('Error cargando el número de WhatsApp dinámico:', err);
+        }
+    }
+
     // ---------- CART ----------
     let cart = JSON.parse(localStorage.getItem('kmizrd_cart') || '[]');
 
@@ -131,7 +161,7 @@
                 if (cartDrawer) { cartDrawer.classList.remove('active'); document.body.style.overflow = ''; }
             } catch (err) {
                 console.error(err);
-                window.open('https://wa.me/18090000000', '_blank');
+                window.open(`https://wa.me/${storeWhatsAppNumber}`, '_blank');
             } finally {
                 checkoutBtn.disabled = false;
                 checkoutBtn.innerHTML = 'Pedir por WhatsApp <i class="fab fa-whatsapp"></i>';
@@ -490,6 +520,7 @@
 
     // ---------- INIT ----------
     updateCartUI();
+    loadDynamicWhatsAppNumber();
     loadProducts();
 
     // Catalog links smooth scroll on same page

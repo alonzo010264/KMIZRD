@@ -3,11 +3,43 @@ const supabaseUrl = 'https://hgjcmsqforkvcfatygsl.supabase.co';
 const supabaseKey = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
 const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+let storeWhatsAppNumber = '18090000000';
+
+async function loadDynamicWhatsAppNumber() {
+    try {
+        const { data, error } = await _supabase
+            .from('store_settings')
+            .select('whatsapp_number')
+            .eq('id', 1)
+            .single();
+        if (data && data.whatsapp_number) {
+            storeWhatsAppNumber = data.whatsapp_number.replace(/\D/g, '') || '18090000000';
+            document.querySelectorAll('a[href*="wa.me"]').forEach(link => {
+                const currentHref = link.getAttribute('href');
+                if (currentHref) {
+                    try {
+                        const urlObj = new URL(currentHref);
+                        urlObj.pathname = `/${storeWhatsAppNumber}`;
+                        link.setAttribute('href', urlObj.toString());
+                    } catch (e) {
+                        const newHref = currentHref.replace(/wa\.me\/\d+/, `wa.me/${storeWhatsAppNumber}`);
+                        link.setAttribute('href', newHref);
+                    }
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Error cargando el número de WhatsApp dinámico:', err);
+    }
+}
+
 let allProducts = [];
 let currentModalProduct = null;
 let cart = JSON.parse(localStorage.getItem('kmizrd_cart')) || [];
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Load WhatsApp configuration from database
+    loadDynamicWhatsAppNumber();
     const productGrid = document.querySelector('.product-grid');
     const modal = document.getElementById('product-detail-modal');
     const closeBtn = document.getElementById('modal-close-btn');
@@ -728,7 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
         orderText += `\nTotal: ${totalText}`;
 
         const encodedText = encodeURIComponent(orderText);
-        window.open(`https://wa.me/18090000000?text=${encodedText}`, '_blank');
+        window.open(`https://wa.me/${storeWhatsAppNumber}?text=${encodedText}`, '_blank');
         clearCart();
         alert('¡Redirigiendo a WhatsApp de respaldo para completar tu pedido!');
     }
