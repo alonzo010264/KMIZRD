@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Panel de Control - KMIZRD</title>
-    <link rel="stylesheet" href="../style.css?v=1.5">
+    <link rel="stylesheet" href="../style.css?v=1.6">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -41,9 +44,7 @@
                 <button type="submit" id="login-submit-btn" class="login-submit-btn">
                     <span>Iniciar Sesión</span> <i class="fa fa-sign-in-alt"></i>
                 </button>
-                <div class="login-switch" style="margin-top: 20px; font-size: 13px; color: #64748b; text-align: center;">
-                    <span id="switch-text">¿No tienes cuenta?</span> <a href="#" id="toggle-auth-mode" style="color: var(--accent-color); font-weight: 700; text-decoration: none;">Regístrate aquí</a>
-                </div>
+
             </form>
         </div>
     </div>
@@ -528,7 +529,7 @@
 
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../admin.js"></script>
+    <script src="../admin.js?v=1.1"></script>
     <script>
         lucide.createIcons();
     </script>
