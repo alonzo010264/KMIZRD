@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="product-image-wrap">
                     ${badgeHTML}
                     <button class="wishlist-btn"><i data-lucide="heart"></i></button>
-                    <img src="${prod.image}" alt="${prod.name}">
+                    <img src="${encodeURI(prod.image.split(',')[0].trim())}" alt="${prod.name}" onerror="console.error('Failed to load image:', this.src); this.style.border='2px solid red';">
                 </div>
                 <div class="product-details">
                     <h3>${prod.name}</h3>
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentModalProduct = product;
 
         // Populate details
-        document.getElementById('modal-product-img').src = product.image;
+        document.getElementById('modal-product-img').src = encodeURI(product.image.split(',')[0]);
         document.getElementById('modal-product-img').alt = product.name;
         document.getElementById('modal-product-category').textContent = product.category;
         document.getElementById('modal-product-name').textContent = product.name;
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             card.innerHTML = `
                 <div class="rec-img-wrap">
-                    <img src="${prod.image}" alt="${prod.name}">
+                    <img src="${encodeURI(prod.image.split(',')[0])}" alt="${prod.name}">
                 </div>
                 <div class="rec-details">
                     <h4>${prod.name}</h4>
@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cartItemEl.className = 'cart-item';
             cartItemEl.innerHTML = `
                 <div class="cart-item-img">
-                    <img src="${item.image}" alt="${item.name}">
+                    <img src="${encodeURI(item.image.split(',')[0])}" alt="${item.name}">
                 </div>
                 <div class="cart-item-info">
                     <h4>${item.name}</h4>
