@@ -120,7 +120,37 @@
         </div>
     </footer>
 
-    <div id="product-detail-modal" class="modal-overlay"><div class="modal-container"><button class="modal-close-btn" id="modal-close-btn"><i data-lucide="x"></i></button><div class="modal-content"><div class="modal-left"><img id="modal-product-img" src="" alt=""></div><div class="modal-right"><span id="modal-product-category" class="modal-badge"></span><h2 id="modal-product-name"></h2><p id="modal-product-price" class="modal-price"></p><p id="modal-product-desc" class="modal-description"></p><div class="modal-option-group"><label>Tallas</label><div id="modal-sizes-container" class="modal-sizes"></div></div><button class="modal-add-cart-btn"><i data-lucide="shopping-cart"></i> Añadir al Carrito</button></div></div></div></div>
+    <div id="product-detail-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close-btn" id="modal-close-btn"><i data-lucide="x"></i></button>
+            <div class="modal-content">
+                <!-- LEFT: Gallery -->
+                <div class="modal-left" style="display:flex;flex-direction:column;gap:12px;">
+                    <!-- Main large image -->
+                    <div class="gallery-main-wrap" style="position:relative;border-radius:16px;overflow:hidden;background:#f8fafc;border:1px solid #e2e8f0;">
+                        <img id="modal-product-img" src="" alt="" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;transition:opacity 0.3s ease;">
+                        <!-- Arrow navigation for gallery -->
+                        <button id="gallery-prev-btn" style="display:none;position:absolute;left:10px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;z-index:2;">&#8249;</button>
+                        <button id="gallery-next-btn" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;z-index:2;">&#8250;</button>
+                    </div>
+                    <!-- Thumbnail strip -->
+                    <div id="gallery-thumbnails" style="display:flex;gap:8px;overflow-x:auto;padding:4px 2px;scrollbar-width:none;"></div>
+                </div>
+                <!-- RIGHT: Info -->
+                <div class="modal-right">
+                    <span id="modal-product-category" class="modal-badge"></span>
+                    <h2 id="modal-product-name"></h2>
+                    <p id="modal-product-price" class="modal-price"></p>
+                    <p id="modal-product-desc" class="modal-description"></p>
+                    <div class="modal-option-group">
+                        <label>Tallas</label>
+                        <div id="modal-sizes-container" class="modal-sizes"></div>
+                    </div>
+                    <button class="modal-add-cart-btn"><i data-lucide="shopping-cart"></i> Añadir al Carrito</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="personalization-modal" class="modal-overlay"><div class="modal-container" style="max-width:780px;padding:0;overflow:hidden;border-radius:20px;"><div style="display:grid;grid-template-columns:220px 1fr;"><div style="background:#0f172a;display:flex;flex-direction:column;align-items:center;padding:30px 20px;">
                     <div style="position: relative; width: 100%; max-height: 180px; aspect-ratio: 1.2; display: flex; justify-content: center; align-items: center; border-radius: 12px; overflow: hidden; background: #1e293b; margin-bottom: 16px;">

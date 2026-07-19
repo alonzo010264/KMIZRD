@@ -189,10 +189,12 @@
             const { data, error } = await query;
             if (error) throw error;
             allProducts = (data || []).map(p => {
-                const img = (p.image && !p.image.startsWith('data:') && !p.image.startsWith('http'))
-                    ? `../${p.image}`
-                    : p.image;
-                return { ...p, image: img };
+                // Support multi-image: split by comma and resolve relative paths
+                const rawImages = (p.image || '').split(',').map(s => s.trim()).filter(Boolean);
+                const images = rawImages.map(img =>
+                    (!img.startsWith('data:') && !img.startsWith('http')) ? `../${img}` : img
+                );
+                return { ...p, images: images, image: images[0] || '' };
             });
             renderProducts(allProducts);
         } catch (err) {
@@ -221,6 +223,7 @@
                 <div class="cat-card-image-wrap">
                     <span class="cat-card-badge new">NUEVO</span>
                     ${!isColeccion ? `<span class="cat-card-badge custom" style="top:44px;">✦ PERSONALIZABLE</span>` : ''}
+                    ${(prod.images && prod.images.length > 1) ? `<span style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;z-index:2;">📷 ${prod.images.length} fotos</span>` : ''}
                     <img src="${prod.image}" alt="${prod.name}" loading="lazy">
                     <div class="cat-card-actions">
                         ${isColeccion
@@ -268,14 +271,90 @@
     const modal = document.getElementById('product-detail-modal');
     const closeBtn = document.getElementById('modal-close-btn');
 
+    // Gallery state
+    let galleryImages = [];
+    let galleryIndex = 0;
+
+    function setGalleryImage(index) {
+        galleryIndex = index;
+        const mainImg = document.getElementById('modal-product-img');
+        if (mainImg) {
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = galleryImages[galleryIndex];
+                mainImg.style.opacity = '1';
+            }, 150);
+        }
+        // Update active thumbnail inline styles
+        const thumbs = document.querySelectorAll('.gallery-thumb');
+        thumbs.forEach((t, i) => {
+            if (i === galleryIndex) {
+                t.style.borderColor = 'var(--accent-color)';
+                t.style.opacity = '1';
+                t.style.transform = 'scale(1.06)';
+            } else {
+                t.style.borderColor = 'transparent';
+                t.style.opacity = '0.65';
+                t.style.transform = 'scale(1)';
+            }
+        });
+    }
+
     function openProductModal(product) {
         currentProduct = product;
         const isColeccion = (product.category || '').toLowerCase().includes('coleccion');
-        document.getElementById('modal-product-img').src = product.image;
+
+        // --- Gallery Setup ---
+        galleryImages = (product.images && product.images.length > 0) ? product.images : [product.image];
+        galleryIndex = 0;
+
+        const mainImg = document.getElementById('modal-product-img');
+        if (mainImg) mainImg.src = galleryImages[0];
+
+        // Build thumbnails
+        const thumbStrip = document.getElementById('gallery-thumbnails');
+        if (thumbStrip) {
+            thumbStrip.innerHTML = '';
+            if (galleryImages.length > 1) {
+                galleryImages.forEach((imgSrc, i) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = imgSrc;
+                    thumb.className = `gallery-thumb ${i === 0 ? 'active' : ''}`;
+                    thumb.style.cssText = 'width:68px;height:68px;object-fit:cover;border-radius:10px;cursor:pointer;flex-shrink:0;border:2px solid transparent;opacity:0.65;transition:all 0.25s ease;';
+                    thumb.addEventListener('click', () => setGalleryImage(i));
+                    thumb.addEventListener('mouseenter', () => { if (i !== galleryIndex) thumb.style.opacity = '0.9'; });
+                    thumb.addEventListener('mouseleave', () => { if (i !== galleryIndex) thumb.style.opacity = '0.65'; });
+                    thumbStrip.appendChild(thumb);
+                    if (i === 0) { thumb.style.borderColor = 'var(--accent-color)'; thumb.style.opacity = '1'; }
+                });
+            }
+        }
+
+        // Arrow buttons
+        const prevBtn = document.getElementById('gallery-prev-btn');
+        const nextBtn = document.getElementById('gallery-next-btn');
+        if (prevBtn && nextBtn) {
+            if (galleryImages.length > 1) {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+                prevBtn.style.alignItems = 'center';
+                prevBtn.style.justifyContent = 'center';
+                nextBtn.style.alignItems = 'center';
+                nextBtn.style.justifyContent = 'center';
+                prevBtn.onclick = () => setGalleryImage((galleryIndex - 1 + galleryImages.length) % galleryImages.length);
+                nextBtn.onclick = () => setGalleryImage((galleryIndex + 1) % galleryImages.length);
+            } else {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            }
+        }
+
+        // --- Product Info ---
         document.getElementById('modal-product-category').textContent = product.category;
         document.getElementById('modal-product-name').textContent = product.name;
         document.getElementById('modal-product-price').textContent = `RD$${parseFloat(String(product.price).replace(/[^0-9.]/g, '')).toLocaleString('en-US', {minimumFractionDigits:2})}`;
         document.getElementById('modal-product-desc').textContent = product.description || '';
+
         const sizesEl = document.getElementById('modal-sizes-container');
         sizesEl.innerHTML = '';
         (product.sizes || ['Única']).forEach((size, idx) => {
@@ -285,6 +364,7 @@
             btn.addEventListener('click', () => { sizesEl.querySelectorAll('.size-badge-modal').forEach(b => b.classList.remove('active')); btn.classList.add('active'); });
             sizesEl.appendChild(btn);
         });
+
         const addBtn = document.querySelector('.modal-add-cart-btn');
         if (addBtn) {
             if (isColeccion) {
