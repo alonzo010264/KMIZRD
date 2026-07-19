@@ -283,7 +283,7 @@
                 <div class="cat-card-image-wrap">
                     <span class="cat-card-badge new">NUEVO</span>
                     ${!isColeccion ? `<span class="cat-card-badge custom" style="top:44px;">✦ PERSONALIZABLE</span>` : ''}
-                    ${(prod.images && prod.images.length > 1) ? `<span style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;z-index:2;">📷 ${prod.images.length} fotos</span>` : ''}
+                    ${(prod.images && prod.images.length > 1) ? `<span style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;z-index:2;">${prod.images.length} fotos</span>` : ''}
                     <img src="${prod.image}" alt="${prod.name}" loading="lazy">
                     <div class="cat-card-actions">
                         ${isColeccion
@@ -295,8 +295,8 @@
                 <div class="cat-card-info">
                     <div class="cat-card-category">${prod.category}</div>
                     <div class="cat-card-name">${getBaseName(prod.name)}</div>
-                    <div class="cat-card-price">RD$${price.toLocaleString('en-US', {minimumFractionDigits:2})}</div>
-                    <div class="cat-card-sizes">${(prod.sizes || []).slice(0, 4).map(s => `<span class="cat-size-dot">${s}</span>`).join('')}${(prod.variants && prod.variants.length > 1) ? `<span class="cat-size-dot" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;">🎨 ${prod.variants.length} colores</span>` : ''}</div>
+                    <div class="cat-card-price">${isColeccion ? `RD$${price.toLocaleString('en-US', {minimumFractionDigits:2})}` : '<span style="font-size:13px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>'}</div>
+                    <div class="cat-card-sizes">${(prod.sizes || []).slice(0, 4).map(s => `<span class="cat-size-dot">${s}</span>`).join('')}${(prod.variants && prod.variants.length > 1) ? `<span class="cat-size-dot" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;">${prod.variants.length} colores</span>` : ''}</div>
                     ${!isColeccion ? `<div class="cat-card-custom-tag">✦ Solicitar personalización</div>` : ''}
                 </div>`;
             card.addEventListener('click', (e) => {
@@ -415,7 +415,13 @@
         currentProduct = variant;
         buildGallery(variant.images && variant.images.length > 0 ? variant.images : [variant.image]);
         document.getElementById('modal-product-name').textContent = getBaseName(variant.name);
-        document.getElementById('modal-product-price').textContent = `RD$${parseFloat(String(variant.price).replace(/[^0-9.]/g, '')).toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        const isColeccionVariant = (variant.category || '').toLowerCase().includes('coleccion');
+        const priceElV = document.getElementById('modal-product-price');
+        if (!isColeccionVariant) {
+            priceElV.innerHTML = '<span style="font-size:14px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>';
+        } else {
+            priceElV.textContent = `RD$${parseFloat(String(variant.price).replace(/[^0-9.]/g, '')).toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        }
         document.getElementById('modal-product-desc').textContent = variant.description || '';
         const sizesEl = document.getElementById('modal-sizes-container');
         sizesEl.innerHTML = '';
@@ -439,7 +445,12 @@
         // --- Product Info ---
         document.getElementById('modal-product-category').textContent = product.category;
         document.getElementById('modal-product-name').textContent = getBaseName(product.name);
-        document.getElementById('modal-product-price').textContent = `RD$${parseFloat(String(product.price).replace(/[^0-9.]/g, '')).toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        const priceElM = document.getElementById('modal-product-price');
+        if (!isColeccion) {
+            priceElM.innerHTML = '<span style="font-size:14px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>';
+        } else {
+            priceElM.textContent = `RD$${parseFloat(String(product.price).replace(/[^0-9.]/g, '')).toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        }
         document.getElementById('modal-product-desc').textContent = product.description || '';
 
         // --- Color Swatches ---

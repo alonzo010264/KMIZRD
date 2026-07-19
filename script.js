@@ -203,21 +203,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ? `<span class="badge sale">-20%</span>` 
                 : `<span class="badge">NUEVO</span>`;
             
+            const catLower = (prod.category || '').toLowerCase();
+            const isColeccionCard = catLower === 'colección' || catLower === 'colecciones' || catLower === 'coleccion';
             const priceHTML = isDiscount
                 ? `<span class="old-price">RD$1,500.00</span> RD$1,200.00`
-                : prod.price;
+                : isColeccionCard
+                    ? prod.price
+                    : `<span style="font-size:13px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>`;
 
             card.innerHTML = `
                 <div class="product-image-wrap">
                     ${badgeHTML}
-                    ${(prod.images && prod.images.length > 1) ? `<span style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;z-index:2;">📷 ${prod.images.length} fotos</span>` : ''}
+                    ${(prod.images && prod.images.length > 1) ? `<span style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;z-index:2;">${prod.images.length} fotos</span>` : ''}
                     <button class="wishlist-btn"><i data-lucide="heart"></i></button>
                     <img src="${encodeURI(prod.image)}" alt="${prod.name}" onerror="console.error('Failed to load image:', this.src); this.style.border='2px solid red';">
                 </div>
                 <div class="product-details">
                     <h3>${prod.name}</h3>
                     <p class="price">${priceHTML}</p>
-                    ${(window.__productGroups && window.__productGroups[prod.name] && window.__productGroups[prod.name].length > 1) ? `<p style="font-size:11px;color:#8b5cf6;font-weight:700;margin-top:4px;">🎨 ${window.__productGroups[prod.name].length} colores disponibles</p>` : ''}
+                    ${(window.__productGroups && window.__productGroups[prod.name] && window.__productGroups[prod.name].length > 1) ? `<p style="font-size:11px;color:#8b5cf6;font-weight:700;margin-top:4px;">${window.__productGroups[prod.name].length} colores disponibles</p>` : ''}
                 </div>
             `;
             productGrid.appendChild(card);
@@ -295,10 +299,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('modal-product-img').alt = variant.name;
         document.getElementById('modal-product-name').textContent = variant.name;
         
+        const catLower = (variant.category || '').toLowerCase();
+        const isColeccion = catLower === 'colección' || catLower === 'colecciones' || catLower === 'coleccion';
         const isDiscount = variant.name.toLowerCase() === 'gorra clasica';
-        document.getElementById('modal-product-price').innerHTML = isDiscount 
-            ? `<span class="old-price" style="font-size: 18px;">RD$1,500.00</span> RD$1,200.00`
-            : variant.price;
+        const priceEl = document.getElementById('modal-product-price');
+        if (!isColeccion) {
+            priceEl.innerHTML = '<span style="font-size:14px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>';
+        } else if (isDiscount) {
+            priceEl.innerHTML = `<span class="old-price" style="font-size: 18px;">RD$1,500.00</span> RD$1,200.00`;
+        } else {
+            priceEl.innerHTML = variant.price;
+        }
         document.getElementById('modal-product-desc').textContent = variant.desc || variant.description || '';
 
         // Populate sizes
