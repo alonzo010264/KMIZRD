@@ -828,6 +828,186 @@ document.addEventListener('DOMContentLoaded', () => {
     loadOrders();
     loadCustomRequests();
 
+    // ==========================================
+    // USER MANAGEMENT LOGIC
+    // ==========================================
+    async function loadAdminUsers() {
+        const tbody = document.getElementById('admin-users-tbody');
+        const noUsersMsg = document.getElementById('no-users-msg');
+        if (!tbody) return;
+
+        try {
+            const { data, error } = await _supabase
+                .from('admin_users')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                // Table might not exist yet
+                if (error.code === '42P01') {
+                    if (noUsersMsg) noUsersMsg.style.display = 'block';
+                    return;
+                }
+                throw error;
+            }
+
+            tbody.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                if (noUsersMsg) noUsersMsg.style.display = 'block';
+                return;
+            }
+
+            if (noUsersMsg) noUsersMsg.style.display = 'none';
+
+            // Get current session user to protect their own row
+            const { data: { session } } = await _supabase.auth.getSession();
+            const currentUserEmail = session?.user?.email || '';
+
+            data.forEach(user => {
+                const tr = document.createElement('tr');
+                const createdDate = user.created_at 
+                    ? new Date(user.created_at).toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                    : 'N/A';
+                const lastLogin = user.last_login
+                    ? new Date(user.last_login).toLocaleDateString('es-DO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    : 'Nunca';
+                const isCurrentUser = user.email === currentUserEmail;
+                const statusBadge = isCurrentUser
+                    ? `<span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">Tú (Activo)</span>`
+                    : `<span style="background:#dbeafe;color:#1e40af;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">Admin</span>`;
+
+                tr.innerHTML = `
+                    <td style="font-weight:700;color:#0f172a;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:14px;flex-shrink:0;">
+                                ${user.email.charAt(0).toUpperCase()}
+                            </div>
+                            ${user.email}
+                        </div>
+                    </td>
+                    <td style="color:#64748b;font-size:13px;">${createdDate}</td>
+                    <td style="color:#64748b;font-size:13px;">${lastLogin}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        ${isCurrentUser 
+                            ? `<span style="font-size:12px;color:#94a3b8;font-style:italic;">Tu cuenta activa</span>`
+                            : `<button class="btn-delete-user" data-id="${user.id}" data-email="${user.email}" 
+                                style="background:#ef4444;color:#fff;border:none;padding:7px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;" title="Eliminar usuario">
+                                <i class="fa fa-trash"></i> Eliminar
+                               </button>`
+                        }
+                    </td>
+                `;
+
+                if (!isCurrentUser) {
+                    const deleteBtn = tr.querySelector('.btn-delete-user');
+                    if (deleteBtn) {
+                        deleteBtn.addEventListener('click', async () => {
+                            const email = deleteBtn.getAttribute('data-email');
+                            if (confirm(`¿Estás seguro de que deseas eliminar el usuario "${email}"? Esta acción no se puede deshacer.`)) {
+                                try {
+                                    const { error: delError } = await _supabase
+                                        .from('admin_users')
+                                        .delete()
+                                        .eq('id', user.id);
+                                    if (delError) throw delError;
+                                    alert(`Usuario "${email}" eliminado correctamente. Nota: Para revocar completamente el acceso, también debes eliminarlo desde el panel de Supabase Auth.`);
+                                    loadAdminUsers();
+                                } catch (err) {
+                                    alert('Error al eliminar usuario: ' + err.message);
+                                }
+                            }
+                        });
+                    }
+                }
+
+                tbody.appendChild(tr);
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        } catch (err) {
+            console.error('Error cargando usuarios admin:', err);
+        }
+    }
+
+    // Create new admin user form
+    const createUserForm = document.getElementById('create-user-form');
+    const createUserMsg = document.getElementById('create-user-msg');
+    if (createUserForm) {
+        createUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('new-user-email').value.trim();
+            const password = document.getElementById('new-user-password').value;
+
+            if (password.length < 8) {
+                if (createUserMsg) {
+                    createUserMsg.textContent = 'La contraseña debe tener al menos 8 caracteres.';
+                    createUserMsg.style.background = '#fee2e2';
+                    createUserMsg.style.color = '#991b1b';
+                    createUserMsg.style.display = 'block';
+                }
+                return;
+            }
+
+            const submitBtn = createUserForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Creando...';
+            if (createUserMsg) createUserMsg.style.display = 'none';
+
+            try {
+                // Create the user in Supabase Auth
+                const { data: authData, error: authError } = await _supabase.auth.signUp({
+                    email,
+                    password
+                });
+
+                if (authError) throw authError;
+
+                // Also register in our admin_users table for tracking
+                await _supabase.from('admin_users').upsert({
+                    email: email,
+                    auth_uid: authData.user?.id || null,
+                    created_at: new Date().toISOString()
+                }, { onConflict: 'email' });
+
+                if (createUserMsg) {
+                    createUserMsg.textContent = `✅ Usuario "${email}" creado correctamente. Ya puede iniciar sesión en el panel.`;
+                    createUserMsg.style.background = '#dcfce7';
+                    createUserMsg.style.color = '#166534';
+                    createUserMsg.style.display = 'block';
+                }
+                createUserForm.reset();
+                loadAdminUsers();
+            } catch (err) {
+                if (createUserMsg) {
+                    createUserMsg.textContent = '❌ Error: ' + (err.message || 'No se pudo crear el usuario.');
+                    createUserMsg.style.background = '#fee2e2';
+                    createUserMsg.style.color = '#991b1b';
+                    createUserMsg.style.display = 'block';
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        });
+    }
+
+    // Refresh users button
+    const refreshUsersBtn = document.getElementById('refresh-users-btn');
+    if (refreshUsersBtn) {
+        refreshUsersBtn.addEventListener('click', () => loadAdminUsers());
+    }
+
+    // Load users when users-section tab is clicked
+    document.querySelectorAll('.admin-nav-item[data-target="users-section"]').forEach(item => {
+        item.addEventListener('click', () => {
+            setTimeout(loadAdminUsers, 50);
+        });
+    });
+
     // Subscribe to real-time changes
     _supabase
         .channel('admin-db-realtime')

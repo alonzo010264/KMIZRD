@@ -79,6 +79,9 @@
                 <a href="#" class="admin-nav-item" data-target="custom-requests-section">
                     <i data-lucide="edit-3"></i> Personalizados
                 </a>
+                <a href="#" class="admin-nav-item" data-target="users-section">
+                    <i data-lucide="users"></i> Gestión de Usuarios
+                </a>
                 <a href="../" class="admin-nav-item back-to-store">
                     <i data-lucide="shopping-bag"></i> Ir a la tienda
                 </a>
@@ -396,6 +399,69 @@
                         <div id="no-custom-requests-msg" class="empty-state" style="display:none; text-align: center; padding: 40px 0; color: #64748b;">
                             <i data-lucide="edit-3" style="width: 48px; height: 48px; color: #cbd5e1; margin-bottom: 15px;"></i>
                             <p style="font-weight: 600;">No hay solicitudes de personalización recibidas.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Management Section -->
+            <section id="users-section" class="admin-content-section">
+                <div class="admin-card">
+                    <div class="admin-card-header" style="margin-bottom: 20px;">
+                        <h2><i data-lucide="users"></i> Gestión de Usuarios Administradores</h2>
+                        <p>Solo el administrador principal puede crear o eliminar usuarios con acceso al panel. Los usuarios creados aquí podrán iniciar sesión en el panel de administración.</p>
+                    </div>
+
+                    <!-- Create new user form -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 30px;">
+                        <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="user-plus" style="width:20px;height:20px;"></i> Crear Nuevo Usuario Admin
+                        </h3>
+                        <form id="create-user-form" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px; align-items: end;">
+                            <div class="form-group" style="margin: 0;">
+                                <label for="new-user-email" style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">CORREO ELECTRÓNICO *</label>
+                                <input type="email" id="new-user-email" required placeholder="usuario@kmizrd.com" style="width: 100%; padding: 11px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label for="new-user-password" style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">CONTRASEÑA *</label>
+                                <input type="password" id="new-user-password" required placeholder="Mínimo 8 caracteres" style="width: 100%; padding: 11px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                            </div>
+                            <button type="submit" class="admin-btn btn-primary" style="white-space: nowrap; height: 44px; display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="user-plus" style="width:16px;height:16px;"></i> Crear Usuario
+                            </button>
+                        </form>
+                        <div id="create-user-msg" style="display: none; margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;"></div>
+                    </div>
+
+                    <!-- Users list -->
+                    <div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                            <h3 style="font-size: 16px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="list" style="width:18px;height:18px;"></i> Usuarios Registrados
+                            </h3>
+                            <button id="refresh-users-btn" class="admin-btn btn-secondary" style="font-size: 12px; padding: 8px 14px; display: flex; align-items: center; gap: 6px;">
+                                <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Actualizar
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Correo Electrónico</th>
+                                        <th>Creado</th>
+                                        <th>Último Acceso</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-users-tbody">
+                                    <!-- Dynamic user rows -->
+                                </tbody>
+                            </table>
+                            <div id="no-users-msg" class="empty-state" style="display:none; text-align:center; padding: 40px 0; color: #64748b;">
+                                <i data-lucide="users" style="width:48px;height:48px;color:#cbd5e1;margin-bottom:15px;"></i>
+                                <p style="font-weight:600;">No hay usuarios registrados.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
