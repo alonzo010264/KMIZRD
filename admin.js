@@ -377,6 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td><span class="table-price">${formattedPrice}</span></td>
                     <td><div class="table-sizes">${sizesBadges}</div></td>
                     <td>
+                        <button class="btn-edit" data-id="${prod.id}" title="Editar Producto" style="background: #3b82f6; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; margin-right: 5px;">
+                            <i data-lucide="edit-2"></i>
+                        </button>
                         <button class="btn-delete" data-id="${prod.id}" title="Eliminar Producto">
                             <i data-lucide="trash-2"></i>
                         </button>
@@ -397,10 +400,104 @@ document.addEventListener('DOMContentLoaded', () => {
                     deleteProduct(prodId);
                 });
             });
+
+            // Attach edit event listeners
+            const editButtons = tbody.querySelectorAll('.btn-edit');
+            editButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const prodId = btn.getAttribute('data-id');
+                    const prod = filteredProducts.find(p => p.id == prodId);
+                    if (prod) openEditModal(prod);
+                });
+            });
         } catch (err) {
             console.error('Error cargando inventario de Supabase:', err);
         }
     }
+
+    // ==========================================
+    // EDIT PRODUCT LOGIC
+    // ==========================================
+    const editModal = document.getElementById('edit-product-modal');
+    const closeEditBtn = document.getElementById('close-edit-modal');
+    const editForm = document.getElementById('edit-product-form');
+    
+    // Size selection for edit
+    const editSizeButtons = document.querySelectorAll('.edit-size-btn');
+    editSizeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.classList.toggle('active');
+        });
+    });
+
+    closeEditBtn.addEventListener('click', () => {
+        editModal.style.display = 'none';
+    });
+
+    function openEditModal(prod) {
+        document.getElementById('edit-prod-id').value = prod.id;
+        document.getElementById('edit-prod-name').value = prod.name;
+        document.getElementById('edit-prod-price').value = prod.price;
+        document.getElementById('edit-prod-desc').value = prod.description;
+        
+        const categorySelect = document.getElementById('edit-prod-category');
+        if([...categorySelect.options].some(opt => opt.value === prod.category)) {
+            categorySelect.value = prod.category;
+        } else {
+            categorySelect.value = 'COLECCIONES'; // Fallback
+        }
+
+        editSizeButtons.forEach(btn => {
+            if (prod.sizes && prod.sizes.includes(btn.getAttribute('data-size'))) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        editModal.style.display = 'flex';
+    }
+
+    editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-prod-id').value;
+        
+        const activeSizes = [];
+        editSizeButtons.forEach(btn => {
+            if (btn.classList.contains('active')) activeSizes.push(btn.getAttribute('data-size'));
+        });
+
+        const updatedData = {
+            name: document.getElementById('edit-prod-name').value,
+            price: parseFloat(document.getElementById('edit-prod-price').value),
+            category: document.getElementById('edit-prod-category').value,
+            description: document.getElementById('edit-prod-desc').value,
+            sizes: activeSizes
+        };
+
+        const submitBtn = editForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Guardando...';
+        submitBtn.disabled = true;
+
+        try {
+            const { error } = await _supabase
+                .from('products')
+                .update(updatedData)
+                .eq('id', id);
+
+            if (error) throw error;
+            
+            editModal.style.display = 'none';
+            renderInventory(searchInput.value);
+            alert('Producto actualizado correctamente.');
+        } catch (err) {
+            alert('Error actualizando producto: ' + err.message);
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
 
     async function deleteProduct(id) {
         if (confirm('¿Estás seguro de que deseas eliminar este producto de la base de datos?')) {

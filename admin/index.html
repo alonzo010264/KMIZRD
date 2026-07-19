@@ -403,6 +403,63 @@
         </main>
     </div>
 
+    <!-- Edit Product Modal -->
+    <div id="edit-product-modal" class="admin-login-overlay" style="display: none; z-index: 1000;">
+        <div class="admin-card" style="width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; margin: auto; position: relative;">
+            <button id="close-edit-modal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b;"><i class="fa fa-times"></i></button>
+            <h3 style="margin-bottom: 5px;">Editar Producto</h3>
+            <p class="card-subtitle" style="margin-bottom: 20px;">Modifica los datos del producto seleccionado.</p>
+            
+            <form id="edit-product-form" class="admin-form">
+                <input type="hidden" id="edit-prod-id">
+                
+                <div class="form-group">
+                    <label for="edit-prod-name">Nombre del Producto *</label>
+                    <input type="text" id="edit-prod-name" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-prod-price">Precio (RD$) *</label>
+                        <input type="number" id="edit-prod-price" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-prod-category">Categoría *</label>
+                        <select id="edit-prod-category" required>
+                            <option value="CAMISETAS">Camisetas</option>
+                            <option value="HOODIES">Hoodies</option>
+                            <option value="ACCESORIOS">Accesorios</option>
+                            <option value="BOLSAS">Bolsas</option>
+                            <option value="COLECCIONES">Catálogo Digital (Colecciones)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-prod-desc">Descripción del Producto *</label>
+                    <textarea id="edit-prod-desc" required style="min-height: 80px;"></textarea>
+                </div>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Tallas Disponibles *</label>
+                    <div class="size-selector-grid edit-size-selector">
+                        <button type="button" class="size-btn edit-size-btn" data-size="XS">XS</button>
+                        <button type="button" class="size-btn edit-size-btn" data-size="S">S</button>
+                        <button type="button" class="size-btn edit-size-btn" data-size="M">M</button>
+                        <button type="button" class="size-btn edit-size-btn" data-size="L">L</button>
+                        <button type="button" class="size-btn edit-size-btn" data-size="XL">XL</button>
+                        <button type="button" class="size-btn edit-size-btn" data-size="XXL">XXL</button>
+                        <button type="button" class="size-btn edit-size-btn" data-size="Única">Única</button>
+                    </div>
+                </div>
+                
+                <div class="form-actions" style="margin-top: 25px;">
+                    <button type="submit" class="admin-btn btn-primary"><i class="fa fa-save"></i> Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../admin.js"></script>
