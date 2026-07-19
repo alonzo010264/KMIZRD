@@ -38,9 +38,51 @@ let currentModalProduct = null;
 let cart = JSON.parse(localStorage.getItem('kmizrd_cart')) || [];
 let galleryImages = [];
 let galleryIndex = 0;
+let colorMap = {};
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Load WhatsApp configuration from database
+function getBaseName(name) {
+    return name.replace(/[-_]\d{2,}$/, '').replace(/\s+\d+$/, '').trim();
+}
+
+function getProductColor(prod) {
+    const imgPath = prod.image || (prod.images && prod.images[0]) || '';
+    const normalized = imgPath.replace(/^(\.\.\/)+/, '').replace(/\\/g, '/');
+    if (colorMap[normalized]) {
+        return colorMap[normalized];
+    }
+    const nameLower = prod.name.toLowerCase();
+    if (nameLower.includes('negro')) return 'Negro';
+    if (nameLower.includes('blanco')) return 'Blanco';
+    if (nameLower.includes('gris')) return 'Gris';
+    if (nameLower.includes('verde')) return 'Verde';
+    if (nameLower.includes('rojo')) return 'Rojo';
+    if (nameLower.includes('azul')) return 'Azul';
+    if (nameLower.includes('naranja')) return 'Naranja';
+    if (nameLower.includes('beige')) return 'Beige';
+    return 'Negro';
+}
+
+async function loadColorMap() {
+    try {
+        const isSubdir = window.location.pathname.includes('/camisetas/') || 
+                         window.location.pathname.includes('/hoodies/') || 
+                         window.location.pathname.includes('/accesorios/') || 
+                         window.location.pathname.includes('/colecciones/') || 
+                         window.location.pathname.includes('/novedades/') || 
+                         window.location.pathname.includes('/ofertas/');
+        const url = isSubdir ? '../assets/colors.json' : 'assets/colors.json';
+        const res = await fetch(url);
+        if (res.ok) {
+            colorMap = await res.json();
+        }
+    } catch (e) {
+        console.error('Error cargando colorMap:', e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Load colors map and WhatsApp configuration
+    await loadColorMap();
     loadDynamicWhatsAppNumber();
     const productGrid = document.querySelector('.product-grid');
     const modal = document.getElementById('product-detail-modal');
@@ -76,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartFooter = document.getElementById('cart-drawer-footer');
     const cartCountBadge = document.querySelector('.cart-count');
 
-    // 1. Fetch dynamic products from Supabase
+    // Load products from Supabase and group by base name (e.g., 'CAO Toji')
     async function loadProducts() {
         if (!productGrid) return;
 
@@ -85,10 +127,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 .from('products')
                 .select('*')
                 .order('created_at', { ascending: false });
-
             if (error) throw error;
 
-            allProducts = (data || []).map(p => {
+            // Map raw products
+            const rawProducts = (data || []).map(p => {
                 const rawImages = (p.image || '').split(',').map(s => s.trim()).filter(Boolean);
                 return {
                     id: p.id,
@@ -102,6 +144,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
             });
 
+            // Group by base name (remove trailing -NN suffix or numbers)
+            const groupMap = {};
+            rawProducts.forEach(prod => {
+                const base = getBaseName(prod.name);
+                if (!groupMap[base]) groupMap[base] = [];
+                groupMap[base].push(prod);
+            });
+            
+            // Store representative products in allProducts
+            const representativeProducts = [];
+            for (const base in groupMap) {
+                const group = groupMap[base];
+                representativeProducts.push({
+                    ...group[0],
+                    name: base
+                });
+            }
+
+            allProducts = representativeProducts;
+            window.__productGroups = groupMap; // expose for later use
             renderProducts();
         } catch (err) {
             console.error('Error cargando productos de Supabase:', err);
@@ -155,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="product-details">
                     <h3>${prod.name}</h3>
                     <p class="price">${priceHTML}</p>
+                    ${(window.__productGroups && window.__productGroups[prod.name] && window.__productGroups[prod.name].length > 1) ? `<p style="font-size:11px;color:#8b5cf6;font-weight:700;margin-top:4px;">🎨 ${window.__productGroups[prod.name].length} colores disponibles</p>` : ''}
                 </div>
             `;
             productGrid.appendChild(card);
@@ -225,13 +288,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. Modal details populator and controller
-    function openProductModal(product) {
-        if (!modal) return;
-        currentModalProduct = product;
+    function switchVariant(variant) {
+        currentModalProduct = variant;
+
+        // Populate details
+        document.getElementById('modal-product-img').alt = variant.name;
+        document.getElementById('modal-product-name').textContent = variant.name;
+        
+        const isDiscount = variant.name.toLowerCase() === 'gorra clasica';
+        document.getElementById('modal-product-price').innerHTML = isDiscount 
+            ? `<span class="old-price" style="font-size: 18px;">RD$1,500.00</span> RD$1,200.00`
+            : variant.price;
+        document.getElementById('modal-product-desc').textContent = variant.desc || variant.description || '';
+
+        // Populate sizes
+        const sizesContainer = document.getElementById('modal-sizes-container');
+        sizesContainer.innerHTML = '';
+        const sizes = variant.sizes || ['Única'];
+        sizes.forEach((size, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `size-badge-modal ${idx === 0 ? 'active' : ''}`;
+            btn.textContent = size;
+            btn.addEventListener('click', () => {
+                sizesContainer.querySelectorAll('.size-badge-modal').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+            sizesContainer.appendChild(btn);
+        });
 
         // --- Gallery Setup ---
-        galleryImages = (product.images && product.images.length > 0) ? product.images : [product.image];
+        galleryImages = (variant.images && variant.images.length > 0) ? variant.images : [variant.image];
         galleryIndex = 0;
 
         const mainImg = document.getElementById('modal-product-img');
@@ -263,10 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (galleryImages.length > 1) {
                 prevBtn.style.display = 'flex';
                 nextBtn.style.display = 'flex';
-                prevBtn.style.alignItems = 'center';
-                prevBtn.style.justifyContent = 'center';
-                nextBtn.style.alignItems = 'center';
-                nextBtn.style.justifyContent = 'center';
                 prevBtn.onclick = () => setGalleryImage((galleryIndex - 1 + galleryImages.length) % galleryImages.length);
                 nextBtn.onclick = () => setGalleryImage((galleryIndex + 1) % galleryImages.length);
             } else {
@@ -274,17 +356,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 nextBtn.style.display = 'none';
             }
         }
+    }
 
-        // Populate details
-        document.getElementById('modal-product-img').alt = product.name;
-        document.getElementById('modal-product-category').textContent = product.category;
-        document.getElementById('modal-product-name').textContent = product.name;
-        
-        const isDiscount = product.name.toLowerCase() === 'gorra clasica';
-        document.getElementById('modal-product-price').innerHTML = isDiscount 
-            ? `<span class="old-price" style="font-size: 18px;">RD$1,500.00</span> RD$1,200.00`
-            : product.price;
-        document.getElementById('modal-product-desc').textContent = product.desc;
+    // 3. Modal details populator and controller
+    function openProductModal(product) {
+        if (!modal) return;
+        currentModalProduct = product;
+
+        // Resolve base name
+        const baseName = getBaseName(product.name);
+        const group = (window.__productGroups && window.__productGroups[baseName]) || [product];
 
         // Toggle button styling for customization request
         const modalAddCartBtn = document.querySelector('.modal-add-cart-btn');
@@ -301,19 +382,82 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Populate sizes
-        const sizesContainer = document.getElementById('modal-sizes-container');
-        sizesContainer.innerHTML = '';
-        product.sizes.forEach((size, idx) => {
-            const btn = document.createElement('button');
-            btn.className = `size-badge-modal ${idx === 0 ? 'active' : ''}`;
-            btn.textContent = size;
-            btn.addEventListener('click', () => {
-                sizesContainer.querySelectorAll('.size-badge-modal').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+        // Populate category
+        document.getElementById('modal-product-category').textContent = product.category;
+
+        // Build/Remove color swatches selector
+        const existingColorGroup = document.getElementById('modal-colors-group');
+        if (existingColorGroup) existingColorGroup.remove();
+
+        if (group.length > 1) {
+            const colorGroup = document.createElement('div');
+            colorGroup.className = 'modal-option-group';
+            colorGroup.id = 'modal-colors-group';
+            colorGroup.style.marginBottom = '15px';
+            colorGroup.innerHTML = `
+                <label>Colores Disponibles</label>
+                <div id="modal-colors-container" style="display:flex; gap:10px; margin-top:8px;"></div>
+            `;
+            const sizesGroup = document.getElementById('modal-sizes-container').closest('.modal-option-group');
+            if (sizesGroup) {
+                sizesGroup.parentNode.insertBefore(colorGroup, sizesGroup);
+            }
+
+            const colorsContainer = document.getElementById('modal-colors-container');
+            group.forEach((variant) => {
+                const color = getProductColor(variant);
+                const sw = document.createElement('button');
+                sw.type = 'button';
+                sw.className = 'color-swatch-btn';
+                sw.setAttribute('data-color', color);
+                sw.setAttribute('data-prod-id', variant.id);
+                sw.title = color;
+
+                let bg = '#64748b';
+                let border = '2px solid transparent';
+                switch (color.toLowerCase()) {
+                    case 'negro': bg = '#18181b'; break;
+                    case 'blanco': bg = '#ffffff'; border = '2px solid #cbd5e1'; break;
+                    case 'gris': bg = '#94a3b8'; break;
+                    case 'verde': bg = '#15803d'; break;
+                    case 'rojo': bg = '#b91c1c'; break;
+                    case 'azul': bg = '#1d4ed8'; break;
+                    case 'naranja': bg = '#ea580c'; break;
+                    case 'beige': bg = '#f5f5dc'; border = '2px solid #cbd5e1'; break;
+                    case 'azul marino': bg = '#0f172a'; break;
+                }
+
+                sw.style.cssText = `background:${bg}; width:32px; height:32px; border-radius:50%; border:${border}; cursor:pointer; position:relative; transition:transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);`;
+                
+                sw.addEventListener('click', () => {
+                    colorsContainer.querySelectorAll('.color-swatch-btn').forEach(btn => {
+                        btn.style.transform = 'scale(1)';
+                        btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                        const indicator = btn.querySelector('.active-indicator');
+                        if (indicator) indicator.remove();
+                    });
+                    sw.style.transform = 'scale(1.15)';
+                    sw.style.boxShadow = '0 0 0 2px var(--accent-color)';
+                    const check = document.createElement('span');
+                    check.className = 'active-indicator';
+                    check.innerHTML = '✓';
+                    check.style.cssText = `position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:${color.toLowerCase() === 'blanco' || color.toLowerCase() === 'beige' ? '#000' : '#fff'}; font-size:12px; font-weight:bold;`;
+                    sw.appendChild(check);
+
+                    switchVariant(variant);
+                });
+
+                colorsContainer.appendChild(sw);
             });
-            sizesContainer.appendChild(btn);
-        });
+
+            // Trigger click on the representative one or first matching
+            const repId = product.id;
+            const targetBtn = colorsContainer.querySelector(`[data-prod-id="${repId}"]`) || colorsContainer.firstChild;
+            if (targetBtn) targetBtn.click();
+        } else {
+            // Single product variant, use regular switchVariant directly
+            switchVariant(product);
+        }
 
         // Load recommendations
         renderRecommendations(product);
@@ -458,13 +602,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const cartItemEl = document.createElement('div');
             cartItemEl.className = 'cart-item';
+            const colorHTML = item.color ? `, Color: <strong>${item.color}</strong>` : '';
             cartItemEl.innerHTML = `
                 <div class="cart-item-img">
                     <img src="${encodeURI(item.image.split(',')[0])}" alt="${item.name}">
                 </div>
                 <div class="cart-item-info">
                     <h4>${item.name}</h4>
-                    <div class="cart-item-meta">Talla: <strong>${item.size}</strong></div>
+                    <div class="cart-item-meta">Talla: <strong>${item.size}</strong>${colorHTML}</div>
                     <div class="cart-item-bottom">
                         <div class="cart-item-qty">
                            <button class="qty-btn-minus" data-index="${index}">&minus;</button>
@@ -475,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <button class="cart-item-remove" data-index="${index}" aria-label="Eliminar item">
-                    <i data-lucide="trash-2"></i>
+                     <i data-lucide="trash-2"></i>
                 </button>
             `;
             cartItemsContainer.appendChild(cartItemEl);
@@ -504,6 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addToCart(product, size) {
+        const color = getProductColor(product);
         const existingIndex = cart.findIndex(item => item.id === product.id && item.size === size);
         
         if (existingIndex > -1) {
@@ -515,6 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 price: product.price,
                 image: product.image,
                 size: size,
+                color: color,
                 quantity: 1
             });
         }
@@ -706,7 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             .insert([{
                                 customer_name: 'Cliente WhatsApp',
                                 customer_email: '',
-                                items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, size: i.size, quantity: i.quantity })),
+                                items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, size: i.size, color: i.color || '', quantity: i.quantity })),
                                 subtotal: sub,
                                 shipping: sh,
                                 total: tot,
@@ -726,7 +873,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     let orderTextWithId = `¡Hola KMIZRD! Me gustaría realizar un pedido${orderIdText}:\n\n`;
                     cart.forEach(item => {
-                        orderTextWithId += `- ${item.quantity}x ${item.name} (Talla: ${item.size}) - ${item.price}\n`;
+                        const colorText = item.color ? `, Color: ${item.color}` : '';
+                        orderTextWithId += `- ${item.quantity}x ${item.name} (Talla: ${item.size}${colorText}) - ${item.price}\n`;
                     });
                     orderTextWithId += `\nSubtotal: ${subtotalText}`;
                     orderTextWithId += `\nEnvío: ${shippingText}`;
@@ -775,7 +923,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .insert([{
                     customer_name: namePrompt || 'Cliente Anónimo',
                     customer_email: emailPrompt || 'cliente@gmail.com',
-                    items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, size: i.size, quantity: i.quantity })),
+                    items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, size: i.size, color: i.color || '', quantity: i.quantity })),
                     subtotal: sub,
                     shipping: sh,
                     total: tot,
@@ -809,7 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .insert([{
                     customer_name: 'Cliente Respaldo WhatsApp',
                     customer_email: '',
-                    items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, size: i.size, quantity: i.quantity })),
+                    items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, size: i.size, color: i.color || '', quantity: i.quantity })),
                     subtotal: sub,
                     shipping: sh,
                     total: tot,
@@ -829,7 +977,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let orderText = `¡Hola KMIZRD! Me gustaría realizar un pedido${orderIdText}:\n\n`;
         cart.forEach(item => {
-            orderText += `- ${item.quantity}x ${item.name} (Talla: ${item.size}) - ${item.price}\n`;
+            const colorText = item.color ? `, Color: ${item.color}` : '';
+            orderText += `- ${item.quantity}x ${item.name} (Talla: ${item.size}${colorText}) - ${item.price}\n`;
         });
         orderText += `\nSubtotal: ${subtotalText}`;
         orderText += `\nEnvío: ${shippingText}`;
