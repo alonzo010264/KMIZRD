@@ -319,9 +319,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? prod.price 
                     : `RD$${parseFloat(prod.price).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
 
-                const imgSrc = (prod.image && !prod.image.startsWith('data:') && !prod.image.startsWith('http')) 
-                    ? `../${prod.image}` 
-                    : prod.image;
+                let rawImg = prod.image || '';
+                if (rawImg.includes(',')) {
+                    rawImg = rawImg.split(',')[0].trim();
+                }
+                const imgSrc = (rawImg && !rawImg.startsWith('data:') && !rawImg.startsWith('http')) 
+                    ? `../${rawImg}` 
+                    : rawImg;
 
                 tr.innerHTML = `
                     <td><img src="${imgSrc}" alt="${prod.name}" class="table-img"></td>
