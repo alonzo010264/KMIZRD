@@ -499,8 +499,17 @@
         <div class="modal-container">
             <button class="modal-close-btn" id="modal-close-btn"><i data-lucide="x"></i></button>
             <div class="modal-content">
-                <div class="modal-left">
-                    <img id="modal-product-img" src="" alt="Imagen del producto">
+                <!-- LEFT: Gallery -->
+                <div class="modal-left" style="display:flex;flex-direction:column;gap:12px;">
+                    <!-- Main large image -->
+                    <div class="gallery-main-wrap" style="position:relative;border-radius:16px;overflow:hidden;background:#f8fafc;border:1px solid #e2e8f0;width:100%;height:300px;display:flex;justify-content:center;align-items:center;">
+                        <img id="modal-product-img" src="" alt="" style="width:100%;height:100%;object-fit:contain;display:block;transition:opacity 0.3s ease;">
+                        <!-- Arrow navigation for gallery -->
+                        <button id="gallery-prev-btn" style="display:none;position:absolute;left:10px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;z-index:2;">&#8249;</button>
+                        <button id="gallery-next-btn" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;z-index:2;">&#8250;</button>
+                    </div>
+                    <!-- Thumbnail strip -->
+                    <div id="gallery-thumbnails" style="display:flex;gap:8px;overflow-x:auto;padding:4px 2px;scrollbar-width:none;"></div>
                 </div>
                 <div class="modal-right">
                     <span id="modal-product-category" class="modal-badge">Categoría</span>

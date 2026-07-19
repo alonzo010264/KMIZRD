@@ -36,6 +36,8 @@ async function loadDynamicWhatsAppNumber() {
 let allProducts = [];
 let currentModalProduct = null;
 let cart = JSON.parse(localStorage.getItem('kmizrd_cart')) || [];
+let galleryImages = [];
+let galleryIndex = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
     // Load WhatsApp configuration from database
@@ -86,15 +88,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (error) throw error;
 
-            allProducts = (data || []).map(p => ({
-                id: p.id,
-                name: p.name,
-                price: p.price.toString().startsWith('RD$') ? p.price : `RD$${parseFloat(p.price).toLocaleString('en-US', {minimumFractionDigits: 2})}`,
-                category: p.category,
-                desc: p.description,
-                sizes: p.sizes || ['Única'],
-                image: p.image
-            }));
+            allProducts = (data || []).map(p => {
+                const rawImages = (p.image || '').split(',').map(s => s.trim()).filter(Boolean);
+                return {
+                    id: p.id,
+                    name: p.name,
+                    price: p.price.toString().startsWith('RD$') ? p.price : `RD$${parseFloat(p.price).toLocaleString('en-US', {minimumFractionDigits: 2})}`,
+                    category: p.category,
+                    desc: p.description,
+                    sizes: p.sizes || ['Única'],
+                    images: rawImages,
+                    image: rawImages[0] || ''
+                };
+            });
 
             renderProducts();
         } catch (err) {
@@ -142,8 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.innerHTML = `
                 <div class="product-image-wrap">
                     ${badgeHTML}
+                    ${(prod.images && prod.images.length > 1) ? `<span style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;z-index:2;">📷 ${prod.images.length} fotos</span>` : ''}
                     <button class="wishlist-btn"><i data-lucide="heart"></i></button>
-                    <img src="${encodeURI(prod.image.split(',')[0].trim())}" alt="${prod.name}" onerror="console.error('Failed to load image:', this.src); this.style.border='2px solid red';">
+                    <img src="${encodeURI(prod.image)}" alt="${prod.name}" onerror="console.error('Failed to load image:', this.src); this.style.border='2px solid red';">
                 </div>
                 <div class="product-details">
                     <h3>${prod.name}</h3>
@@ -193,13 +200,82 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function setGalleryImage(index) {
+        galleryIndex = index;
+        const mainImg = document.getElementById('modal-product-img');
+        if (mainImg) {
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = encodeURI(galleryImages[galleryIndex]);
+                mainImg.style.opacity = '1';
+            }, 150);
+        }
+        // Update active thumbnail inline styles
+        const thumbs = document.querySelectorAll('.gallery-thumb');
+        thumbs.forEach((t, i) => {
+            if (i === galleryIndex) {
+                t.style.borderColor = 'var(--accent-color)';
+                t.style.opacity = '1';
+                t.style.transform = 'scale(1.06)';
+            } else {
+                t.style.borderColor = 'transparent';
+                t.style.opacity = '0.65';
+                t.style.transform = 'scale(1)';
+            }
+        });
+    }
+
     // 3. Modal details populator and controller
     function openProductModal(product) {
         if (!modal) return;
         currentModalProduct = product;
 
+        // --- Gallery Setup ---
+        galleryImages = (product.images && product.images.length > 0) ? product.images : [product.image];
+        galleryIndex = 0;
+
+        const mainImg = document.getElementById('modal-product-img');
+        if (mainImg) mainImg.src = encodeURI(galleryImages[0]);
+
+        // Build thumbnails
+        const thumbStrip = document.getElementById('gallery-thumbnails');
+        if (thumbStrip) {
+            thumbStrip.innerHTML = '';
+            if (galleryImages.length > 1) {
+                galleryImages.forEach((imgSrc, i) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = encodeURI(imgSrc);
+                    thumb.className = `gallery-thumb ${i === 0 ? 'active' : ''}`;
+                    thumb.style.cssText = 'width:68px;height:68px;object-fit:cover;border-radius:10px;cursor:pointer;flex-shrink:0;border:2px solid transparent;opacity:0.65;transition:all 0.25s ease;';
+                    thumb.addEventListener('click', () => setGalleryImage(i));
+                    thumb.addEventListener('mouseenter', () => { if (i !== galleryIndex) thumb.style.opacity = '0.9'; });
+                    thumb.addEventListener('mouseleave', () => { if (i !== galleryIndex) thumb.style.opacity = '0.65'; });
+                    thumbStrip.appendChild(thumb);
+                    if (i === 0) { thumb.style.borderColor = 'var(--accent-color)'; thumb.style.opacity = '1'; }
+                });
+            }
+        }
+
+        // Arrow buttons
+        const prevBtn = document.getElementById('gallery-prev-btn');
+        const nextBtn = document.getElementById('gallery-next-btn');
+        if (prevBtn && nextBtn) {
+            if (galleryImages.length > 1) {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+                prevBtn.style.alignItems = 'center';
+                prevBtn.style.justifyContent = 'center';
+                nextBtn.style.alignItems = 'center';
+                nextBtn.style.justifyContent = 'center';
+                prevBtn.onclick = () => setGalleryImage((galleryIndex - 1 + galleryImages.length) % galleryImages.length);
+                nextBtn.onclick = () => setGalleryImage((galleryIndex + 1) % galleryImages.length);
+            } else {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            }
+        }
+
         // Populate details
-        document.getElementById('modal-product-img').src = encodeURI(product.image.split(',')[0]);
         document.getElementById('modal-product-img').alt = product.name;
         document.getElementById('modal-product-category').textContent = product.category;
         document.getElementById('modal-product-name').textContent = product.name;
