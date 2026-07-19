@@ -6,6 +6,9 @@ const supabaseKey = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
 
 const catalogoDir = path.join(process.cwd(), 'assets', 'catalogo');
 
+// Carpetas a EXCLUIR del catálogo (artículos que no son diseños de ropa)
+const EXCLUDE_FOLDERS = ['Articulos personalizados'];
+
 async function supabaseRequest(endpoint, options) {
     const response = await fetch(`${supabaseUrl}/rest/v1/${endpoint}`, {
         ...options,
@@ -33,39 +36,56 @@ async function uploadCatalog() {
         console.error('Error borrando artículos', e);
     }
 
-    console.log('Iniciando carga del catálogo multi-imagen...');
-    const folders = fs.readdirSync(catalogoDir).filter(f => fs.statSync(path.join(catalogoDir, f)).isDirectory());
+    console.log('Iniciando carga del catálogo por PARES (frente + espalda)...');
+    const folders = fs.readdirSync(catalogoDir)
+        .filter(f => fs.statSync(path.join(catalogoDir, f)).isDirectory())
+        .filter(f => !EXCLUDE_FOLDERS.includes(f)); // Excluir carpetas no deseadas
 
     for (const folder of folders) {
         const folderPath = path.join(catalogoDir, folder);
-        const files = fs.readdirSync(folderPath).filter(f => f.match(/\.(jpg|jpeg|png|webp|gif)$/i));
-        
-        // Ordenar alfabéticamente para que -01 quede de principal
-        files.sort();
+        const files = fs.readdirSync(folderPath)
+            .filter(f => f.match(/\.(jpg|jpeg|png|webp|gif)$/i))
+            .sort(); // Ordenar: 01, 02, 03, 04...
 
         if (files.length === 0) continue;
 
-        const productName = `Diseño ${folder}`;
-        // Unir las rutas separadas por comas
-        const imagePaths = files.map(file => `assets/catalogo/${folder}/${file}`).join(',');
+        // Agrupar en pares: [01,02], [03,04], [05,06]...
+        // Si hay número impar, el último va solo.
+        const pairs = [];
+        for (let i = 0; i < files.length; i += 2) {
+            const pair = [files[i]];
+            if (files[i + 1]) pair.push(files[i + 1]);
+            pairs.push(pair);
+        }
 
-        const product = {
-            name: productName,
-            price: 1500, // Precio base
-            category: 'COLECCIONES',
-            description: `Prenda personalizada con diseño de ${folder}. Este diseño forma parte de nuestro catálogo digital exclusivo.`,
-            image: imagePaths, // Ahora guarda múltiples imágenes
-            sizes: ['S', 'M', 'L', 'XL']
-        };
+        let designNumber = 1;
+        for (const pair of pairs) {
+            const imagePaths = pair.map(file => `assets/catalogo/${folder}/${file}`).join(',');
+            // Si solo hay un par en total, usar "Diseño Zoro" sin número
+            const productName = pairs.length === 1 
+                ? `Diseño ${folder}` 
+                : `Diseño ${folder} ${designNumber}`;
 
-        try {
-            await supabaseRequest(`products`, { method: 'POST', body: JSON.stringify(product) });
-            console.log(`Subido: ${productName} con ${files.length} imágenes.`);
-        } catch(err) {
-            console.error(`Error subiendo ${productName}:`, err.message);
+            const product = {
+                name: productName,
+                price: 1500, // Precio base editable desde admin
+                category: 'COLECCIONES',
+                description: `Prenda personalizada con diseño de ${folder}. Muestra el frente y la espalda del artículo.`,
+                image: imagePaths, // "frente.jpg,espalda.jpg"
+                sizes: ['S', 'M', 'L', 'XL']
+            };
+
+            try {
+                await supabaseRequest(`products`, { method: 'POST', body: JSON.stringify(product) });
+                console.log(`✅ Subido: ${productName} (${pair.length} imagen${pair.length > 1 ? 'es' : ''})`);
+            } catch(err) {
+                console.error(`❌ Error subiendo ${productName}:`, err.message);
+            }
+
+            designNumber++;
         }
     }
-    console.log('Carga multi-imagen completada.');
+    console.log('\nCarga completada correctamente.');
 }
 
 uploadCatalog();
