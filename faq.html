@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preguntas Frecuentes - KMIZRD</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <a href="../" class="logo"><img src="../assets/logo.jpg" alt="KMIZRD Logo" class="brand-logo"></a>
+        <nav class="nav-links">
+            <a href="../">INICIO</a>
+            <div class="dropdown">
+                <a href="#" class="dropdown-trigger">ARTÍCULOS PERSONALIZADOS <i class="fa fa-chevron-down"></i></a>
+                <div class="dropdown-menu">
+                    <a href="../camisetas/" class="nav-custom-item" data-product-name="Camiseta de Algodón" data-product-cat="CAMISETAS" data-product-img="../assets/plain_tshirt.png">Camisetas Algodón</a>
+                    <a href="../hoodies/" class="nav-custom-item" data-product-name="Camiseta Dryfit" data-product-cat="CAMISETAS" data-product-img="../assets/plain_tshirt.png">Camisetas Dryfit</a>
+                    <a href="../" class="nav-custom-item" data-product-name="Polo de Cuello" data-product-cat="CAMISETAS" data-product-img="../assets/plain_polo.png">Polo de Cuello</a>
+                    <a href="../" class="nav-custom-item" data-product-name="Abrigo / Hoodie" data-product-cat="HOODIES" data-product-img="../assets/plain_hoodie.png">Abrigos</a>
+                    <a href="../" class="nav-custom-item" data-product-name="Gorra" data-product-cat="ACCESORIOS" data-product-img="../assets/plain_cap.png">Gorras</a>
+                    <a href="../" class="nav-custom-item" data-product-name="Taza o Termo" data-product-cat="ACCESORIOS" data-product-img="../assets/plain_thermos.png">Tazas &amp; Termos</a>
+                </div>
+            </div>
+            <a href="../colecciones/">KOLECCION KMIZ</a>
+            <a href="../faq.html" style="color: #fcd34d; font-weight: 800;">❓ FAQ</a>
+        </nav>
+        <div class="nav-icons">
+            <button aria-label="Cart" class="cart-btn"><i data-lucide="shopping-bag"></i><span class="cart-count">0</span></button>
+        </div>
+    </header>
+
+    <section class="page-title" style="text-align:center; margin:40px 0;">
+        <h1>Preguntas Frecuentes</h1>
+        <p>Encuentra respuestas a las dudas más comunes.</p>
+    </section>
+
+    <div class="container" style="max-width:800px; margin:auto;">
+        <div id="faq-list" class="faq-list">
+            <!-- FAQs will be injected here -->
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <img src="../assets/logo.jpg" alt="KMIZRD Logo" class="footer-logo">
+                <p>Ropa oversize con diseños únicos que hablan por ti. Calidad, actitud y autenticidad en cada prenda.</p>
+                <div class="social-icons">
+                    <a href="https://instagram.com/kmizrd" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://tiktok.com/@kmizrd" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/18090000000" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://facebook.com/kmizrd" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>TIENDA</h4>
+                <a href="../camisetas/">Camisetas</a>
+                <a href="../hoodies/">Hoodies</a>
+                <a href="../accesorios/">Accesorios</a>
+                <a href="../colecciones/">Colecciones</a>
+                <a href="../faq.html">FAQ</a>
+            </div>
+            <div class="footer-links">
+                <h4>AYUDA</h4>
+                <a href="../faq.html">Preguntas frecuentes</a>
+                <a href="https://wa.me/18090000000" target="_blank">Contacto</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 KMIZRD. Todos los derechos reservados.</p>
+            <div class="payment-icons">
+                <i class="fab fa-cc-visa" title="Visa"></i>
+                <i class="fab fa-cc-mastercard" title="MasterCard"></i>
+                <i class="fab fa-whatsapp" title="WhatsApp" style="color:#25d366;"></i>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://hgjcmsqforkvcfatygsl.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadFAQs() {
+            const { data, error } = await supabase
+                .from('faqs')
+                .select('*')
+                .order('order', { ascending: true });
+            if (error) {
+                console.error('Error loading FAQs:', error);
+                return;
+            }
+            const container = document.getElementById('faq-list');
+            container.innerHTML = '';
+            data.forEach(faq => {
+                const item = document.createElement('div');
+                item.className = 'faq-item';
+                item.innerHTML = `
+                    <h3 class="faq-question">${faq.question}</h3>
+                    <p class="faq-answer">${faq.answer}</p>
+                `;
+                container.appendChild(item);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', loadFAQs);
+        lucide.createIcons();
+    </script>
+</body>
+</html>

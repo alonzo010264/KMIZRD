@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gestionar FAQ</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <header class="header">
+        <a href="../" class="logo"><img src="../assets/logo.jpg" alt="KMIZRD Logo" class="brand-logo"></a>
+        <nav class="nav-links">
+            <a href="../" style="font-weight:800;">INICIO</a>
+            <a href="../faq.html" style="font-weight:800;">FAQ</a>
+        </nav>
+        <div class="nav-icons">
+            <button aria-label="Logout" id="logout-btn"><i data-lucide="log-out"></i></button>
+        </div>
+    </header>
+
+    <section style="max-width:800px; margin:auto; padding:40px 0;">
+        <h1>Gestión de Preguntas Frecuentes</h1>
+        <button id="add-faq-btn" class="btn-primary" style="margin-bottom:20px;">+ Añadir Nueva FAQ</button>
+        <div id="faq-list" class="faq-list"></div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-bottom" style="text-align:center;">
+            <p>&copy; 2024 KMIZRD. Admin panel.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://hgjcmsqforkvcfatygsl.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Simple auth placeholder – in production replace with real auth
+        const adminPassword = 'admin123'; // TODO: secure method
+        const stored = sessionStorage.getItem('adminAuthenticated');
+        if (!stored) {
+            const pwd = prompt('Introduce la contraseña de administrador');
+            if (pwd === adminPassword) {
+                sessionStorage.setItem('adminAuthenticated', 'true');
+            } else {
+                alert('Acceso denegado');
+                window.location.href = '../';
+            }
+        }
+
+        async function loadFAQs() {
+            const { data, error } = await supabase
+                .from('faqs')
+                .select('*')
+                .order('order', { ascending: true });
+            if (error) return console.error(error);
+            const container = document.getElementById('faq-list');
+            container.innerHTML = '';
+            data.forEach(faq => {
+                const item = document.createElement('div');
+                item.className = 'admin-faq-item';
+                item.style = 'border:1px solid var(--editor-border); padding:12px; margin-bottom:12px; border-radius:8px; background:#fff;';
+                item.innerHTML = `
+                    <h3>${faq.question}</h3>
+                    <p>${faq.answer}</p>
+                    <div style="margin-top:8px;">
+                        <button class="btn-primary" data-id="${faq.id}" onclick="editFAQ(${faq.id})">Editar</button>
+                        <button class="btn-danger" data-id="${faq.id}" onclick="deleteFAQ(${faq.id})" style="margin-left:8px;">Eliminar</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        async function addFAQ(question = '', answer = '') {
+            const orderResult = await supabase.from('faqs').select('order', { count: 'exact' });
+            const maxOrder = orderResult.data.reduce((max, f) => Math.max(max, f.order), 0);
+            const { data, error } = await supabase.from('faqs').insert({ question, answer, order: maxOrder + 1 });
+            if (error) return console.error(error);
+            loadFAQs();
+        }
+
+        function editFAQ(id) {
+            const currentItem = document.querySelector(`button[data-id='${id}']`).parentElement.parentElement;
+            const currentQ = currentItem.querySelector('h3').innerText;
+            const currentA = currentItem.querySelector('p').innerText;
+            const newQ = prompt('Editar pregunta:', currentQ);
+            if (newQ === null) return;
+            const newA = prompt('Editar respuesta:', currentA);
+            if (newA === null) return;
+            supabase.from('faqs').update({ question: newQ, answer: newA }).eq('id', id).then(() => loadFAQs());
+        }
+
+        async function deleteFAQ(id) {
+            if (!confirm('¿Seguro que deseas eliminar esta FAQ?')) return;
+            const { error } = await supabase.from('faqs').delete().eq('id', id);
+            if (error) return console.error(error);
+            loadFAQs();
+        }
+
+        document.getElementById('add-faq-btn').addEventListener('click', () => {
+            const q = prompt('Nueva pregunta:');
+            if (!q) return;
+            const a = prompt('Respuesta:');
+            if (!a) return;
+            addFAQ(q, a);
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('adminAuthenticated');
+            window.location.href = '../';
+        });
+
+        document.addEventListener('DOMContentLoaded', loadFAQs);
+        lucide.createIcons();
+    </script>
+</body>
+</html>
