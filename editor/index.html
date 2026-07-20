@@ -3,138 +3,832 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor de Polos - KMIZRD</title>
+    <title>Creador de Poloches - KMIZRD</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --editor-bg: #f8fafc;
+            --editor-bg: #0b0f19;
+            --panel-bg: #151c2c;
+            --border-color: #222f47;
             --accent-color: #0272ba;
+            --accent-glow: rgba(2, 114, 186, 0.4);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
         }
-        body {background-color: var(--editor-bg); font-family: 'Inter', sans-serif;}
-        .editor-container {display: flex; flex-direction: column; max-width: 1200px; margin: 40px auto; gap: 30px;}
-        .preview-area {position: relative; width: 100%; max-width: 500px; margin: 0 auto;}
-        .preview-area img.base {width: 100%; display: block;}
-        .preview-area .tint {position: absolute; inset: 0; mix-blend-mode: multiply; pointer-events: none;}
-        .preview-area .design {position: absolute; top: 20%; left: 20%; width: 60%; height: 60%; cursor: move; display: none;}
-        .controls {display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start;}
-        .controls label {font-weight: 600; margin-bottom: 4px; display: block;}
-        .controls input[type="color"] {width: 100%; height: 40px; border: none; cursor: pointer;}
-        .controls input[type="number"] {width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px;}
-        .controls button {padding: 10px 20px; background: var(--accent-color); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;}
-        .toggle-btns button {background: #e2e8f0; color: #444;}
-        .toggle-btns button.active {background: var(--accent-color); color: #fff;}
+
+        body {
+            background-color: var(--editor-bg);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Header matching theme */
+        .editor-header {
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .editor-header .logo img {
+            height: 40px;
+            border-radius: 4px;
+        }
+
+        .editor-header .nav-links a {
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-left: 20px;
+            transition: color 0.3s;
+        }
+
+        .editor-header .nav-links a:hover,
+        .editor-header .nav-links a.active {
+            color: var(--text-main);
+        }
+
+        /* Layout Grid */
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            flex: 1;
+            height: calc(100vh - 72px);
+        }
+
+        @media (max-width: 1024px) {
+            .editor-layout {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        /* Canvas Workspace (Left) */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-color: var(--editor-bg);
+            padding: 40px;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        /* Watermark Background */
+        .watermark-container {
+            position: absolute;
+            width: min(80vw, 550px);
+            height: min(80vw, 550px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .watermark-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Garment Wrapper */
+        .garment-wrapper {
+            position: relative;
+            width: min(90vw, 480px);
+            height: min(90vw, 480px);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .garment-svg-container {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.5));
+            transition: transform 0.3s ease;
+        }
+
+        /* Printable Bound Area */
+        .printable-area {
+            position: absolute;
+            top: 22%;
+            left: 30%;
+            width: 40%;
+            height: 54%;
+            z-index: 10;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .printable-area.dragging-over {
+            border-color: var(--accent-color);
+            background-color: rgba(2, 114, 186, 0.05);
+        }
+
+        /* Design Element */
+        .design-element {
+            position: absolute;
+            cursor: grab;
+            width: 140px;
+            height: 140px;
+            transform-origin: center center;
+            touch-action: none;
+        }
+
+        .design-element:active {
+            cursor: grabbing;
+        }
+
+        .design-element img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* Arrows to toggle views */
+        .arrow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .arrow-btn:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .arrow-left { left: 40px; }
+        .arrow-right { right: 40px; }
+
+        @media (max-width: 768px) {
+            .arrow-left { left: 15px; }
+            .arrow-right { right: 15px; }
+        }
+
+        /* Control Panel (Right) */
+        .control-panel {
+            background-color: var(--panel-bg);
+            border-left: 1px solid var(--border-color);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .panel-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        /* View State Indicator */
+        .view-indicator {
+            display: flex;
+            background: var(--editor-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 4px;
+        }
+
+        .view-tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 20px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-tab.active {
+            background-color: var(--accent-color);
+            color: var(--text-main);
+            box-shadow: 0 4px 10px var(--accent-glow);
+        }
+
+        /* Color Swatches Grid */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .color-swatch {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+
+        .color-swatch.active {
+            border-color: var(--text-main);
+            transform: scale(1.05);
+        }
+
+        .color-swatch.active::after {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: #fff;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        /* Slider Controls */
+        .control-group {
+            background-color: var(--editor-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .slider-row label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .slider-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent-color);
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        /* Custom File Upload */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-color);
+            background-color: rgba(2, 114, 186, 0.02);
+        }
+
+        .upload-area i {
+            font-size: 28px;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .upload-area p {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #005a96 100%);
+            color: var(--text-main);
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(2, 114, 186, 0.3);
+        }
+
+        .action-btn:hover {
+            box-shadow: 0 6px 20px rgba(2, 114, 186, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Price display */
+        .price-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--editor-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px 20px;
+        }
+
+        .price-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .price-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .upload-btn-canvas {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .upload-btn-canvas:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <a href="../" class="logo"><img src="../assets/logo.jpg" alt="KMIZRD" class="logo-img"></a>
-            <nav class="nav">
-                <a href="../camisetas/" class="nav-link">Camisetas</a>
-                <a href="../polo/" class="nav-link">Polo</a>
-                <a href="../editor/" class="nav-link active">Crea tu Diseño</a>
-            </nav>
+    <header class="editor-header">
+        <a href="../" class="logo">
+            <img src="../assets/logo.jpg" alt="KMIZRD Logo">
+        </a>
+        <div class="nav-links">
+            <a href="../">Inicio</a>
+            <a href="../camisetas/">Colecciones</a>
+            <a href="../faq.html">Preguntas Frecuentes</a>
+            <a href="#" class="active">Editor Vectorial</a>
         </div>
     </header>
 
-    <main class="editor-container">
-        <section class="preview-area">
-            <img src="../assets/plain_polo.png" alt="Polo" class="base" id="polo-base">
-            <div class="tint" id="color-tint"></div>
-            <img src="" alt="Diseño" class="design" id="design-img">
-            <div class="view-toggle toggle-btns">
-                <button id="btn-front" class="active">Frente</button>
-                <button id="btn-back">Espalda</button>
+    <main class="editor-layout">
+        <!-- Canvas Workspace (Left) -->
+        <section class="workspace">
+            <div class="watermark-container">
+                <!-- Watermark Globe SVG exactly as screenshot -->
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="0.6" />
+                    <ellipse cx="50" cy="50" rx="30" ry="48" fill="none" stroke="currentColor" stroke-width="0.6" />
+                    <ellipse cx="50" cy="50" rx="15" ry="48" fill="none" stroke="currentColor" stroke-width="0.6" />
+                    <line x1="2" y1="50" x2="98" y2="50" stroke="currentColor" stroke-width="0.6" />
+                    <line x1="6" y1="30" x2="94" y2="30" stroke="currentColor" stroke-width="0.6" />
+                    <line x1="6" y1="70" x2="94" y2="70" stroke="currentColor" stroke-width="0.6" />
+                    <line x1="14" y1="15" x2="86" y2="15" stroke="currentColor" stroke-width="0.6" />
+                    <line x1="14" y1="85" x2="86" y2="85" stroke="currentColor" stroke-width="0.6" />
+                    <text x="50" y="52" font-size="5" fill="currentColor" font-weight="900" text-anchor="middle" font-family="'Outfit', sans-serif" letter-spacing="1">KMIZRD</text>
+                </svg>
             </div>
+
+            <!-- View Swapping Arrows -->
+            <button class="arrow-btn arrow-left" id="prev-view" aria-label="Vista anterior">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <!-- Shirt/Garment Wrapper -->
+            <div class="garment-wrapper">
+                <div class="garment-svg-container" id="garment-svg-container">
+                    <!-- Vector SVG T-Shirt (Loaded via JS dynamically) -->
+                </div>
+
+                <!-- Active design layer container -->
+                <div class="printable-area" id="print-zone">
+                    <div class="design-element" id="design-layer" style="display: none;">
+                        <img src="" id="user-design-img" alt="Tu diseño">
+                    </div>
+                </div>
+            </div>
+
+            <button class="arrow-btn arrow-right" id="next-view" aria-label="Siguiente vista">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <!-- Bottom Left Upload Trigger -->
+            <button class="upload-btn-canvas" id="canvas-upload-trigger" title="Subir diseño">
+                <i class="fas fa-image"></i>
+            </button>
         </section>
-        <section class="controls">
+
+        <!-- Sidebar Panel (Right) -->
+        <section class="control-panel">
+            <h1 class="panel-title">
+                <i class="fas fa-sliders-h" style="color: var(--accent-color);"></i>
+                Personalizar Poloche
+            </h1>
+
+            <!-- Front/Back Toggle tabs -->
             <div>
-                <label for="color-picker">Color del polo</label>
-                <input type="color" id="color-picker" value="#ffffff">
+                <h3 class="section-title">Vista de Prenda</h3>
+                <div class="view-indicator">
+                    <div class="view-tab active" id="tab-front" data-view="front">FRENTE</div>
+                    <div class="view-tab" id="tab-back" data-view="back">ESPALDA</div>
+                </div>
             </div>
+
+            <!-- Color Palette -->
             <div>
-                <label for="price-input">Precio ($)</label>
-                <input type="number" id="price-input" placeholder="Ej. 1999" min="0">
+                <h3 class="section-title">Colores Streetwear</h3>
+                <div class="color-grid" id="color-palette">
+                    <!-- Swatches will be generated via JS -->
+                </div>
             </div>
+
+            <!-- Design adjustments sliders -->
             <div>
-                <label for="upload-design">Subir diseño (PNG/JPG)</label>
-                <input type="file" id="upload-design" accept="image/*">
+                <h3 class="section-title">Ajustes del Diseño</h3>
+                <div class="control-group">
+                    <div class="slider-row">
+                        <label for="scale-slider">Tamaño</label>
+                        <input type="range" id="scale-slider" min="30" max="250" value="100">
+                    </div>
+                    <div class="slider-row">
+                        <label for="rotate-slider">Rotación</label>
+                        <input type="range" id="rotate-slider" min="-180" max="180" value="0">
+                    </div>
+                </div>
             </div>
+
+            <!-- Upload Area -->
             <div>
-                <button id="whatsapp-btn">Enviar por WhatsApp</button>
+                <h3 class="section-title">Tu Gráfico</h3>
+                <div class="upload-area" id="drop-zone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Arrastra tu archivo aquí o <strong>haz clic para buscar</strong></p>
+                    <input type="file" id="file-uploader" accept="image/*" style="display: none;">
+                </div>
             </div>
+
+            <!-- Pricing Box -->
+            <div class="price-box">
+                <span class="price-label">Precio Estimado</span>
+                <span class="price-value" id="price-display">$1,200.00</span>
+            </div>
+
+            <!-- WhatsApp Action -->
+            <button class="action-btn" id="send-whatsapp">
+                <i class="fab fa-whatsapp"></i>
+                Enviar Diseño por WhatsApp
+            </button>
         </section>
     </main>
 
+    <!-- Vector SVGs store -->
     <script>
-        // Toggle front/back (same placeholder for now)
-        const btnFront = document.getElementById('btn-front');
-        const btnBack = document.getElementById('btn-back');
-        const poloBase = document.getElementById('polo-base');
-        btnFront.addEventListener('click', () => {
-            btnFront.classList.add('active');
-            btnBack.classList.remove('active');
-            // Front placeholder – same image
-            poloBase.src = '../assets/plain_polo.png';
-        });
-        btnBack.addEventListener('click', () => {
-            btnBack.classList.add('active');
-            btnFront.classList.remove('active');
-            // Back placeholder – for simplicity use same image
-            poloBase.src = '../assets/plain_polo.png';
-        });
-        // Color tint
-        const colorPicker = document.getElementById('color-picker');
-        const tintDiv = document.getElementById('color-tint');
-        colorPicker.addEventListener('input', (e) => {
-            tintDiv.style.backgroundColor = e.target.value + '80'; // 50% opacity
-        });
-        // Upload design
-        const uploadInput = document.getElementById('upload-design');
-        const designImg = document.getElementById('design-img');
-        uploadInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                designImg.src = ev.target.result;
-                designImg.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        });
-        // Simple drag for design
-        let isDragging = false;
-        let offsetX, offsetY;
-        designImg.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            const rect = designImg.getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
+        const SVGs = {
+            front: (color) => `
+                <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Sombra interna del cuello y etiqueta -->
+                    <path d="M 40,16.2 Q 50,18.5 60,16.2 Q 50,22 40,16.2 Z" fill="#2d3748" stroke="#000000" stroke-width="1" />
+                    <rect x="47.5" y="17.5" width="5" height="3" fill="#111" />
+                    <text x="50" y="19.5" font-size="1.2" fill="#fff" text-anchor="middle" font-weight="bold" font-family="'Outfit', sans-serif">KMIZ</text>
+
+                    <!-- Cuerpo Principal del Poloche -->
+                    <path d="
+                        M 40,16
+                        Q 50,21.5 60,16
+                        L 74,19.5
+                        L 87,36
+                        L 79,41.5
+                        L 72,34
+                        L 72,78
+                        Q 50,80.5 28,78
+                        L 28,34
+                        L 21,41.5
+                        L 13,36
+                        L 26,19.5
+                        Z"
+                        fill="${color}" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" />
+                        
+                    <!-- Cuello Ribeteado -->
+                    <path d="M 40,16 Q 50,21.5 60,16" fill="none" stroke="#000000" stroke-width="1.8" />
+                    
+                    <!-- Costuras Hombro / Sisa -->
+                    <path d="M 26,19.5 L 28,34" fill="none" stroke="#000000" stroke-width="0.8" stroke-dasharray="2,2" />
+                    <path d="M 74,19.5 L 72,34" fill="none" stroke="#000000" stroke-width="0.8" stroke-dasharray="2,2" />
+                    
+                    <!-- Dobladillos de Mangas -->
+                    <path d="M 13,36 L 21,41.5" fill="none" stroke="#000000" stroke-width="1.5" />
+                    <path d="M 87,36 L 79,41.5" fill="none" stroke="#000000" stroke-width="1.5" />
+                    
+                    <!-- Dobladillo Inferior -->
+                    <path d="M 28,78 Q 50,80.5 72,78" fill="none" stroke="#000000" stroke-width="1.5" />
+                </svg>
+            `,
+            back: (color) => `
+                <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Cuerpo Principal del Poloche (Espalda) -->
+                    <path d="
+                        M 40,16
+                        Q 50,18 60,16
+                        L 74,19.5
+                        L 87,36
+                        L 79,41.5
+                        L 72,34
+                        L 72,78
+                        Q 50,80.5 28,78
+                        L 28,34
+                        L 21,41.5
+                        L 13,36
+                        L 26,19.5
+                        Z"
+                        fill="${color}" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" />
+                        
+                    <!-- Cuello Ribeteado (Espalda - Curva más alta) -->
+                    <path d="M 40,16 Q 50,18 60,16" fill="none" stroke="#000000" stroke-width="1.8" />
+                    
+                    <!-- Costuras Hombro / Sisa -->
+                    <path d="M 26,19.5 L 28,34" fill="none" stroke="#000000" stroke-width="0.8" stroke-dasharray="2,2" />
+                    <path d="M 74,19.5 L 72,34" fill="none" stroke="#000000" stroke-width="0.8" stroke-dasharray="2,2" />
+                    
+                    <!-- Dobladillos de Mangas -->
+                    <path d="M 13,36 L 21,41.5" fill="none" stroke="#000000" stroke-width="1.5" />
+                    <path d="M 87,36 L 79,41.5" fill="none" stroke="#000000" stroke-width="1.5" />
+                    
+                    <!-- Dobladillo Inferior -->
+                    <path d="M 28,78 Q 50,80.5 72,78" fill="none" stroke="#000000" stroke-width="1.5" />
+                </svg>
+            `
+        };
+
+        // Custom Swatch Colors
+        const Swatches = [
+            { name: 'Crema', hex: '#f5e6d3' },
+            { name: 'Blanco', hex: '#ffffff' },
+            { name: 'Negro Street', hex: '#18181b' },
+            { name: 'Gris Ceniza', hex: '#a1a1aa' },
+            { name: 'Arena', hex: '#d4c2ad' },
+            { name: 'Rojo Vintage', hex: '#991b1b' },
+            { name: 'Verde Bosque', hex: '#14532d' },
+            { name: 'Azul Royale', hex: '#1d4ed8' },
+            { name: 'Marrón Oscuro', hex: '#451a03' }
+        ];
+
+        // Editor state
+        const state = {
+            color: '#f5e6d3',
+            view: 'front', // 'front' or 'back'
+            front: {
+                img: null,
+                scale: 100,
+                rotation: 0,
+                x: 0,
+                y: 0
+            },
+            back: {
+                img: null,
+                scale: 100,
+                rotation: 0,
+                x: 0,
+                y: 0
+            }
+        };
+
+        // DOM elements
+        const garmentContainer = document.getElementById('garment-svg-container');
+        const printZone = document.getElementById('print-zone');
+        const designLayer = document.getElementById('design-layer');
+        const userImg = document.getElementById('user-design-img');
+        const tabFront = document.getElementById('tab-front');
+        const tabBack = document.getElementById('tab-back');
+        const btnPrevView = document.getElementById('prev-view');
+        const btnNextView = document.getElementById('next-view');
+        const scaleSlider = document.getElementById('scale-slider');
+        const rotateSlider = document.getElementById('rotate-slider');
+        const fileUploader = document.getElementById('file-uploader');
+        const dropZone = document.getElementById('drop-zone');
+        const canvasUploadTrigger = document.getElementById('canvas-upload-trigger');
+        const colorPalette = document.getElementById('color-palette');
+        const sendWhatsapp = document.getElementById('send-whatsapp');
+
+        // Initialize view
+        function renderGarment() {
+            garmentContainer.innerHTML = SVGs[state.view](state.color);
+            updateDesignLayer();
+        }
+
+        function switchView(viewName) {
+            state.view = viewName;
+            if(viewName === 'front') {
+                tabFront.classList.add('active');
+                tabBack.classList.remove('active');
+            } else {
+                tabBack.classList.add('active');
+                tabFront.classList.remove('active');
+            }
+            
+            // Sync adjustments sliders with current view state
+            const current = state[state.view];
+            scaleSlider.value = current.scale;
+            rotateSlider.value = current.rotation;
+            
+            renderGarment();
+        }
+
+        // Color Swatches render
+        function renderSwatches() {
+            colorPalette.innerHTML = '';
+            Swatches.forEach(sw => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = sw.hex;
+                swatch.title = sw.name;
+                if(sw.hex === state.color) swatch.classList.add('active');
+                swatch.addEventListener('click', () => {
+                    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+                    swatch.classList.add('active');
+                    state.color = sw.hex;
+                    renderGarment();
+                });
+                colorPalette.appendChild(swatch);
+            });
+        }
+
+        // Apply visual updates on design layer (drag, scale, rotate)
+        function updateDesignLayer() {
+            const current = state[state.view];
+            if (current.img) {
+                userImg.src = current.img;
+                designLayer.style.display = 'block';
+                designLayer.style.transform = `translate(${current.x}px, ${current.y}px) scale(${current.scale / 100}) rotate(${current.rotation}deg)`;
+            } else {
+                designLayer.style.display = 'none';
+            }
+        }
+
+        // Handle Image upload
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    state[state.view].img = e.target.result;
+                    updateDesignLayer();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Upload Triggers
+        dropZone.addEventListener('click', () => fileUploader.click());
+        canvasUploadTrigger.addEventListener('click', () => fileUploader.click());
+        fileUploader.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+        // Drag and Drop files
+        dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
+            dropZone.style.borderColor = 'var(--accent-color)';
         });
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            const parentRect = designImg.parentElement.getBoundingClientRect();
-            const left = e.clientX - parentRect.left - offsetX;
-            const top = e.clientY - parentRect.top - offsetY;
-            designImg.style.left = left + 'px';
-            designImg.style.top = top + 'px';
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = 'var(--border-color)';
         });
-        document.addEventListener('mouseup', () => { isDragging = false; });
-        // WhatsApp integration
-        const whatsappBtn = document.getElementById('whatsapp-btn');
-        whatsappBtn.addEventListener('click', () => {
-            const price = document.getElementById('price-input').value || 'N/A';
-            const text = encodeURIComponent(`Quiero un polo personalizado. Precio: $${price}.`);
-            const phone = '18090000000';
-            const url = `https://wa.me/${phone}?text=${text}`;
-            window.open(url, '_blank');
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = 'var(--border-color)';
+            handleFile(e.dataTransfer.files[0]);
         });
+
+        // View Tabs
+        tabFront.addEventListener('click', () => switchView('front'));
+        tabBack.addEventListener('click', () => switchView('back'));
+        btnPrevView.addEventListener('click', () => switchView(state.view === 'front' ? 'back' : 'front'));
+        btnNextView.addEventListener('click', () => switchView(state.view === 'front' ? 'back' : 'front'));
+
+        // Slider Adjustments
+        scaleSlider.addEventListener('input', (e) => {
+            state[state.view].scale = parseInt(e.target.value);
+            updateDesignLayer();
+        });
+        rotateSlider.addEventListener('input', (e) => {
+            state[state.view].rotation = parseInt(e.target.value);
+            updateDesignLayer();
+        });
+
+        // Drag Design Layer
+        let activeDrag = false;
+        let startX, startY;
+
+        designLayer.addEventListener('mousedown', startDrag);
+        designLayer.addEventListener('touchstart', startDrag, { passive: false });
+
+        function startDrag(e) {
+            activeDrag = true;
+            const current = state[state.view];
+            const event = e.touches ? e.touches[0] : e;
+            startX = event.clientX - current.x;
+            startY = event.clientY - current.y;
+            e.preventDefault();
+        }
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag, { passive: false });
+
+        function drag(e) {
+            if (!activeDrag) return;
+            const current = state[state.view];
+            const event = e.touches ? e.touches[0] : e;
+            current.x = event.clientX - startX;
+            current.y = event.clientY - startY;
+            updateDesignLayer();
+            e.preventDefault();
+        }
+
+        document.addEventListener('mouseup', () => activeDrag = false);
+        document.addEventListener('touchend', () => activeDrag = false);
+
+        // WhatsApp trigger
+        sendWhatsapp.addEventListener('click', () => {
+            const colorName = Swatches.find(s => s.hex === state.color)?.name || 'Personalizado';
+            let msg = `🔥 *Nuevo diseño personalizado en KMIZRD* 🔥%0A%0A`;
+            msg += `• *Color:* ${colorName}%0A`;
+            msg += `• *Frente:* ${state.front.img ? 'Diseño cargado ✅' : 'Liso (sin diseño) ❌'}%0A`;
+            msg += `• *Espalda:* ${state.back.img ? 'Diseño cargado ✅' : 'Liso (sin diseño) ❌'}%0A%0A`;
+            msg += `_¡Enviando para coordinar mi producción por WhatsApp!_`;
+
+            window.open(`https://wa.me/18090000000?text=${msg}`, '_blank');
+        });
+
+        // Init
+        renderGarment();
+        renderSwatches();
     </script>
 </body>
 </html>
