@@ -14,43 +14,98 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .faq-container {
-            max-width: 900px;
+            max-width: 860px;
             margin: 60px auto;
-            padding: 0 20px;
+            padding: 0 20px 60px;
         }
         .faq-title {
             text-align: center;
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 900;
-            margin-bottom: 40px;
+            margin-bottom: 10px;
+            color: #0f172a;
             letter-spacing: -0.5px;
+        }
+        .faq-subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 16px;
+            margin-bottom: 40px;
         }
         .faq-list {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 12px;
         }
         .faq-item {
-            background-color: #f8fafc;
+            background: #fff;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 24px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s;
         }
         .faq-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .faq-item.open {
+            border-color: #1d4ed8;
         }
         .faq-question {
-            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 22px 24px;
+            cursor: pointer;
+            font-size: 16px;
             font-weight: 800;
-            margin-bottom: 10px;
             color: #0f172a;
+            margin: 0;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .faq-question:hover {
+            background: #f1f5f9;
+        }
+        .faq-item.open .faq-question {
+            color: #1d4ed8;
+            background: #eff6ff;
+        }
+        .faq-toggle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 900;
+            color: #475569;
+            flex-shrink: 0;
+            transition: background 0.2s, color 0.2s, transform 0.3s;
+        }
+        .faq-item.open .faq-toggle {
+            background: #1d4ed8;
+            color: #fff;
+            transform: rotate(45deg);
+        }
+        .faq-answer-wrap {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease;
+        }
+        .faq-item.open .faq-answer-wrap {
+            max-height: 400px;
         }
         .faq-answer {
+            padding: 0 24px 22px;
             font-size: 15px;
             color: #475569;
-            line-height: 1.6;
+            line-height: 1.7;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 16px;
         }
     </style>
 </head>
@@ -101,6 +156,7 @@
 
     <main class="faq-container">
         <h1 class="faq-title">Preguntas Frecuentes</h1>
+        <p class="faq-subtitle">Encuentra respuestas rápidas a las dudas más comunes.</p>
         <div id="faq-list" class="faq-list">
             <!-- FAQs loaded from Supabase -->
         </div>
@@ -240,7 +296,7 @@
     <script src="https://js.stripe.com/v3/"></script>
     <script src="script.js?v=1.0.1"></script>
     <script>
-        // Supabase client instance (renamed to db to prevent shadowing the supabase library)
+        // Supabase client instance
         const SUPABASE_URL = 'https://hgjcmsqforkvcfatygsl.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -250,24 +306,36 @@
                 .from('faqs')
                 .select('*')
                 .order('order', { ascending: true });
-            if (error) {
-                console.error('Error loading FAQs:', error);
+            const container = document.getElementById('faq-list');
+            if (error || !data || data.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:40px 0;">No hay preguntas disponibles aún.</p>';
                 return;
             }
-            const container = document.getElementById('faq-list');
             container.innerHTML = '';
             data.forEach(faq => {
                 const item = document.createElement('div');
                 item.className = 'faq-item';
                 item.innerHTML = `
-                    <h3 class="faq-question">${faq.question}</h3>
-                    <p class="faq-answer">${faq.answer}</p>
+                    <div class="faq-question">
+                        <span>${faq.question}</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer-wrap">
+                        <p class="faq-answer">${faq.answer}</p>
+                    </div>
                 `;
+                item.querySelector('.faq-question').addEventListener('click', () => {
+                    const isOpen = item.classList.contains('open');
+                    // Close all open items
+                    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+                    // Toggle current
+                    if (!isOpen) item.classList.add('open');
+                });
                 container.appendChild(item);
             });
         }
         document.addEventListener('DOMContentLoaded', loadFAQs);
-        
+
         // Reinitialize lucide icons
         lucide.createIcons();
     </script>

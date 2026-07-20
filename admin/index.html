@@ -83,6 +83,9 @@
                 <a href="#" class="admin-nav-item" data-target="users-section">
                     <i data-lucide="users"></i> Gestión de Usuarios
                 </a>
+                <a href="#" class="admin-nav-item" data-target="faq-section">
+                    <i data-lucide="help-circle"></i> Preguntas Frecuentes
+                </a>
                 <a href="../" class="admin-nav-item back-to-store">
                     <i data-lucide="shopping-bag"></i> Ir a la tienda
                 </a>
@@ -526,6 +529,36 @@
             </form>
         </div>
     </div>
+
+    <!-- FAQ Section -->
+    <section id="faq-section" class="admin-content-section" style="display:none;">
+        <div class="admin-card">
+            <h3>Preguntas Frecuentes</h3>
+            <p class="card-subtitle">Agrega, edita o elimina las preguntas que aparecen en la página de FAQ.</p>
+
+            <form id="faq-form" class="admin-form" style="max-width:700px; margin-bottom:30px;">
+                <input type="hidden" id="faq-edit-id">
+                <div class="form-group">
+                    <label for="faq-question">Pregunta *</label>
+                    <input type="text" id="faq-question" required placeholder="Ej. ¿Cuánto tiempo tarda el envío?">
+                </div>
+                <div class="form-group" style="margin-top:14px;">
+                    <label for="faq-answer">Respuesta *</label>
+                    <textarea id="faq-answer" required style="min-height:90px;" placeholder="Ej. Los envíos se realizan en 3-5 días hábiles..."></textarea>
+                </div>
+                <div class="form-actions" style="margin-top:18px; display:flex; gap:10px;">
+                    <button type="submit" id="faq-save-btn" class="admin-btn btn-primary"><i class="fa fa-save"></i> Guardar Pregunta</button>
+                    <button type="button" id="faq-cancel-btn" class="admin-btn btn-secondary" style="display:none;"><i class="fa fa-times"></i> Cancelar</button>
+                </div>
+                <div id="faq-msg" style="margin-top:12px; font-size:14px; font-weight:600;"></div>
+            </form>
+
+            <h4 style="font-size:16px; font-weight:800; margin-bottom:16px; color:#0f172a;">Preguntas actuales</h4>
+            <div id="faq-admin-list" style="display:flex; flex-direction:column; gap:12px;">
+                <p style="color:#94a3b8;">Cargando...</p>
+            </div>
+        </div>
+    </section>
 
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

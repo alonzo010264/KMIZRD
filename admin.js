@@ -1030,3 +1030,130 @@ document.addEventListener('DOMContentLoaded', () => {
             .subscribe();
     }
 });
+
+// =============================================
+// FAQ ADMIN MANAGEMENT
+// =============================================
+
+const DEFAULT_FAQS = [
+    { question: '¿Cuánto tiempo tarda el envío?', answer: 'Los envíos se realizan en 3 a 5 días hábiles dentro de República Dominicana. Para pedidos fuera del país, el tiempo puede variar entre 7 y 15 días hábiles.' },
+    { question: '¿Puedo personalizar mi prenda?', answer: 'Sí. Ofrecemos servicio de personalización con bordado o sublimación. Puedes solicitar tu prenda personalizada directamente desde la sección "Artículos Personalizados" o contactarnos por WhatsApp.' },
+    { question: '¿Cuáles son las formas de pago?', answer: 'Aceptamos pagos con tarjeta de crédito/débito (Visa, Mastercard) a través de Stripe, así como transferencias bancarias y pagos por WhatsApp.' },
+    { question: '¿Puedo cambiar o devolver un producto?', answer: 'Aceptamos cambios dentro de los 7 días posteriores a la recepción del pedido, siempre que el artículo esté en perfectas condiciones y sin uso. Contáctanos por WhatsApp para gestionar el cambio.' },
+    { question: '¿Cómo sé cuál talla elegir?', answer: 'Todas nuestras prendas son de corte oversize. Si tienes dudas, te recomendamos elegir una talla menor a la que usas normalmente. También puedes escribirnos por WhatsApp y te asesoramos.' },
+    { question: '¿Tienen tienda física?', answer: 'Por el momento operamos exclusivamente en línea. Puedes hacer tu pedido desde nuestra tienda web y lo recibirás en la puerta de tu casa.' }
+];
+
+async function initFaqAdmin() {
+    const form = document.getElementById('faq-form');
+    if (!form) return;
+
+    await loadFaqAdmin();
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('faq-edit-id').value;
+        const question = document.getElementById('faq-question').value.trim();
+        const answer = document.getElementById('faq-answer').value.trim();
+        const msg = document.getElementById('faq-msg');
+
+        if (!question || !answer) return;
+
+        msg.textContent = 'Guardando...';
+        msg.style.color = '#64748b';
+
+        let error;
+        if (id) {
+            ({ error } = await _supabase.from('faqs').update({ question, answer }).eq('id', id));
+        } else {
+            // Get max order
+            const { data: existing } = await _supabase.from('faqs').select('order').order('order', { ascending: false }).limit(1);
+            const nextOrder = existing && existing.length > 0 ? (existing[0].order + 1) : 1;
+            ({ error } = await _supabase.from('faqs').insert([{ question, answer, order: nextOrder }]));
+        }
+
+        if (error) {
+            msg.textContent = 'Error: ' + error.message;
+            msg.style.color = '#ef4444';
+        } else {
+            msg.textContent = id ? '✅ Pregunta actualizada.' : '✅ Pregunta guardada.';
+            msg.style.color = '#16a34a';
+            resetFaqForm();
+            await loadFaqAdmin();
+            setTimeout(() => { msg.textContent = ''; }, 3000);
+        }
+    });
+
+    document.getElementById('faq-cancel-btn').addEventListener('click', resetFaqForm);
+}
+
+function resetFaqForm() {
+    document.getElementById('faq-edit-id').value = '';
+    document.getElementById('faq-question').value = '';
+    document.getElementById('faq-answer').value = '';
+    document.getElementById('faq-save-btn').innerHTML = '<i class="fa fa-save"></i> Guardar Pregunta';
+    document.getElementById('faq-cancel-btn').style.display = 'none';
+}
+
+async function loadFaqAdmin() {
+    const list = document.getElementById('faq-admin-list');
+    if (!list) return;
+    list.innerHTML = '<p style="color:#94a3b8;">Cargando...</p>';
+
+    const { data, error } = await _supabase.from('faqs').select('*').order('order', { ascending: true });
+    if (error) {
+        list.innerHTML = '<p style="color:#ef4444;">Error al cargar: ' + error.message + '</p>';
+        return;
+    }
+
+    // If empty, seed default FAQs
+    if (!data || data.length === 0) {
+        const rows = DEFAULT_FAQS.map((f, i) => ({ question: f.question, answer: f.answer, order: i + 1 }));
+        await _supabase.from('faqs').insert(rows);
+        return loadFaqAdmin();
+    }
+
+    list.innerHTML = '';
+    data.forEach(faq => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:18px 20px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px;';
+        card.innerHTML = `
+            <div style="flex:1;">
+                <p style="font-weight:800; font-size:15px; color:#0f172a; margin:0 0 6px;">${faq.question}</p>
+                <p style="font-size:13px; color:#64748b; margin:0; line-height:1.5;">${faq.answer}</p>
+            </div>
+            <div style="display:flex; gap:8px; flex-shrink:0;">
+                <button onclick="editFaq(${faq.id}, \`${faq.question.replace(/`/g, '\\`')}\`, \`${faq.answer.replace(/`/g, '\\`')}\`)" style="background:#1d4ed8; color:#fff; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; font-size:13px; font-weight:700;"><i class="fa fa-edit"></i> Editar</button>
+                <button onclick="deleteFaq(${faq.id})" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; font-size:13px; font-weight:700;"><i class="fa fa-trash"></i> Borrar</button>
+            </div>
+        `;
+        list.appendChild(card);
+    });
+}
+
+window.editFaq = function(id, question, answer) {
+    document.getElementById('faq-edit-id').value = id;
+    document.getElementById('faq-question').value = question;
+    document.getElementById('faq-answer').value = answer;
+    document.getElementById('faq-save-btn').innerHTML = '<i class="fa fa-save"></i> Actualizar Pregunta';
+    document.getElementById('faq-cancel-btn').style.display = 'inline-flex';
+    document.getElementById('faq-form').scrollIntoView({ behavior: 'smooth' });
+};
+
+window.deleteFaq = async function(id) {
+    if (!confirm('¿Seguro que quieres eliminar esta pregunta?')) return;
+    const { error } = await _supabase.from('faqs').delete().eq('id', id);
+    if (error) { alert('Error: ' + error.message); return; }
+    await loadFaqAdmin();
+};
+
+// Initialize FAQ admin when section is shown
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.admin-nav-item[data-target]').forEach(item => {
+        item.addEventListener('click', () => {
+            if (item.getAttribute('data-target') === 'faq-section') {
+                initFaqAdmin();
+            }
+        });
+    });
+});
