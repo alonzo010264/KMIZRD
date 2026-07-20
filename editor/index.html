@@ -11,29 +11,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --editor-bg: #0b0f19;
-            --panel-bg: #151c2c;
-            --border-color: #222f47;
+            --bg-body: #f8fafc;
+            --card-border: #e2e8f0;
             --accent-color: #0272ba;
-            --accent-glow: rgba(2, 114, 186, 0.4);
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
         }
 
         body {
-            background-color: var(--editor-bg);
-            color: var(--text-main);
+            background-color: var(--bg-body);
+            color: var(--text-dark);
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
         }
 
-        /* Header matching theme */
         .editor-header {
-            background-color: var(--panel-bg);
-            border-bottom: 1px solid var(--border-color);
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--card-border);
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
@@ -55,14 +51,19 @@
 
         .editor-header .nav-links a:hover,
         .editor-header .nav-links a.active {
-            color: var(--text-main);
+            color: var(--text-dark);
         }
 
-        /* Layout Grid */
+        /* Layout */
         .editor-layout {
             display: grid;
             grid-template-columns: 1fr 420px;
             flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 30px;
+            gap: 30px;
             height: calc(100vh - 72px);
         }
 
@@ -70,86 +71,83 @@
             .editor-layout {
                 grid-template-columns: 1fr;
                 height: auto;
+                padding: 15px;
             }
         }
 
-        /* Canvas Workspace (Left) */
+        /* Workspace Card Frame (Match screenshot) */
         .workspace {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
+            background-color: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             position: relative;
-            background-color: var(--editor-bg);
-            padding: 40px;
-            user-select: none;
+            aspect-ratio: 1;
+            max-height: 650px;
             overflow: hidden;
         }
 
-        /* Watermark Background */
-        .watermark-container {
+        /* Watermark Globe */
+        .watermark-bg {
             position: absolute;
-            width: min(80vw, 550px);
-            height: min(80vw, 550px);
+            width: 85%;
+            height: 85%;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0.12;
-            pointer-events: none;
-            z-index: 1;
         }
 
-        .watermark-container svg {
+        .watermark-bg svg {
             width: 100%;
             height: 100%;
+            color: #64748b;
         }
 
-        /* Garment Wrapper */
-        .garment-wrapper {
+        /* Garment Holder */
+        .garment-container {
             position: relative;
-            width: min(90vw, 480px);
-            height: min(90vw, 480px);
+            width: 75%;
+            height: 75%;
             z-index: 5;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .garment-svg-container {
+        .garment-svg {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.5));
             transition: transform 0.3s ease;
         }
 
-        /* Printable Bound Area */
+        /* Print Bounds Area */
         .printable-area {
             position: absolute;
             top: 22%;
-            left: 30%;
-            width: 40%;
-            height: 54%;
+            left: 29%;
+            width: 42%;
+            height: 58%;
             z-index: 10;
-            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border: 1px dashed rgba(0, 0, 0, 0.15);
             border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            transition: border-color 0.3s;
         }
 
-        .printable-area.dragging-over {
-            border-color: var(--accent-color);
-            background-color: rgba(2, 114, 186, 0.05);
-        }
-
-        /* Design Element */
+        /* Drag & Drop Graphic */
         .design-element {
             position: absolute;
             cursor: grab;
-            width: 140px;
-            height: 140px;
+            width: 150px;
+            height: 150px;
             transform-origin: center center;
             touch-action: none;
         }
@@ -165,14 +163,42 @@
             pointer-events: none;
         }
 
-        /* Arrows to toggle views */
+        /* Overlay Round Nav Buttons (Match screenshot) */
         .arrow-btn {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
+            background-color: rgba(30, 41, 59, 0.65);
+            border: none;
+            color: #ffffff;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 18px;
+        }
+
+        .arrow-btn:hover {
+            background-color: rgba(15, 23, 42, 0.85);
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .arrow-left { left: 20px; }
+        .arrow-right { right: 20px; }
+
+        /* Floating Upload Button (Match bottom left screenshot icon) */
+        .floating-upload {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(30, 41, 59, 0.65);
+            border: none;
+            color: #ffffff;
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -181,69 +207,59 @@
             justify-content: center;
             cursor: pointer;
             z-index: 20;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: background-color 0.3s, transform 0.2s;
+            font-size: 18px;
         }
 
-        .arrow-btn:hover {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-            box-shadow: 0 0 15px var(--accent-glow);
+        .floating-upload:hover {
+            background-color: rgba(15, 23, 42, 0.85);
+            transform: scale(1.05);
         }
 
-        .arrow-left { left: 40px; }
-        .arrow-right { right: 40px; }
-
-        @media (max-width: 768px) {
-            .arrow-left { left: 15px; }
-            .arrow-right { right: 15px; }
-        }
-
-        /* Control Panel (Right) */
-        .control-panel {
-            background-color: var(--panel-bg);
-            border-left: 1px solid var(--border-color);
-            padding: 30px;
+        /* Sidebar Controls */
+        .control-sidebar {
+            background-color: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             overflow-y: auto;
-            z-index: 10;
         }
 
-        .panel-title {
-            font-size: 22px;
+        .sidebar-title {
+            font-size: 20px;
             font-weight: 800;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .section-title {
-            font-size: 14px;
+        .control-section-title {
+            font-size: 13px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             color: var(--text-muted);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
-        /* View State Indicator */
-        .view-indicator {
+        /* View Toggle Tabs */
+        .toggle-tabs {
             display: flex;
-            background: var(--editor-bg);
-            border: 1px solid var(--border-color);
+            background-color: #f1f5f9;
             border-radius: 30px;
             padding: 4px;
         }
 
-        .view-tab {
+        .tab-btn {
             flex: 1;
             text-align: center;
-            padding: 8px 12px;
+            padding: 8px;
             font-size: 13px;
             font-weight: 700;
             border-radius: 20px;
@@ -252,20 +268,19 @@
             transition: all 0.3s;
         }
 
-        .view-tab.active {
+        .tab-btn.active {
             background-color: var(--accent-color);
-            color: var(--text-main);
-            box-shadow: 0 4px 10px var(--accent-glow);
+            color: #ffffff;
         }
 
-        /* Color Swatches Grid */
-        .color-grid {
+        /* Colors Grid */
+        .color-palette-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
+            gap: 8px;
         }
 
-        .color-swatch {
+        .color-swatch-item {
             aspect-ratio: 1;
             border-radius: 50%;
             cursor: pointer;
@@ -274,33 +289,33 @@
             position: relative;
         }
 
-        .color-swatch:hover {
+        .color-swatch-item:hover {
             transform: scale(1.1);
         }
 
-        .color-swatch.active {
-            border-color: var(--text-main);
+        .color-swatch-item.active {
+            border-color: var(--text-dark);
             transform: scale(1.05);
         }
 
-        .color-swatch.active::after {
+        .color-swatch-item.active::after {
             content: "\f00c";
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
-            color: #fff;
+            color: #ffffff;
             position: absolute;
             inset: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            font-size: 11px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
         }
 
-        /* Slider Controls */
-        .control-group {
-            background-color: var(--editor-bg);
-            border: 1px solid var(--border-color);
+        /* Adjustment sliders */
+        .adjust-container {
+            background-color: #f8fafc;
+            border: 1px solid var(--card-border);
             border-radius: 12px;
             padding: 15px;
             display: flex;
@@ -308,61 +323,84 @@
             gap: 12px;
         }
 
-        .slider-row {
+        .adjust-slider-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
         }
 
-        .slider-row label {
+        .adjust-slider-row label {
             font-size: 13px;
             font-weight: 600;
             color: var(--text-muted);
+            width: 60px;
         }
 
-        .slider-row input[type="range"] {
+        .adjust-slider-row input[type="range"] {
             flex: 1;
             accent-color: var(--accent-color);
             height: 4px;
-            background: var(--border-color);
+            background: #e2e8f0;
             border-radius: 2px;
             cursor: pointer;
         }
 
-        /* Custom File Upload */
-        .upload-area {
-            border: 2px dashed var(--border-color);
+        /* Upload Area */
+        .dropzone-area {
+            border: 2px dashed var(--card-border);
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
         }
 
-        .upload-area:hover {
+        .dropzone-area:hover {
             border-color: var(--accent-color);
             background-color: rgba(2, 114, 186, 0.02);
         }
 
-        .upload-area i {
-            font-size: 28px;
+        .dropzone-area i {
+            font-size: 24px;
             color: var(--accent-color);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
-        .upload-area p {
-            font-size: 13px;
-            font-weight: 500;
+        .dropzone-area p {
+            font-size: 12px;
             color: var(--text-muted);
         }
 
+        /* Pricing display */
+        .price-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8fafc;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 18px;
+        }
+
+        .price-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .price-amount {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
         /* Action Buttons */
-        .action-btn {
+        .whatsapp-submit-btn {
             background: linear-gradient(135deg, var(--accent-color) 0%, #005a96 100%);
-            color: var(--text-main);
+            color: #ffffff;
             border: none;
-            padding: 16px;
+            padding: 14px;
             border-radius: 12px;
             font-weight: 700;
             font-size: 15px;
@@ -372,60 +410,12 @@
             justify-content: center;
             gap: 10px;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(2, 114, 186, 0.3);
+            box-shadow: 0 4px 12px rgba(2, 114, 186, 0.2);
         }
 
-        .action-btn:hover {
-            box-shadow: 0 6px 20px rgba(2, 114, 186, 0.5);
-            transform: translateY(-2px);
-        }
-
-        /* Price display */
-        .price-box {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--editor-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px 20px;
-        }
-
-        .price-label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        .price-value {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--text-main);
-        }
-
-        .upload-btn-canvas {
-            position: absolute;
-            bottom: 25px;
-            left: 25px;
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 20;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .upload-btn-canvas:hover {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-            transform: scale(1.05);
+        .whatsapp-submit-btn:hover {
+            box-shadow: 0 6px 18px rgba(2, 114, 186, 0.35);
+            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -443,10 +433,10 @@
     </header>
 
     <main class="editor-layout">
-        <!-- Canvas Workspace (Left) -->
+        <!-- Workspace Card Frame (Left) -->
         <section class="workspace">
-            <div class="watermark-container">
-                <!-- Watermark Globe SVG exactly as screenshot -->
+            <div class="watermark-bg">
+                <!-- Watermark Globe Grid SVG matching user reference screenshot -->
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" stroke-width="0.6" />
                     <ellipse cx="50" cy="50" rx="30" ry="48" fill="none" stroke="currentColor" stroke-width="0.6" />
@@ -460,375 +450,368 @@
                 </svg>
             </div>
 
-            <!-- View Swapping Arrows -->
-            <button class="arrow-btn arrow-left" id="prev-view" aria-label="Vista anterior">
+            <!-- Left Arrow Overlay -->
+            <button class="arrow-btn arrow-left" id="prev-btn" aria-label="Anterior">
                 <i class="fas fa-chevron-left"></i>
             </button>
 
-            <!-- Shirt/Garment Wrapper -->
-            <div class="garment-wrapper">
-                <div class="garment-svg-container" id="garment-svg-container">
-                    <!-- Vector SVG T-Shirt (Loaded via JS dynamically) -->
+            <!-- T-Shirt Holder -->
+            <div class="garment-container">
+                <div class="garment-svg" id="garment-svg">
+                    <!-- SVG gets injected via JavaScript -->
                 </div>
 
-                <!-- Active design layer container -->
-                <div class="printable-area" id="print-zone">
-                    <div class="design-element" id="design-layer" style="display: none;">
-                        <img src="" id="user-design-img" alt="Tu diseño">
+                <!-- Draggable design wrapper over shirt body -->
+                <div class="printable-area" id="print-area">
+                    <div class="design-element" id="design-element" style="display: none;">
+                        <img src="" id="design-img" alt="Diseño">
                     </div>
                 </div>
             </div>
 
-            <button class="arrow-btn arrow-right" id="next-view" aria-label="Siguiente vista">
+            <!-- Right Arrow Overlay -->
+            <button class="arrow-btn arrow-right" id="next-btn" aria-label="Siguiente">
                 <i class="fas fa-chevron-right"></i>
             </button>
 
-            <!-- Bottom Left Upload Trigger -->
-            <button class="upload-btn-canvas" id="canvas-upload-trigger" title="Subir diseño">
-                <i class="fas fa-image"></i>
+            <!-- Bottom Left Floating Upload Button (Matches screenshot image icon) -->
+            <button class="floating-upload" id="float-upload-trigger" title="Cambiar diseño">
+                <i class="fas fa-images"></i>
             </button>
         </section>
 
-        <!-- Sidebar Panel (Right) -->
-        <section class="control-panel">
-            <h1 class="panel-title">
-                <i class="fas fa-sliders-h" style="color: var(--accent-color);"></i>
-                Personalizar Poloche
+        <!-- Sidebar Panel Controls (Right) -->
+        <section class="control-sidebar">
+            <h1 class="sidebar-title">
+                <i class="fas fa-magic" style="color: var(--accent-color);"></i>
+                Editor de Poloches
             </h1>
 
-            <!-- Front/Back Toggle tabs -->
+            <!-- Front / Back View toggles -->
             <div>
-                <h3 class="section-title">Vista de Prenda</h3>
-                <div class="view-indicator">
-                    <div class="view-tab active" id="tab-front" data-view="front">FRENTE</div>
-                    <div class="view-tab" id="tab-back" data-view="back">ESPALDA</div>
+                <h3 class="control-section-title">Vista del Poloche</h3>
+                <div class="toggle-tabs">
+                    <div class="tab-btn active" id="tab-front" data-view="front">Frente</div>
+                    <div class="tab-btn" id="tab-back" data-view="back">Espalda</div>
                 </div>
             </div>
 
-            <!-- Color Palette -->
+            <!-- Colors Grid Selector -->
             <div>
-                <h3 class="section-title">Colores Streetwear</h3>
-                <div class="color-grid" id="color-palette">
-                    <!-- Swatches will be generated via JS -->
+                <h3 class="control-section-title">Color de la Prenda</h3>
+                <div class="color-palette-grid" id="color-palette">
+                    <!-- Color Swatches loaded via JS -->
                 </div>
             </div>
 
-            <!-- Design adjustments sliders -->
+            <!-- Sliders settings -->
             <div>
-                <h3 class="section-title">Ajustes del Diseño</h3>
-                <div class="control-group">
-                    <div class="slider-row">
-                        <label for="scale-slider">Tamaño</label>
-                        <input type="range" id="scale-slider" min="30" max="250" value="100">
+                <h3 class="control-section-title">Ajustes del Diseño</h3>
+                <div class="adjust-container">
+                    <div class="adjust-slider-row">
+                        <label for="slider-scale">Tamaño</label>
+                        <input type="range" id="slider-scale" min="30" max="250" value="100">
                     </div>
-                    <div class="slider-row">
-                        <label for="rotate-slider">Rotación</label>
-                        <input type="range" id="rotate-slider" min="-180" max="180" value="0">
+                    <div class="adjust-slider-row">
+                        <label for="slider-rotate">Rotación</label>
+                        <input type="range" id="slider-rotate" min="-180" max="180" value="0">
                     </div>
                 </div>
             </div>
 
-            <!-- Upload Area -->
+            <!-- File Upload Dropzone -->
             <div>
-                <h3 class="section-title">Tu Gráfico</h3>
-                <div class="upload-area" id="drop-zone">
+                <h3 class="control-section-title">Subir Diseño</h3>
+                <div class="dropzone-area" id="drop-zone">
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <p>Arrastra tu archivo aquí o <strong>haz clic para buscar</strong></p>
-                    <input type="file" id="file-uploader" accept="image/*" style="display: none;">
+                    <p>Arrastra tu logo aquí o <strong>haz clic para buscar</strong></p>
+                    <input type="file" id="image-loader" accept="image/*" style="display: none;">
                 </div>
             </div>
 
-            <!-- Pricing Box -->
-            <div class="price-box">
-                <span class="price-label">Precio Estimado</span>
-                <span class="price-value" id="price-display">$1,200.00</span>
+            <!-- Price -->
+            <div class="price-container">
+                <span class="price-title">Precio estimado</span>
+                <span class="price-amount" id="price-val">$1,200.00</span>
             </div>
 
-            <!-- WhatsApp Action -->
-            <button class="action-btn" id="send-whatsapp">
+            <!-- Action Button -->
+            <button class="whatsapp-submit-btn" id="submit-whatsapp">
                 <i class="fab fa-whatsapp"></i>
-                Enviar Diseño por WhatsApp
+                Enviar por WhatsApp
             </button>
         </section>
     </main>
 
-    <!-- Vector SVGs store -->
     <script>
+        // High quality vector outlines matching the boxy streetwear oversized look in screenshot
         const SVGs = {
             front: (color) => `
                 <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Sombra interna del cuello y etiqueta -->
-                    <path d="M 40,16.2 Q 50,18.5 60,16.2 Q 50,22 40,16.2 Z" fill="#2d3748" stroke="#000000" stroke-width="1" />
-                    <rect x="47.5" y="17.5" width="5" height="3" fill="#111" />
-                    <text x="50" y="19.5" font-size="1.2" fill="#fff" text-anchor="middle" font-weight="bold" font-family="'Outfit', sans-serif">KMIZ</text>
+                    <!-- Inner neck shadow and tag -->
+                    <path d="M 38,17 C 38,17 50,19.5 62,17 C 50,23.5 38,17 38,17 Z" fill="#b8c2cc" stroke="#111111" stroke-width="1" />
+                    <rect x="47.5" y="18.5" width="5" height="3" fill="#111111" />
+                    <text x="50" y="20.5" font-size="1.2" fill="#ffffff" text-anchor="middle" font-weight="bold" font-family="'Outfit', sans-serif">KMIZRD</text>
 
-                    <!-- Cuerpo Principal del Poloche -->
-                    <path d="
-                        M 40,16
-                        Q 50,21.5 60,16
-                        L 74,19.5
-                        L 87,36
-                        L 79,41.5
-                        L 72,34
-                        L 72,78
-                        Q 50,80.5 28,78
-                        L 28,34
-                        L 21,41.5
-                        L 13,36
-                        L 26,19.5
-                        Z"
-                        fill="${color}" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" />
+                    <!-- Main Shirt Body -->
+                    <path class="tshirt-fill" d="
+                        M 38,17 
+                        C 42,23.5 58,23.5 62,17 
+                        L 77,21.5 
+                        L 89,40 
+                        L 78,47 
+                        L 71,38 
+                        L 71,83 
+                        L 29,83 
+                        L 29,38 
+                        L 22,47 
+                        L 11,40 
+                        L 23,21.5 
+                        Z" 
+                        fill="${color}" stroke="#111111" stroke-width="1.8" stroke-linejoin="round" />
                         
-                    <!-- Cuello Ribeteado -->
-                    <path d="M 40,16 Q 50,21.5 60,16" fill="none" stroke="#000000" stroke-width="1.8" />
+                    <!-- Collar ribbing curve -->
+                    <path d="M 38,17 C 42,23.5 58,23.5 62,17" fill="none" stroke="#111111" stroke-width="1.8" />
+                    <path d="M 39,15.5 C 43,21.5 57,21.5 61,15.5" fill="none" stroke="#111111" stroke-width="1" />
                     
-                    <!-- Costuras Hombro / Sisa -->
-                    <path d="M 26,19.5 L 28,34" fill="none" stroke="#000000" stroke-width="0.8" stroke-dasharray="2,2" />
-                    <path d="M 74,19.5 L 72,34" fill="none" stroke="#000000" stroke-width="0.8" stroke-dasharray="2,2" />
+                    <!-- Stitching on shoulders -->
+                    <path d="M 23,21.5 L 29,38" fill="none" stroke="#111111" stroke-width="1" stroke-dasharray="1.5,1.5" />
+                    <path d="M 77,21.5 L 71,38" fill="none" stroke="#111111" stroke-width="1" stroke-dasharray="1.5,1.5" />
                     
-                    <!-- Dobladillos de Mangas -->
-                    <path d="M 13,36 L 21,41.5" fill="none" stroke="#000000" stroke-width="1.5" />
-                    <path d="M 87,36 L 79,41.5" fill="none" stroke="#000000" stroke-width="1.5" />
+                    <!-- Sleeve cuffs -->
+                    <path d="M 11,40 L 22,47" fill="none" stroke="#111111" stroke-width="1.5" />
+                    <path d="M 89,40 L 78,47" fill="none" stroke="#111111" stroke-width="1.5" />
                     
-                    <!-- Dobladillo Inferior -->
-                    <path d="M 28,78 Q 50,80.5 72,78" fill="none" stroke="#000000" stroke-width="1.5" />
+                    <!-- Bottom hem -->
+                    <path d="M 29,83 L 71,83" fill="none" stroke="#111111" stroke-width="1.5" />
                 </svg>
             `,
             back: (color) => `
                 <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Cuerpo Principal del Poloche (Espalda) -->
-                    <path d="
-                        M 40,16
-                        Q 50,18 60,16
-                        L 74,19.5
-                        L 87,36
-                        L 79,41.5
-                        L 72,34
-                        L 72,78
-                        Q 50,80.5 28,78
-                        L 28,34
-                        L 21,41.5
-                        L 13,36
-                        L 26,19.5
-                        Z"
-                        fill="${color}" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" />
+                    <!-- Main Shirt Body -->
+                    <path class="tshirt-fill" d="
+                        M 38,17 
+                        C 42,19.5 58,19.5 62,17 
+                        L 77,21.5 
+                        L 89,40 
+                        L 78,47 
+                        L 71,38 
+                        L 71,83 
+                        L 29,83 
+                        L 29,38 
+                        L 22,47 
+                        L 11,40 
+                        L 23,21.5 
+                        Z" 
+                        fill="${color}" stroke="#111111" stroke-width="1.8" stroke-linejoin="round" />
                         
-                    <!-- Cuello Ribeteado (Espalda - Curva más alta) -->
-                    <path d="M 40,16 Q 50,18 60,16" fill="none" stroke="#000000" stroke-width="1.8" />
+                    <!-- Collar (Back curve is higher) -->
+                    <path d="M 38,17 C 42,19.5 58,19.5 62,17" fill="none" stroke="#111111" stroke-width="1.8" />
+                    <path d="M 39,15.5 C 43,17.5 57,17.5 61,15.5" fill="none" stroke="#111111" stroke-width="1" />
                     
-                    <!-- Costuras Hombro / Sisa -->
-                    <path d="M 26,19.5 L 28,34" fill="none" stroke="#000000" stroke-width="0.8" stroke-dasharray="2,2" />
-                    <path d="M 74,19.5 L 72,34" fill="none" stroke="#000000" stroke-width="0.8" stroke-dasharray="2,2" />
+                    <!-- Stitching on shoulders -->
+                    <path d="M 23,21.5 L 29,38" fill="none" stroke="#111111" stroke-width="1" stroke-dasharray="1.5,1.5" />
+                    <path d="M 77,21.5 L 71,38" fill="none" stroke="#111111" stroke-width="1" stroke-dasharray="1.5,1.5" />
                     
-                    <!-- Dobladillos de Mangas -->
-                    <path d="M 13,36 L 21,41.5" fill="none" stroke="#000000" stroke-width="1.5" />
-                    <path d="M 87,36 L 79,41.5" fill="none" stroke="#000000" stroke-width="1.5" />
+                    <!-- Sleeve cuffs -->
+                    <path d="M 11,40 L 22,47" fill="none" stroke="#111111" stroke-width="1.5" />
+                    <path d="M 89,40 L 78,47" fill="none" stroke="#111111" stroke-width="1.5" />
                     
-                    <!-- Dobladillo Inferior -->
-                    <path d="M 28,78 Q 50,80.5 72,78" fill="none" stroke="#000000" stroke-width="1.5" />
+                    <!-- Bottom hem -->
+                    <path d="M 29,83 L 71,83" fill="none" stroke="#111111" stroke-width="1.5" />
                 </svg>
             `
         };
 
-        // Custom Swatch Colors
-        const Swatches = [
-            { name: 'Crema', hex: '#f5e6d3' },
+        // Color selection
+        const Colors = [
+            { name: 'Crema', hex: '#f3ebd9' },
             { name: 'Blanco', hex: '#ffffff' },
-            { name: 'Negro Street', hex: '#18181b' },
-            { name: 'Gris Ceniza', hex: '#a1a1aa' },
-            { name: 'Arena', hex: '#d4c2ad' },
-            { name: 'Rojo Vintage', hex: '#991b1b' },
-            { name: 'Verde Bosque', hex: '#14532d' },
-            { name: 'Azul Royale', hex: '#1d4ed8' },
-            { name: 'Marrón Oscuro', hex: '#451a03' }
+            { name: 'Negro Mate', hex: '#1e1e1e' },
+            { name: 'Gris Carbón', hex: '#5b616a' },
+            { name: 'Rojo Street', hex: '#b91c1c' },
+            { name: 'Verde Pino', hex: '#1e3f20' },
+            { name: 'Azul Denim', hex: '#1e3a8a' },
+            { name: 'Camel / Arena', hex: '#c5a880' }
         ];
 
-        // Editor state
+        // State definition
         const state = {
-            color: '#f5e6d3',
-            view: 'front', // 'front' or 'back'
-            front: {
-                img: null,
-                scale: 100,
-                rotation: 0,
-                x: 0,
-                y: 0
-            },
-            back: {
-                img: null,
-                scale: 100,
-                rotation: 0,
-                x: 0,
-                y: 0
-            }
+            color: '#f3ebd9',
+            view: 'front',
+            front: { img: null, scale: 100, rotation: 0, x: 0, y: 0 },
+            back: { img: null, scale: 100, rotation: 0, x: 0, y: 0 }
         };
 
-        // DOM elements
-        const garmentContainer = document.getElementById('garment-svg-container');
-        const printZone = document.getElementById('print-zone');
-        const designLayer = document.getElementById('design-layer');
-        const userImg = document.getElementById('user-design-img');
+        // Element lookup
+        const garmentSvgHolder = document.getElementById('garment-svg');
+        const printArea = document.getElementById('print-area');
+        const designWrapper = document.getElementById('design-element');
+        const designImgElement = document.getElementById('design-img');
+        const colorPalette = document.getElementById('color-palette');
         const tabFront = document.getElementById('tab-front');
         const tabBack = document.getElementById('tab-back');
-        const btnPrevView = document.getElementById('prev-view');
-        const btnNextView = document.getElementById('next-view');
-        const scaleSlider = document.getElementById('scale-slider');
-        const rotateSlider = document.getElementById('rotate-slider');
-        const fileUploader = document.getElementById('file-uploader');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const floatUpload = document.getElementById('float-upload-trigger');
         const dropZone = document.getElementById('drop-zone');
-        const canvasUploadTrigger = document.getElementById('canvas-upload-trigger');
-        const colorPalette = document.getElementById('color-palette');
-        const sendWhatsapp = document.getElementById('send-whatsapp');
+        const imageLoader = document.getElementById('image-loader');
+        const sliderScale = document.getElementById('slider-scale');
+        const sliderRotate = document.getElementById('slider-rotate');
+        const submitWhatsapp = document.getElementById('submit-whatsapp');
 
-        // Initialize view
-        function renderGarment() {
-            garmentContainer.innerHTML = SVGs[state.view](state.color);
-            updateDesignLayer();
+        // Render poloche shape
+        function updateGarmentView() {
+            garmentSvgHolder.innerHTML = SVGs[state.view](state.color);
+            refreshDesignProperties();
         }
 
-        function switchView(viewName) {
+        // Color swatches render
+        function updateColorPalette() {
+            colorPalette.innerHTML = '';
+            Colors.forEach(item => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch-item';
+                swatch.style.backgroundColor = item.hex;
+                swatch.title = item.name;
+                if (item.hex === state.color) swatch.classList.add('active');
+                
+                swatch.addEventListener('click', () => {
+                    document.querySelectorAll('.color-swatch-item').forEach(el => el.classList.remove('active'));
+                    swatch.classList.add('active');
+                    state.color = item.hex;
+                    updateGarmentView();
+                });
+                
+                colorPalette.appendChild(swatch);
+            });
+        }
+
+        // Apply scaling, dragging and rotation styles
+        function refreshDesignProperties() {
+            const current = state[state.view];
+            if (current.img) {
+                designImgElement.src = current.img;
+                designWrapper.style.display = 'block';
+                designWrapper.style.transform = `translate(${current.x}px, ${current.y}px) scale(${current.scale / 100}) rotate(${current.rotation}deg)`;
+            } else {
+                designWrapper.style.display = 'none';
+            }
+        }
+
+        // Switch front/back views
+        function toggleViewMode(viewName) {
             state.view = viewName;
-            if(viewName === 'front') {
+            if (viewName === 'front') {
                 tabFront.classList.add('active');
                 tabBack.classList.remove('active');
             } else {
                 tabBack.classList.add('active');
                 tabFront.classList.remove('active');
             }
-            
-            // Sync adjustments sliders with current view state
+
+            // Sync sliders
             const current = state[state.view];
-            scaleSlider.value = current.scale;
-            rotateSlider.value = current.rotation;
-            
-            renderGarment();
+            sliderScale.value = current.scale;
+            sliderRotate.value = current.rotation;
+
+            updateGarmentView();
         }
 
-        // Color Swatches render
-        function renderSwatches() {
-            colorPalette.innerHTML = '';
-            Swatches.forEach(sw => {
-                const swatch = document.createElement('div');
-                swatch.className = 'color-swatch';
-                swatch.style.backgroundColor = sw.hex;
-                swatch.title = sw.name;
-                if(sw.hex === state.color) swatch.classList.add('active');
-                swatch.addEventListener('click', () => {
-                    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-                    swatch.classList.add('active');
-                    state.color = sw.hex;
-                    renderGarment();
-                });
-                colorPalette.appendChild(swatch);
-            });
-        }
-
-        // Apply visual updates on design layer (drag, scale, rotate)
-        function updateDesignLayer() {
-            const current = state[state.view];
-            if (current.img) {
-                userImg.src = current.img;
-                designLayer.style.display = 'block';
-                designLayer.style.transform = `translate(${current.x}px, ${current.y}px) scale(${current.scale / 100}) rotate(${current.rotation}deg)`;
-            } else {
-                designLayer.style.display = 'none';
-            }
-        }
-
-        // Handle Image upload
-        function handleFile(file) {
+        // File loading handling
+        function uploadImageFile(file) {
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     state[state.view].img = e.target.result;
-                    updateDesignLayer();
-                }
+                    refreshDesignProperties();
+                };
                 reader.readAsDataURL(file);
             }
         }
 
-        // Upload Triggers
-        dropZone.addEventListener('click', () => fileUploader.click());
-        canvasUploadTrigger.addEventListener('click', () => fileUploader.click());
-        fileUploader.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        // Upload triggers
+        dropZone.addEventListener('click', () => imageLoader.click());
+        floatUpload.addEventListener('click', () => imageLoader.click());
+        imageLoader.addEventListener('change', (e) => uploadImageFile(e.target.files[0]));
 
-        // Drag and Drop files
+        // Drag & Drop files
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.style.borderColor = 'var(--accent-color)';
         });
         dropZone.addEventListener('dragleave', () => {
-            dropZone.style.borderColor = 'var(--border-color)';
+            dropZone.style.borderColor = 'var(--card-border)';
         });
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropZone.style.borderColor = 'var(--border-color)';
-            handleFile(e.dataTransfer.files[0]);
+            dropZone.style.borderColor = 'var(--card-border)';
+            uploadImageFile(e.dataTransfer.files[0]);
         });
 
-        // View Tabs
-        tabFront.addEventListener('click', () => switchView('front'));
-        tabBack.addEventListener('click', () => switchView('back'));
-        btnPrevView.addEventListener('click', () => switchView(state.view === 'front' ? 'back' : 'front'));
-        btnNextView.addEventListener('click', () => switchView(state.view === 'front' ? 'back' : 'front'));
+        // Tab and arrow bindings
+        tabFront.addEventListener('click', () => toggleViewMode('front'));
+        tabBack.addEventListener('click', () => toggleViewMode('back'));
+        prevBtn.addEventListener('click', () => toggleViewMode(state.view === 'front' ? 'back' : 'front'));
+        nextBtn.addEventListener('click', () => toggleViewMode(state.view === 'front' ? 'back' : 'front'));
 
-        // Slider Adjustments
-        scaleSlider.addEventListener('input', (e) => {
+        // Adjustments Sliders
+        sliderScale.addEventListener('input', (e) => {
             state[state.view].scale = parseInt(e.target.value);
-            updateDesignLayer();
+            refreshDesignProperties();
         });
-        rotateSlider.addEventListener('input', (e) => {
+        sliderRotate.addEventListener('input', (e) => {
             state[state.view].rotation = parseInt(e.target.value);
-            updateDesignLayer();
+            refreshDesignProperties();
         });
 
-        // Drag Design Layer
-        let activeDrag = false;
-        let startX, startY;
+        // Dragging Design Element Logic
+        let dragActive = false;
+        let startCursorX, startCursorY;
 
-        designLayer.addEventListener('mousedown', startDrag);
-        designLayer.addEventListener('touchstart', startDrag, { passive: false });
+        designWrapper.addEventListener('mousedown', initiateDrag);
+        designWrapper.addEventListener('touchstart', initiateDrag, { passive: false });
 
-        function startDrag(e) {
-            activeDrag = true;
+        function initiateDrag(e) {
+            dragActive = true;
             const current = state[state.view];
-            const event = e.touches ? e.touches[0] : e;
-            startX = event.clientX - current.x;
-            startY = event.clientY - current.y;
+            const ptr = e.touches ? e.touches[0] : e;
+            startCursorX = ptr.clientX - current.x;
+            startCursorY = ptr.clientY - current.y;
             e.preventDefault();
         }
 
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('touchmove', drag, { passive: false });
+        document.addEventListener('mousemove', performDrag);
+        document.addEventListener('touchmove', performDrag, { passive: false });
 
-        function drag(e) {
-            if (!activeDrag) return;
+        function performDrag(e) {
+            if (!dragActive) return;
             const current = state[state.view];
-            const event = e.touches ? e.touches[0] : e;
-            current.x = event.clientX - startX;
-            current.y = event.clientY - startY;
-            updateDesignLayer();
+            const ptr = e.touches ? e.touches[0] : e;
+            current.x = ptr.clientX - startCursorX;
+            current.y = ptr.clientY - startCursorY;
+            refreshDesignProperties();
             e.preventDefault();
         }
 
-        document.addEventListener('mouseup', () => activeDrag = false);
-        document.addEventListener('touchend', () => activeDrag = false);
+        document.addEventListener('mouseup', () => dragActive = false);
+        document.addEventListener('touchend', () => dragActive = false);
 
-        // WhatsApp trigger
-        sendWhatsapp.addEventListener('click', () => {
-            const colorName = Swatches.find(s => s.hex === state.color)?.name || 'Personalizado';
-            let msg = `🔥 *Nuevo diseño personalizado en KMIZRD* 🔥%0A%0A`;
-            msg += `• *Color:* ${colorName}%0A`;
-            msg += `• *Frente:* ${state.front.img ? 'Diseño cargado ✅' : 'Liso (sin diseño) ❌'}%0A`;
-            msg += `• *Espalda:* ${state.back.img ? 'Diseño cargado ✅' : 'Liso (sin diseño) ❌'}%0A%0A`;
-            msg += `_¡Enviando para coordinar mi producción por WhatsApp!_`;
+        // WhatsApp integration
+        submitWhatsapp.addEventListener('click', () => {
+            const selectedColor = Colors.find(c => c.hex === state.color)?.name || 'Personalizado';
+            let message = `🚀 *Nuevo pedido personalizado de Poloche KMIZRD* 🚀%0A%0A`;
+            message += `• *Color:* ${selectedColor}%0A`;
+            message += `• *Frente:* ${state.front.img ? 'Tiene diseño cargado ✅' : 'Liso (sin diseño) ❌'}%0A`;
+            message += `• *Espalda:* ${state.back.img ? 'Tiene diseño cargado ✅' : 'Liso (sin diseño) ❌'}%0A%0A`;
+            message += `_¡Enviado desde el editor para iniciar la fabricación!_`;
 
-            window.open(`https://wa.me/18090000000?text=${msg}`, '_blank');
+            window.open(`https://wa.me/18090000000?text=${message}`, '_blank');
         });
 
-        // Init
-        renderGarment();
-        renderSwatches();
+        // Initial launch
+        updateGarmentView();
+        updateColorPalette();
     </script>
 </body>
 </html>
