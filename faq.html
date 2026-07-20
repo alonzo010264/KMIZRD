@@ -335,10 +335,13 @@
                 container.appendChild(item);
             });
         }
-        document.addEventListener('DOMContentLoaded', loadFAQs);
-
-        // Reinitialize lucide icons
-        lucide.createIcons();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                loadFAQs().then(() => lucide.createIcons());
+            });
+        } else {
+            loadFAQs().then(() => lucide.createIcons());
+        }
     </script>
 </body>
 </html>

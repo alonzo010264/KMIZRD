@@ -127,6 +127,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Update hash without scrolling
             history.pushState(null, null, `#${targetId}`);
+
+            if (targetId === 'faq-section') {
+                initFaqAdmin();
+            }
         });
     });
 
@@ -137,6 +141,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Wait slightly for layout to settle
             setTimeout(() => {
                 manageTab.click();
+            }, 100);
+        }
+    } else if (window.location.hash === '#faq-section') {
+        const faqTab = document.querySelector('.admin-nav-item[data-target="faq-section"]');
+        if (faqTab) {
+            setTimeout(() => {
+                faqTab.click();
             }, 100);
         }
     }
@@ -1158,13 +1169,4 @@ window.deleteFaq = async function(id) {
     await loadFaqAdmin();
 };
 
-// Initialize FAQ admin when section is shown
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.admin-nav-item[data-target]').forEach(item => {
-        item.addEventListener('click', () => {
-            if (item.getAttribute('data-target') === 'faq-section') {
-                initFaqAdmin();
-            }
-        });
-    });
-});
+
