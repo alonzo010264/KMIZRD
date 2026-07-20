@@ -126,6 +126,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { data, error } = await _supabase
                 .from('products')
                 .select('*')
+                .neq('category', 'FAQ')
+                .neq('category', 'TRACKING')
+                .neq('category', 'SYSTEM_USERS')
                 .order('created_at', { ascending: false });
             if (error) throw error;
 

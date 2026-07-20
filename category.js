@@ -228,7 +228,13 @@
         const countEl = document.getElementById('results-count');
         if (!grid) return;
         try {
-            let query = _supabase.from('products').select('*').order('created_at', { ascending: false });
+            let query = _supabase
+                .from('products')
+                .select('*')
+                .neq('category', 'FAQ')
+                .neq('category', 'TRACKING')
+                .neq('category', 'SYSTEM_USERS')
+                .order('created_at', { ascending: false });
             if (CATEGORY) {
                 query = query.ilike('category', `%${CATEGORY.toLowerCase().replace('camisetas','camiseta').replace('hoodies','hoodie').replace('accesorios','accesorio').replace('colecciones','coleccion').replace('novedades','nuevo').replace('ofertas','oferta')}%`);
             }
