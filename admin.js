@@ -1064,12 +1064,19 @@ async function initFaqAdmin() {
 
         let error;
         if (id) {
-            ({ error } = await _supabase.from('faqs').update({ question, answer }).eq('id', id));
+            ({ error } = await _supabase.from('products').update({ name: question, description: answer }).eq('id', id));
         } else {
             // Get max order
-            const { data: existing } = await _supabase.from('faqs').select('order').order('order', { ascending: false }).limit(1);
-            const nextOrder = existing && existing.length > 0 ? (existing[0].order + 1) : 1;
-            ({ error } = await _supabase.from('faqs').insert([{ question, answer, order: nextOrder }]));
+            const { data: existing } = await _supabase.from('products').select('price').eq('category', 'FAQ').order('price', { ascending: false }).limit(1);
+            const nextOrder = existing && existing.length > 0 ? (existing[0].price + 1) : 1;
+            ({ error } = await _supabase.from('products').insert([{
+                name: question,
+                description: answer,
+                price: nextOrder,
+                category: 'FAQ',
+                sizes: [],
+                image: 'assets/logo.jpg'
+            }]));
         }
 
         if (error) {
@@ -1098,36 +1105,40 @@ function resetFaqForm() {
 async function loadFaqAdmin() {
     const list = document.getElementById('faq-admin-list');
     if (!list) return;
-    list.innerHTML = '<p style="color:#94a3b8;">Cargando...</p>';
+    list.innerHTML = '<tr><td colspan="3" style="text-align: center; color:#94a3b8; padding: 20px;">Cargando...</td></tr>';
 
-    const { data, error } = await _supabase.from('faqs').select('*').order('order', { ascending: true });
+    const { data, error } = await _supabase.from('products').select('*').eq('category', 'FAQ').order('price', { ascending: true });
     if (error) {
-        list.innerHTML = '<p style="color:#ef4444;">Error al cargar: ' + error.message + '</p>';
+        list.innerHTML = '<tr><td colspan="3" style="text-align: center; color:#ef4444; padding: 20px;">Error al cargar: ' + error.message + '</td></tr>';
         return;
     }
 
     // If empty, seed default FAQs
     if (!data || data.length === 0) {
-        const rows = DEFAULT_FAQS.map((f, i) => ({ question: f.question, answer: f.answer, order: i + 1 }));
-        await _supabase.from('faqs').insert(rows);
+        const rows = DEFAULT_FAQS.map((f, i) => ({
+            name: f.question,
+            description: f.answer,
+            price: i + 1,
+            category: 'FAQ',
+            sizes: [],
+            image: 'assets/logo.jpg'
+        }));
+        await _supabase.from('products').insert(rows);
         return loadFaqAdmin();
     }
 
     list.innerHTML = '';
     data.forEach(faq => {
-        const card = document.createElement('div');
-        card.style.cssText = 'background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:18px 20px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px;';
-        card.innerHTML = `
-            <div style="flex:1;">
-                <p style="font-weight:800; font-size:15px; color:#0f172a; margin:0 0 6px;">${faq.question}</p>
-                <p style="font-size:13px; color:#64748b; margin:0; line-height:1.5;">${faq.answer}</p>
-            </div>
-            <div style="display:flex; gap:8px; flex-shrink:0;">
-                <button onclick="editFaq(${faq.id}, \`${faq.question.replace(/`/g, '\\`')}\`, \`${faq.answer.replace(/`/g, '\\`')}\`)" style="background:#1d4ed8; color:#fff; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; font-size:13px; font-weight:700;"><i class="fa fa-edit"></i> Editar</button>
-                <button onclick="deleteFaq(${faq.id})" style="background:#ef4444; color:#fff; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; font-size:13px; font-weight:700;"><i class="fa fa-trash"></i> Borrar</button>
-            </div>
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="font-weight: 700; color: #0f172a; padding: 12px 15px; font-size: 13.5px; vertical-align: top;">${faq.name}</td>
+            <td style="color: #475569; line-height: 1.5; padding: 12px 15px; font-size: 13.5px; vertical-align: top;">${faq.description}</td>
+            <td style="text-align: center; padding: 12px 15px; vertical-align: top; white-space: nowrap;">
+                <button onclick="editFaq(${faq.id}, \`${faq.name.replace(/`/g, '\\`')}\`, \`${faq.description.replace(/`/g, '\\`')}\`)" class="admin-btn btn-primary" style="padding: 6px 10px; font-size: 12px; font-weight: 700; margin-right: 4px;"><i class="fa fa-edit"></i></button>
+                <button onclick="deleteFaq(${faq.id})" class="admin-btn btn-secondary" style="padding: 6px 10px; font-size: 12px; font-weight: 700; background: #ef4444; color: #fff; border-color: #ef4444;"><i class="fa fa-trash"></i></button>
+            </td>
         `;
-        list.appendChild(card);
+        list.appendChild(tr);
     });
 }
 
@@ -1142,7 +1153,7 @@ window.editFaq = function(id, question, answer) {
 
 window.deleteFaq = async function(id) {
     if (!confirm('¿Seguro que quieres eliminar esta pregunta?')) return;
-    const { error } = await _supabase.from('faqs').delete().eq('id', id);
+    const { error } = await _supabase.from('products').delete().eq('id', id);
     if (error) { alert('Error: ' + error.message); return; }
     await loadFaqAdmin();
 };

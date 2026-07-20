@@ -303,9 +303,10 @@
 
         async function loadFAQs() {
             const { data, error } = await db
-                .from('faqs')
+                .from('products')
                 .select('*')
-                .order('order', { ascending: true });
+                .eq('category', 'FAQ')
+                .order('price', { ascending: true });
             const container = document.getElementById('faq-list');
             if (error || !data || data.length === 0) {
                 container.innerHTML = '<p style="text-align:center; color:#94a3b8; padding:40px 0;">No hay preguntas disponibles aún.</p>';
@@ -317,11 +318,11 @@
                 item.className = 'faq-item';
                 item.innerHTML = `
                     <div class="faq-question">
-                        <span>${faq.question}</span>
+                        <span>${faq.name}</span>
                         <span class="faq-toggle">+</span>
                     </div>
                     <div class="faq-answer-wrap">
-                        <p class="faq-answer">${faq.answer}</p>
+                        <p class="faq-answer">${faq.description}</p>
                     </div>
                 `;
                 item.querySelector('.faq-question').addEventListener('click', () => {
