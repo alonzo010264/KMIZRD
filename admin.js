@@ -1141,12 +1141,15 @@ async function loadFaqAdmin() {
     list.innerHTML = '';
     data.forEach(faq => {
         const tr = document.createElement('tr');
+        // Ensure quotes around UUID strings to prevent JavaScript parse errors
+        const escapedName = faq.name.replace(/`/g, '\\`').replace(/'/g, "\\'");
+        const escapedDesc = faq.description.replace(/`/g, '\\`').replace(/'/g, "\\'");
         tr.innerHTML = `
             <td style="font-weight: 700; color: #0f172a; padding: 12px 15px; font-size: 13.5px; vertical-align: top;">${faq.name}</td>
             <td style="color: #475569; line-height: 1.5; padding: 12px 15px; font-size: 13.5px; vertical-align: top;">${faq.description}</td>
             <td style="text-align: center; padding: 12px 15px; vertical-align: top; white-space: nowrap;">
-                <button onclick="editFaq(${faq.id}, \`${faq.name.replace(/`/g, '\\`')}\`, \`${faq.description.replace(/`/g, '\\`')}\`)" class="admin-btn btn-primary" style="padding: 6px 10px; font-size: 12px; font-weight: 700; margin-right: 4px;"><i class="fa fa-edit"></i></button>
-                <button onclick="deleteFaq(${faq.id})" class="admin-btn btn-secondary" style="padding: 6px 10px; font-size: 12px; font-weight: 700; background: #ef4444; color: #fff; border-color: #ef4444;"><i class="fa fa-trash"></i></button>
+                <button onclick="editFaq('${faq.id}', \`${escapedName}\`, \`${escapedDesc}\`)" class="admin-btn btn-primary" style="padding: 6px 10px; font-size: 12px; font-weight: 700; margin-right: 4px;"><i class="fa fa-edit"></i></button>
+                <button onclick="deleteFaq('${faq.id}')" class="admin-btn btn-secondary" style="padding: 6px 10px; font-size: 12px; font-weight: 700; background: #ef4444; color: #fff; border-color: #ef4444;"><i class="fa fa-trash"></i></button>
             </td>
         `;
         list.appendChild(tr);
