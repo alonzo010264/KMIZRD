@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creador de Diseños - KMIZRD</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --editor-panel-bg: #ffffff;
+            --editor-workspace-bg: #f8fafc;
+            --editor-border: #e2e8f0;
+            --accent-color: #0272ba;
+        }
+
+        body {
+            background-color: #f1f5f9;
+        }
+
+        /* Editor container */
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            min-height: calc(100vh - 120px);
+            margin: 20px auto;
+            max-width: 1400px;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 968px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Workspace (left) */
+        .editor-workspace {
+            background-color: var(--editor-workspace-bg);
+            border: 1px solid var(--editor-border);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+
+        /* Grid pattern background for canvas */
+        .editor-workspace::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.4;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 16px 16px;
+            pointer-events: none;
+        }
+
+        /* View Toggle (Frente / Espalda) */
+        .view-toggle {
+            position: absolute;
+            top: 20px;
+            display: flex;
+            gap: 8px;
+            background: #fff;
+            padding: 4px;
+            border-radius: 30px;
+            border: 1px solid var(--editor-border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .view-toggle button {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .view-toggle button.active {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        /* Interactive Garment area */
+        .garment-canvas-wrapper {
+            position: relative;
+            width: 480px;
+            height: 480px;
+            max-width: 100%;
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .garment-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .garment-tint-overlay {
+            position: absolute;
+            inset: 0;
+            mix-blend-mode: multiply;
+            pointer-events: none;
+            transition: background-color 0.3s ease;
+            z-index: 2;
+        }
+
+        /* Draggable/Resizable Design Area */
+        .design-box-area {
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            width: 60%;
+            height: 60%;
+            border: 1px dashed rgba(2, 114, 186, 0.35);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .design-box-area.active {
+            border-color: var(--accent-color);
+        }
+
+        /* Draggable design element */
+        .draggable-design {
+            position: absolute;
+            cursor: move;
+            pointer-events: auto;
+            user-select: none;
+            display: none;
+            z-index: 4;
+            transform-origin: center center;
+            border: 2px dashed transparent;
+            transition: border-color 0.2s;
+        }
+
+        .draggable-design.active {
+            border-color: var(--accent-color);
+        }
+
+        .draggable-design img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* Delete button on design */
+        .design-delete-btn {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            background: #ef4444;
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            pointer-events: auto;
+        }
+
+        .draggable-design.active .design-delete-btn {
+            display: flex;
+        }
+
+        /* Controls Panel (right) */
+        .editor-panel {
+            background-color: var(--editor-panel-bg);
+            border: 1px solid var(--editor-border);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.06);
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+        }
+
+        .panel-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panel-section h3 {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Apparel item buttons grid */
+        .garment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .garment-btn {
+            border: 1px solid var(--editor-border);
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .garment-btn i {
+            font-size: 18px;
+            color: #64748b;
+        }
+
+        .garment-btn.active {
+            border-color: var(--accent-color);
+            background-color: rgba(2, 114, 186, 0.05);
+            color: var(--accent-color);
+        }
+
+        .garment-btn.active i {
+            color: var(--accent-color);
+        }
+
+        /* Color swatches picker */
+        .color-swatches {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .swatch-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .swatch-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        /* File upload field */
+        .upload-field {
+            border: 2px dashed var(--editor-border);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: #fafafa;
+        }
+
+        .upload-field:hover {
+            border-color: var(--accent-color);
+            background-color: #f0f7fc;
+        }
+
+        .upload-field i {
+            font-size: 28px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .upload-field p {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* Sliders */
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .slider-control {
+            width: 100%;
+            accent-color: var(--accent-color);
+        }
+
+        /* Form elements */
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--editor-border);
+            border-radius: 10px;
+            font-size: 13px;
+            background-color: #f8fafc;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background-color: #fff;
+        }
+
+        /* Size picker dots */
+        .size-picker {
+            display: flex;
+            gap: 8px;
+        }
+
+        .size-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            border: 1px solid var(--editor-border);
+            font-size: 12px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: #475569;
+            transition: all 0.2s;
+        }
+
+        .size-btn.active {
+            border-color: var(--accent-color);
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        /* Editor Title */
+        .editor-header-title {
+            max-width: 1400px;
+            margin: 40px auto 10px;
+            padding: 0 20px;
+        }
+
+        .editor-header-title h1 {
+            font-size: 28px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .editor-header-title p {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+        <p><strong>ENVÍO GRATIS</strong> en pedidos superiores a RD$3,500 &rarr;</p>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <a href="../" class="logo">
+            <img src="../assets/logo.jpg" alt="KMIZRD Logo" class="brand-logo">
+        </a>
+        <nav class="nav-links">
+            <a href="../">INICIO</a>
+            <div class="dropdown">
+                <a href="#" class="dropdown-trigger">ARTÍCULOS PERSONALIZADOS <i class="fa fa-chevron-down"></i></a>
+                <div class="dropdown-menu">
+                    <a href="../" class="nav-custom-item" data-product-name="Camiseta de Algodón" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camisetas Algodón</a>
+                    <a href="../" class="nav-custom-item" data-product-name="Camiseta Dryfit" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camisetas Dryfit</a>
+                    <a href="../" class="nav-custom-item" data-product-name="Polo de Cuello" data-product-cat="CAMISETAS" data-product-img="assets/plain_polo.png">Polo de Cuello</a>
+                    <a href="../" class="nav-custom-item" data-product-name="Abrigo / Hoodie" data-product-cat="HOODIES" data-product-img="assets/plain_hoodie.png">Abrigos</a>
+                    <a href="../" class="nav-custom-item" data-product-name="Gorra" data-product-cat="ACCESORIOS" data-product-img="assets/plain_cap.png">Gorras</a>
+                    <a href="../" class="nav-custom-item" data-product-name="Taza o Termo" data-product-cat="ACCESORIOS" data-product-img="assets/plain_thermos.png">Tazas & Termos</a>
+                </div>
+            </div>
+            <a href="../colecciones/">KOLECCION KMIZ</a>
+            <a href="#" class="active" style="color: #fcd34d; font-weight: 800;">✦ DISEÑA TU PRENDA</a>
+        </nav>
+        <div class="nav-icons">
+            <button aria-label="Cart" class="cart-btn" onclick="window.location.href='../'">
+                <i data-lucide="shopping-bag"></i>
+                <span class="cart-count">0</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="editor-header-title">
+        <h1>Diseñador Custom KMIZRD</h1>
+        <p>Elige tu prenda, escoge un color, sube tus imágenes o logos, colócalos a tu gusto y envíanos tu solicitud de cotización por WhatsApp.</p>
+    </div>
+
+    <!-- MAIN EDITOR CONTAINER -->
+    <div class="editor-container">
+        
+        <!-- WORKSPACE (Left) -->
+        <div class="editor-workspace">
+            <div class="view-toggle">
+                <button id="toggle-front-btn" class="active">Frente</button>
+                <button id="toggle-back-btn">Espalda</button>
+            </div>
+
+            <div class="garment-canvas-wrapper" id="garment-wrapper">
+                <!-- Color Multiply Overlay -->
+                <div class="garment-tint-overlay" id="garment-overlay"></div>
+                <!-- Garment PNG Mockup -->
+                <img id="garment-img" class="garment-image" src="../assets/plain_tshirt.png" alt="Prenda de vestir">
+
+                <!-- Editable/Design Bounds -->
+                <div class="design-box-area" id="design-area">
+                    <!-- Draggable Logo Container -->
+                    <div class="draggable-design" id="design-element">
+                        <img id="design-img" src="" alt="Diseño custom">
+                        <div class="design-delete-btn" id="delete-design-btn">✕</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROLS PANEL (Right) -->
+        <div class="editor-panel">
+            
+            <!-- SECTION 1: Garment Type -->
+            <div class="panel-section">
+                <h3>1. Tipo de Prenda</h3>
+                <div class="garment-grid">
+                    <button class="garment-btn active" data-type="camiseta" data-img="../assets/plain_tshirt.png" data-name="Camiseta dryfit/algodón">
+                        <i class="fa-solid fa-shirt"></i>
+                        <span>Camiseta</span>
+                    </button>
+                    <button class="garment-btn" data-type="hoodie" data-img="../assets/plain_hoodie.png" data-name="Abrigo Hoodie">
+                        <i class="fa-solid fa-vest"></i>
+                        <span>Hoodie</span>
+                    </button>
+                    <button class="garment-btn" data-type="polo" data-img="../assets/plain_polo.png" data-name="Polo de cuello">
+                        <i class="fa-solid fa-shirt"></i>
+                        <span>Polo</span>
+                    </button>
+                    <button class="garment-btn" data-type="cap" data-img="../assets/plain_cap.png" data-name="Gorra clasica">
+                        <i class="fa-solid fa-hat-cowboy-side"></i>
+                        <span>Gorra</span>
+                    </button>
+                    <button class="garment-btn" data-type="pants" data-img="../assets/plain_pants.png" data-name="Jogger de algodon">
+                        <i class="fa-solid fa-socks"></i>
+                        <span>Jogger</span>
+                    </button>
+                    <button class="garment-btn" data-type="thermos" data-img="../assets/plain_thermos.png" data-name="Termo metalico">
+                        <i class="fa-solid fa-bottle-water"></i>
+                        <span>Termo</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 2: Garment Color -->
+            <div class="panel-section">
+                <h3>2. Color de Prenda</h3>
+                <div class="color-swatches" id="swatches-container">
+                    <!-- Swatches will be generated in JS -->
+                </div>
+            </div>
+
+            <!-- SECTION 3: Design Upload -->
+            <div class="panel-section">
+                <h3>3. Imagen o Logo</h3>
+                <div class="upload-field" id="upload-zone">
+                    <i data-lucide="upload-cloud"></i>
+                    <p>Arrastra o haz clic para subir</p>
+                    <span style="font-size: 10px; color: #94a3b8; display: block; margin-top: 4px;">PNG, JPG (preferible fondo transparente)</span>
+                    <input type="file" id="design-file-input" accept="image/*" style="display: none;">
+                </div>
+            </div>
+
+            <!-- SECTION 4: Size and Adjustment -->
+            <div id="adjustment-controls" class="panel-section" style="display: none; border-top: 1px solid var(--editor-border); padding-top: 20px;">
+                <h3>4. Ajustar Diseño</h3>
+                
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>Tamaño</span>
+                        <span id="scale-val">100%</span>
+                    </div>
+                    <input type="range" id="slider-scale" class="slider-control" min="20" max="250" value="100">
+                </div>
+
+                <div class="slider-group" style="margin-top: 10px;">
+                    <div class="slider-label">
+                        <span>Rotación</span>
+                        <span id="rotate-val">0°</span>
+                    </div>
+                    <input type="range" id="slider-rotate" class="slider-control" min="-180" max="180" value="0">
+                </div>
+            </div>
+
+            <!-- SECTION 5: Size selection -->
+            <div class="panel-section" style="border-top: 1px solid var(--editor-border); padding-top: 20px;">
+                <h3>5. Talla Deseada</h3>
+                <div class="size-picker" id="size-selector">
+                    <button class="size-btn">S</button>
+                    <button class="size-btn active">M</button>
+                    <button class="size-btn">L</button>
+                    <button class="size-btn">XL</button>
+                    <button class="size-btn">XXL</button>
+                </div>
+            </div>
+
+            <!-- SECTION 6: Customer Form -->
+            <div class="panel-section" style="border-top: 1px solid var(--editor-border); padding-top: 20px;">
+                <h3>6. Datos de Contacto</h3>
+                <form id="editor-order-form" style="display: flex; flex-direction: column; gap: 12px;">
+                    <input type="text" id="cust-name" class="form-input" placeholder="Tu Nombre *" required>
+                    <input type="tel" id="cust-phone" class="form-input" placeholder="Teléfono WhatsApp *" required>
+                    <input type="email" id="cust-email" class="form-input" placeholder="Correo Electrónico (Opcional)">
+                    <textarea id="cust-notes" class="form-input" placeholder="Instrucciones adicionales (ej. bordado, sublimación, etc.)" style="height: 70px; resize: none;"></textarea>
+
+                    <button type="submit" class="btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 15px; border-radius: 30px; margin-top: 10px;">
+                        <i class="fab fa-whatsapp" style="font-size: 16px;"></i> Solicitar Cotización
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Hidden Canvas to draw side-by-side composite review images -->
+    <canvas id="hidden-composite-canvas" style="display: none;"></canvas>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <img src="../assets/logo.jpg" alt="KMIZRD Logo" class="footer-logo">
+                <p>Ropa oversize con diseños únicos que hablan por ti. Calidad, actitud y autenticidad en cada prenda.</p>
+                <div class="social-icons">
+                    <a href="https://instagram.com/kmizrd" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://tiktok.com/@kmizrd" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/18090000000" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://facebook.com/kmizrd" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>TIENDA</h4>
+                <a href="../camisetas/">Camisetas</a>
+                <a href="../hoodies/">Hoodies</a>
+                <a href="../accesorios/">Accesorios</a>
+                <a href="../colecciones/">Colecciones</a>
+            </div>
+            <div class="footer-links">
+                <h4>AYUDA</h4>
+                <a href="#">Preguntas frecuentes</a>
+                <a href="https://wa.me/18090000000" target="_blank">Contacto</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 KMIZRD. Todos los derechos reservados.</p>
+            <div class="payment-icons">
+                <i class="fab fa-cc-visa" title="Visa"></i>
+                <i class="fab fa-cc-mastercard" title="MasterCard"></i>
+                <i class="fab fa-whatsapp" title="WhatsApp" style="color: #25d366;"></i>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase Init
+        const SUPABASE_URL = 'https://hgjcmsqforkvcfatygsl.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Fetch Dynamic WhatsApp Number
+        let storeWhatsAppNumber = '18090000000';
+        async function loadDynamicWhatsAppNumber() {
+            try {
+                const { data, error } = await _supabase
+                    .from('store_settings')
+                    .select('whatsapp_number')
+                    .eq('id', 1)
+                    .single();
+                if (data && data.whatsapp_number) {
+                    storeWhatsAppNumber = data.whatsapp_number.replace(/\D/g, '') || '18090000000';
+                    document.querySelectorAll('a[href*="wa.me"]').forEach(link => {
+                        const currentHref = link.getAttribute('href');
+                        if (currentHref) {
+                            try {
+                                const urlObj = new URL(currentHref);
+                                urlObj.pathname = `/${storeWhatsAppNumber}`;
+                                link.setAttribute('href', urlObj.toString());
+                            } catch (e) {
+                                const newHref = currentHref.replace(/wa\.me\/\d+/, `wa.me/${storeWhatsAppNumber}`);
+                                link.setAttribute('href', newHref);
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Error cargando WhatsApp dinámico:', err);
+            }
+        }
+        loadDynamicWhatsAppNumber();
+
+        // Colors configurations
+        const COLORS = {
+            'Negro': 'rgba(20, 20, 20, 0.88)',
+            'Blanco': 'transparent',
+            'Gris': 'rgba(128, 128, 128, 0.75)',
+            'Azul Marino': 'rgba(15, 32, 67, 0.85)',
+            'Azul': 'rgba(29, 78, 216, 0.8)',
+            'Rojo': 'rgba(185, 28, 28, 0.8)',
+            'Beige': 'rgba(217, 180, 140, 0.6)',
+            'Naranja': 'rgba(234, 88, 12, 0.8)',
+            'Verde': 'rgba(22, 101, 52, 0.8)'
+        };
+
+        const COLOR_HEX = {
+            'Negro': '#1e293b',
+            'Blanco': '#ffffff',
+            'Gris': '#94a3b8',
+            'Azul Marino': '#0f172a',
+            'Azul': '#1d4ed8',
+            'Rojo': '#b91c1c',
+            'Beige': '#f5f5dc',
+            'Naranja': '#ea580c',
+            'Verde': '#15803d'
+        };
+
+        // Render Color Swatches
+        const swatchesContainer = document.getElementById('swatches-container');
+        let selectedColor = 'Blanco';
+
+        Object.keys(COLORS).forEach((colorName, index) => {
+            const btn = document.createElement('button');
+            btn.className = `swatch-btn ${colorName === selectedColor ? 'active' : ''}`;
+            btn.style.backgroundColor = COLOR_HEX[colorName];
+            btn.title = colorName;
+            if (colorName === 'Blanco') btn.style.border = '2px solid #cbd5e1';
+
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.swatch-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedColor = colorName;
+                document.getElementById('garment-overlay').style.backgroundColor = COLORS[colorName];
+            });
+            swatchesContainer.appendChild(btn);
+        });
+
+        // App state
+        let currentGarment = 'camiseta';
+        let currentGarmentName = 'Camiseta dryfit/algodón';
+        let currentView = 'front'; // front or back
+
+        // Save designs for front and back separately
+        const designs = {
+            front: { base64: '', x: 0, y: 0, scale: 100, rotate: 0 },
+            back: { base64: '', x: 0, y: 0, scale: 100, rotate: 0 }
+        };
+
+        // DOM elements
+        const garmentImg = document.getElementById('garment-img');
+        const garmentOverlay = document.getElementById('garment-overlay');
+        const toggleFrontBtn = document.getElementById('toggle-front-btn');
+        const toggleBackBtn = document.getElementById('toggle-back-btn');
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('design-file-input');
+        const designElement = document.getElementById('design-element');
+        const designImg = document.getElementById('design-img');
+        const deleteDesignBtn = document.getElementById('delete-design-btn');
+        const adjustmentControls = document.getElementById('adjustment-controls');
+        
+        // Sliders
+        const sliderScale = document.getElementById('slider-scale');
+        const sliderRotate = document.getElementById('slider-rotate');
+        const scaleVal = document.getElementById('scale-val');
+        const rotateVal = document.getElementById('rotate-val');
+
+        // Size picker
+        let selectedSize = 'M';
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedSize = btn.textContent;
+            });
+        });
+
+        // Switch Garment types
+        document.querySelectorAll('.garment-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.garment-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentGarment = btn.getAttribute('data-type');
+                currentGarmentName = btn.getAttribute('data-name');
+                garmentImg.src = btn.getAttribute('data-img');
+                
+                // Caps, Thermos and Pants usually don't need front/back views
+                const toggle = document.querySelector('.view-toggle');
+                if (currentGarment === 'cap' || currentGarment === 'thermos' || currentGarment === 'pants') {
+                    toggle.style.display = 'none';
+                    switchView('front');
+                } else {
+                    toggle.style.display = 'flex';
+                }
+            });
+        });
+
+        // Switch view Front / Back
+        toggleFrontBtn.addEventListener('click', () => switchView('front'));
+        toggleBackBtn.addEventListener('click', () => switchView('back'));
+
+        function switchView(view) {
+            if (currentView === view) return;
+            
+            // Save current view state
+            saveCurrentViewState();
+
+            currentView = view;
+            document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+            if (view === 'front') {
+                toggleFrontBtn.classList.add('active');
+            } else {
+                toggleBackBtn.classList.add('active');
+            }
+
+            // Load new view state
+            loadViewState(view);
+        }
+
+        function saveCurrentViewState() {
+            const state = designs[currentView];
+            state.scale = parseInt(sliderScale.value);
+            state.rotate = parseInt(sliderRotate.value);
+        }
+
+        function loadViewState(view) {
+            const state = designs[view];
+            if (state.base64) {
+                designImg.src = state.base64;
+                designElement.style.display = 'block';
+                adjustmentControls.style.display = 'block';
+                
+                // Restore sliders
+                sliderScale.value = state.scale;
+                scaleVal.textContent = state.scale + '%';
+                sliderRotate.value = state.rotate;
+                rotateVal.textContent = state.rotate + '°';
+                
+                // Restore position
+                designElement.style.left = state.x + 'px';
+                designElement.style.top = state.y + 'px';
+                updateElementTransform(state.scale, state.rotate);
+            } else {
+                designElement.style.display = 'none';
+                adjustmentControls.style.display = 'none';
+            }
+        }
+
+        function updateElementTransform(scale, rotate) {
+            const decScale = scale / 100;
+            designElement.style.transform = `translate(-50%, -50%) scale(${decScale}) rotate(${rotate}deg)`;
+        }
+
+        // Upload handlers
+        uploadZone.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = 'var(--accent-color)';
+        });
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.style.borderColor = 'var(--editor-border)';
+        });
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = 'var(--editor-border)';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFile(file);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64 = event.target.result;
+                
+                // Save in state
+                designs[currentView].base64 = base64;
+                designs[currentView].scale = 100;
+                designs[currentView].rotate = 0;
+                
+                // Standard starting position (center of design zone)
+                const designArea = document.getElementById('design-area');
+                designs[currentView].x = designArea.offsetWidth / 2;
+                designs[currentView].y = designArea.offsetHeight / 2;
+
+                // Load UI
+                loadViewState(currentView);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Delete Design
+        deleteDesignBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            designs[currentView].base64 = '';
+            designs[currentView].x = 0;
+            designs[currentView].y = 0;
+            designElement.style.display = 'none';
+            adjustmentControls.style.display = 'none';
+            fileInput.value = '';
+        });
+
+        // Sliders change
+        sliderScale.addEventListener('input', () => {
+            const val = sliderScale.value;
+            scaleVal.textContent = val + '%';
+            designs[currentView].scale = parseInt(val);
+            updateElementTransform(val, sliderRotate.value);
+        });
+
+        // Sliders change
+        sliderRotate.addEventListener('input', () => {
+            const val = sliderRotate.value;
+            rotateVal.textContent = val + '°';
+            designs[currentView].rotate = parseInt(val);
+            updateElementTransform(sliderScale.value, val);
+        });
+
+        // Dragging logic
+        let isDragging = false;
+        let dragStartX, dragStartY;
+
+        designElement.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            designElement.classList.add('active');
+            dragStartX = e.clientX - designElement.offsetLeft;
+            dragStartY = e.clientY - designElement.offsetTop;
+            e.preventDefault();
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const designArea = document.getElementById('design-area');
+            let newX = e.clientX - dragStartX;
+            let newY = e.clientY - dragStartY;
+
+            newX = Math.max(0, Math.min(newX, designArea.offsetWidth));
+            newY = Math.max(0, Math.min(newY, designArea.offsetHeight));
+
+            designs[currentView].x = newX;
+            designs[currentView].y = newY;
+            designElement.style.left = newX + 'px';
+            designElement.style.top = newY + 'px';
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                designElement.classList.remove('active');
+            }
+        });
+
+        // Touch support for dragging
+        designElement.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            designElement.classList.add('active');
+            const touch = e.touches[0];
+            dragStartX = touch.clientX - designElement.offsetLeft;
+            dragStartY = touch.clientY - designElement.offsetTop;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            const designArea = document.getElementById('design-area');
+            let newX = touch.clientX - dragStartX;
+            let newY = touch.clientY - dragStartY;
+
+            newX = Math.max(0, Math.min(newX, designArea.offsetWidth));
+            newY = Math.max(0, Math.min(newY, designArea.offsetHeight));
+
+            designs[currentView].x = newX;
+            designs[currentView].y = newY;
+            designElement.style.left = newX + 'px';
+            designElement.style.top = newY + 'px';
+            e.preventDefault();
+        }, { passive: false });
+
+        window.addEventListener('touchend', () => {
+            if (isDragging) {
+                isDragging = false;
+                designElement.classList.remove('active');
+            }
+        });
+
+        // Helper to load image asynchronously in canvas
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = (e) => reject(e);
+                img.src = src;
+            });
+        }
+
+        // Draw side-by-side composite preview image
+        async function generateCompositePreview() {
+            saveCurrentViewState();
+            const canvas = document.getElementById('hidden-composite-canvas');
+            const ctx = canvas.getContext('2d');
+
+            const hasFront = !!designs.front.base64;
+            const hasBack = !!designs.back.base64;
+
+            // Define side size
+            const size = 500;
+
+            if (hasFront && hasBack && (currentGarment !== 'cap' && currentGarment !== 'thermos' && currentGarment !== 'pants')) {
+                canvas.width = size * 2;
+                canvas.height = size;
+                
+                // Draw Front on the left
+                await renderSide(ctx, 0, 0, size, 'front');
+                // Draw Back on the right
+                await renderSide(ctx, size, 0, size, 'back');
+            } else {
+                canvas.width = size;
+                canvas.height = size;
+                // Just render front or whatever has design
+                const activeSide = hasBack && !hasFront ? 'back' : 'front';
+                await renderSide(ctx, 0, 0, size, activeSide);
+            }
+
+            return canvas.toDataURL('image/jpeg', 0.85);
+        }
+
+        async function renderSide(ctx, dx, dy, size, viewSide) {
+            // Draw white background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(dx, dy, size, size);
+
+            // Load Garment base image
+            const garmentBaseSrc = garmentImg.src;
+            const baseImg = await loadImage(garmentBaseSrc);
+            ctx.drawImage(baseImg, dx, dy, size, size);
+
+            // Apply color overlay using canvas blending multiply
+            const tintVal = COLORS[selectedColor];
+            if (tintVal && tintVal !== 'transparent') {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = size;
+                tempCanvas.height = size;
+                const tempCtx = tempCanvas.getContext('2d');
+
+                tempCtx.fillStyle = tintVal;
+                tempCtx.fillRect(0, 0, size, size);
+
+                tempCtx.globalCompositeOperation = 'destination-in';
+                tempCtx.drawImage(baseImg, 0, 0, size, size);
+
+                ctx.save();
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.drawImage(tempCanvas, dx, dy);
+                ctx.restore();
+            }
+
+            // Draw custom logo/design
+            const designState = designs[viewSide];
+            if (designState.base64) {
+                const logoImg = await loadImage(designState.base64);
+                
+                // Calculate position relative to canvas
+                const designAreaScale = 0.6;
+                const designAreaOffset = 0.2;
+
+                const areaSize = size * designAreaScale;
+                const areaX = dx + (size * designAreaOffset);
+                const areaY = dy + (size * designAreaOffset);
+
+                // logo position in design zone
+                const designAreaDOM = document.getElementById('design-area');
+                const normX = designState.x / designAreaDOM.offsetWidth;
+                const normY = designState.y / designAreaDOM.offsetHeight;
+
+                const targetX = areaX + (normX * areaSize);
+                const targetY = areaY + (normY * areaSize);
+
+                // scale
+                const scaleFactor = (designState.scale / 100) * 0.6;
+                const logoW = size * 0.3 * scaleFactor;
+                const logoH = logoW * (logoImg.height / logoImg.width);
+
+                ctx.save();
+                ctx.translate(targetX, targetY);
+                ctx.rotate(designState.rotate * Math.PI / 180);
+                ctx.drawImage(logoImg, -logoW / 2, -logoH / 2, logoW, logoH);
+                ctx.restore();
+            }
+
+            // Label Front or Back
+            ctx.fillStyle = '#64748b';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText(viewSide === 'front' ? 'FRENTE' : 'ESPALDA', dx + 20, dy + size - 20);
+        }
+
+        // Form Submit
+        const orderForm = document.getElementById('editor-order-form');
+        orderForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = orderForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Procesando...';
+
+            try {
+                // 1. Generate composite review image
+                const compositeDataUrl = await generateCompositePreview();
+
+                // 2. Prepare description string
+                let descStr = `Diseño personalizado creado con el editor KMIZRD.\n`;
+                descStr += `• Prenda: ${currentGarmentName}\n`;
+                descStr += `• Color: ${selectedColor}\n`;
+                descStr += `• Talla: ${selectedSize}\n`;
+                if (designs.front.base64) descStr += `• Personalización Frente: Sí\n`;
+                if (designs.back.base64) descStr += `• Personalización Espalda: Sí\n`;
+                
+                const additionalNotes = document.getElementById('cust-notes').value.trim();
+                if (additionalNotes) descStr += `• Notas adicionales: ${additionalNotes}\n`;
+
+                // 3. Insert into Supabase
+                const { error } = await _supabase.from('custom_requests').insert([{
+                    customer_name: document.getElementById('cust-name').value,
+                    customer_phone: document.getElementById('cust-phone').value,
+                    customer_email: document.getElementById('cust-email').value,
+                    product_type: currentGarment.toUpperCase(),
+                    product_name: `Prenda Custom - ${currentGarmentName}`,
+                    color: selectedColor,
+                    size: selectedSize,
+                    description: descStr,
+                    reference_image: compositeDataUrl,
+                    status: 'pending'
+                }]);
+
+                if (error) throw error;
+
+                // 4. Open WhatsApp
+                let waMsg = `¡Hola KMIZRD! Acabo de diseñar una prenda personalizada en su creador web:\n\n`;
+                waMsg += `👕 *Detalles de la Prenda*:\n`;
+                waMsg += `• Tipo: ${currentGarmentName}\n`;
+                waMsg += `• Color: ${selectedColor}\n`;
+                waMsg += `• Talla: ${selectedSize}\n`;
+                if (additionalNotes) waMsg += `• Notas: ${additionalNotes}\n\n`;
+                waMsg += `Mi solicitud fue registrada a nombre de *${document.getElementById('cust-name').value}*. ¡Espero su cotización!`;
+
+                window.open(`https://wa.me/${storeWhatsAppNumber}?text=${encodeURIComponent(waMsg)}`, '_blank');
+                
+                alert('¡Tu solicitud ha sido enviada con éxito! Revisa la ventana de WhatsApp que se abrirá para finalizar el contacto.');
+                
+                // Clear editor state
+                designs.front.base64 = '';
+                designs.back.base64 = '';
+                designElement.style.display = 'none';
+                adjustmentControls.style.display = 'none';
+                orderForm.reset();
+
+            } catch (err) {
+                alert('Hubo un error al procesar tu solicitud: ' + err.message);
+                console.error(err);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fab fa-whatsapp" style="font-size: 16px;"></i> Solicitar Cotización';
+            }
+        });
+
+        // Init Lucide
+        lucide.createIcons();
+    </script>
+</body>
+</html>
