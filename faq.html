@@ -4,52 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preguntas Frecuentes - KMIZRD</title>
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .faq-container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+        .faq-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 40px;
+            letter-spacing: -0.5px;
+        }
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .faq-item {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .faq-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+        .faq-question {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #0f172a;
+        }
+        .faq-answer {
+            font-size: 15px;
+            color: #475569;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body>
+    <!-- Top Announcement Bar -->
+    <div class="announcement-bar">
+        <p><strong>ENVÍO GRATIS</strong> en pedidos superiores a RD$3,500 &rarr;</p>
+    </div>
+
     <!-- Navigation Header -->
     <header class="header">
-        <a href="../" class="logo"><img src="../assets/logo.jpg" alt="KMIZRD Logo" class="brand-logo"></a>
+        <a href="./" class="logo"><img src="assets/logo.jpg" alt="KMIZRD Logo" class="logo-img"></a>
         <nav class="nav-links">
-            <a href="../">INICIO</a>
+            <a href="./">INICIO</a>
             <div class="dropdown">
                 <a href="#" class="dropdown-trigger">ARTÍCULOS PERSONALIZADOS <i class="fa fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
-                    <a href="../camisetas/" class="nav-custom-item" data-product-name="Camiseta de Algodón" data-product-cat="CAMISETAS" data-product-img="../assets/plain_tshirt.png">Camisetas Algodón</a>
-                    <a href="../hoodies/" class="nav-custom-item" data-product-name="Camiseta Dryfit" data-product-cat="CAMISETAS" data-product-img="../assets/plain_tshirt.png">Camisetas Dryfit</a>
-                    <a href="../" class="nav-custom-item" data-product-name="Polo de Cuello" data-product-cat="CAMISETAS" data-product-img="../assets/plain_polo.png">Polo de Cuello</a>
-                    <a href="../" class="nav-custom-item" data-product-name="Abrigo / Hoodie" data-product-cat="HOODIES" data-product-img="../assets/plain_hoodie.png">Abrigos</a>
-                    <a href="../" class="nav-custom-item" data-product-name="Gorra" data-product-cat="ACCESORIOS" data-product-img="../assets/plain_cap.png">Gorras</a>
-                    <a href="../" class="nav-custom-item" data-product-name="Taza o Termo" data-product-cat="ACCESORIOS" data-product-img="../assets/plain_thermos.png">Tazas &amp; Termos</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Camiseta de Algodón" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camisetas Algodón</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Camiseta Dryfit" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camisetas Dryfit</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Polo de Cuello" data-product-cat="CAMISETAS" data-product-img="assets/plain_polo.png">Polo de Cuello</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Abrigo / Hoodie" data-product-cat="HOODIES" data-product-img="assets/plain_hoodie.png">Abrigos</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Gorra" data-product-cat="ACCESORIOS" data-product-img="assets/plain_cap.png">Gorras</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Taza o Termo" data-product-cat="ACCESORIOS" data-product-img="assets/plain_thermos.png">Tazas & Termos</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Bordado Personalizado" data-product-cat="SERVICIOS" data-product-img="assets/logo.jpg">Bordados</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Sublimación Personalizada" data-product-cat="SERVICIOS" data-product-img="assets/logo.jpg">Sublimación</a>
                 </div>
             </div>
-            <a href="../colecciones/">KOLECCION KMIZ</a>
-            <a href="../faq.html" style="color: #fcd34d; font-weight: 800;">❓ FAQ</a>
+            <div class="dropdown">
+                <a href="#" class="dropdown-trigger">KOLECCION KMIZ <i class="fa fa-chevron-down"></i></a>
+                <div class="dropdown-menu">
+                    <a href="camisetas/">Oversize</a>
+                    <a href="hoodies/">Abrigos</a>
+                    <a href="accesorios/">Gorras</a>
+                    <a href="colecciones/">Catálogo Digital</a>
+                </div>
+            </div>
+            <a href="faq.html" class="active">PREGUNTAS FRECUENTES</a>
+            <a href="#" class="nav-custom-item" data-product-name="Prenda Personalizada" data-product-cat="PERSONALIZACIÓN" data-product-img="assets/logo.jpg">CREA TU PEDIDO</a>
         </nav>
         <div class="nav-icons">
-            <button aria-label="Cart" class="cart-btn"><i data-lucide="shopping-bag"></i><span class="cart-count">0</span></button>
+            <button aria-label="Search"><i data-lucide="search"></i></button>
+            <button aria-label="Cart" class="cart-btn">
+                <i data-lucide="shopping-bag"></i>
+                <span class="cart-count">0</span>
+            </button>
         </div>
     </header>
 
-    <section class="page-title" style="text-align:center; margin:40px 0;">
-        <h1>Preguntas Frecuentes</h1>
-        <p>Encuentra respuestas a las dudas más comunes.</p>
-    </section>
-
-    <div class="container" style="max-width:800px; margin:auto;">
+    <main class="faq-container">
+        <h1 class="faq-title">Preguntas Frecuentes</h1>
         <div id="faq-list" class="faq-list">
-            <!-- FAQs will be injected here -->
+            <!-- FAQs loaded from Supabase -->
         </div>
-    </div>
+    </main>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="footer-top">
             <div class="footer-brand">
-                <img src="../assets/logo.jpg" alt="KMIZRD Logo" class="footer-logo">
+                <img src="assets/logo.jpg" alt="KMIZRD Logo" class="footer-logo">
                 <p>Ropa oversize con diseños únicos que hablan por ti. Calidad, actitud y autenticidad en cada prenda.</p>
                 <div class="social-icons">
                     <a href="https://instagram.com/kmizrd" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
@@ -60,15 +121,14 @@
             </div>
             <div class="footer-links">
                 <h4>TIENDA</h4>
-                <a href="../camisetas/">Camisetas</a>
-                <a href="../hoodies/">Hoodies</a>
-                <a href="../accesorios/">Accesorios</a>
-                <a href="../colecciones/">Colecciones</a>
-                <a href="../faq.html">FAQ</a>
+                <a href="camisetas/">Camisetas</a>
+                <a href="hoodies/">Hoodies</a>
+                <a href="accesorios/">Accesorios</a>
+                <a href="colecciones/">Colecciones</a>
             </div>
             <div class="footer-links">
                 <h4>AYUDA</h4>
-                <a href="../faq.html">Preguntas frecuentes</a>
+                <a href="faq.html">Preguntas frecuentes</a>
                 <a href="https://wa.me/18090000000" target="_blank">Contacto</a>
             </div>
         </div>
@@ -77,19 +137,116 @@
             <div class="payment-icons">
                 <i class="fab fa-cc-visa" title="Visa"></i>
                 <i class="fab fa-cc-mastercard" title="MasterCard"></i>
-                <i class="fab fa-whatsapp" title="WhatsApp" style="color:#25d366;"></i>
+                <i class="fab fa-whatsapp" title="WhatsApp" style="color: #25d366;"></i>
             </div>
         </div>
     </footer>
 
+    <!-- Shopping Cart Drawer (Needed for script.js) -->
+    <div id="cart-drawer" class="cart-drawer-overlay">
+        <div class="cart-drawer-container">
+            <div class="cart-drawer-header">
+                <h3>Tu Carrito (<span id="cart-drawer-count">0</span>)</h3>
+                <button class="cart-drawer-close" id="cart-drawer-close" aria-label="Cerrar carrito"><i data-lucide="x"></i></button>
+            </div>
+            <div class="cart-drawer-items" id="cart-drawer-items"></div>
+            <div class="cart-drawer-footer" id="cart-drawer-footer" style="display: none;">
+                <div class="cart-summary-row">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">RD$0.00</span>
+                </div>
+                <div class="cart-summary-row shipping-row">
+                    <span>Envío</span>
+                    <span id="cart-shipping">Gratis</span>
+                </div>
+                <div class="cart-summary-row total-row">
+                    <span>Total</span>
+                    <span id="cart-total">RD$0.00</span>
+                </div>
+                <button class="cart-checkout-btn">Iniciar Compra &rarr;</button>
+                <div id="paypal-button-container" style="margin-top: 15px; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Details Modal (Needed for script.js) -->
+    <div id="product-detail-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close-btn" id="modal-close-btn"><i data-lucide="x"></i></button>
+            <div class="modal-content">
+                <div class="modal-left" style="display:flex;flex-direction:column;gap:12px;">
+                    <div class="gallery-main-wrap" style="position:relative;border-radius:16px;overflow:hidden;background:#f8fafc;border:1px solid #e2e8f0;width:100%;height:300px;display:flex;justify-content:center;align-items:center;">
+                        <img id="modal-product-img" src="" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">
+                    </div>
+                </div>
+                <div class="modal-right">
+                    <span id="modal-product-category" class="modal-badge">Categoría</span>
+                    <h2 id="modal-product-name">Nombre</h2>
+                    <p id="modal-product-price" class="modal-price">RD$0.00</p>
+                    <p id="modal-product-desc" class="modal-description">Descripción</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stripe Payment Modal (Needed for script.js) -->
+    <div id="stripe-modal" class="modal-overlay">
+        <div class="modal-container" style="max-width: 450px; padding: 30px;">
+            <button class="modal-close" id="stripe-modal-close" aria-label="Cerrar"><i data-lucide="x"></i></button>
+            <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 10px; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                <i class="fab fa-stripe-s" style="color: #635bff; font-size: 24px;"></i> Pago Seguro
+            </h3>
+            <form id="stripe-payment-form">
+                <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                    <div id="stripe-card-element"></div>
+                    <div id="stripe-card-errors" role="alert"></div>
+                </div>
+                <button type="submit" id="stripe-submit-btn" class="btn-submit" style="width: 100%;">Pagar Ahora</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Personalization Modal (Needed for script.js) -->
+    <div id="custom-apparel-modal" class="modal-overlay">
+        <div class="modal-container" style="max-width: 550px; padding: 0; overflow: hidden; border-radius: 20px;">
+            <div style="padding:30px;background:#fff;">
+                <button class="modal-close-btn" id="custom-modal-close-btn"><i data-lucide="x"></i></button>
+                <h3>Solicitar Personalización</h3>
+                <form id="custom-apparel-form">
+                    <div style="margin-bottom: 18px;">
+                        <label>COLOR DE PRENDA</label>
+                        <div class="color-picker-custom" id="custom-colors" style="display:flex;gap:10px;">
+                            <button type="button" class="color-circle active" data-color="Negro" style="background-color:#000;width:30px;height:30px;border-radius:50%;"></button>
+                            <button type="button" class="color-circle" data-color="Blanco" style="background-color:#fff;width:30px;height:30px;border-radius:50%;border:1px solid #ccc;"></button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 18px;">
+                        <label for="custom-desc">DETALLES DEL DISEÑO *</label>
+                        <textarea id="custom-desc" required></textarea>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
+                        <input type="text" id="custom-name" required placeholder="Nombre">
+                        <input type="text" id="custom-phone" required placeholder="WhatsApp">
+                    </div>
+                    <button type="submit" class="btn-primary">Enviar Solicitud</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Stripe JS SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="script.js?v=1.0.1"></script>
     <script>
+        // Supabase client instance (renamed to db to prevent shadowing the supabase library)
         const SUPABASE_URL = 'https://hgjcmsqforkvcfatygsl.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function loadFAQs() {
-            const { data, error } = await supabase
+            const { data, error } = await db
                 .from('faqs')
                 .select('*')
                 .order('order', { ascending: true });
@@ -110,6 +267,8 @@
             });
         }
         document.addEventListener('DOMContentLoaded', loadFAQs);
+        
+        // Reinitialize lucide icons
         lucide.createIcons();
     </script>
 </body>
