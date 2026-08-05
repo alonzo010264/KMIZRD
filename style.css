@@ -2507,8 +2507,9 @@ input:checked + .slider:before {
     
     /* Categories Responsive */
     .categories {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
         padding: 0 15px;
         margin: 0;
         width: 100%;
@@ -2517,29 +2518,49 @@ input:checked + .slider:before {
     
     .category-card {
         width: 100%;
-        margin-bottom: 15px;
+        margin-bottom: 0;
         box-sizing: border-box;
-        justify-content: flex-start;
+        flex-direction: column;
+        text-align: center;
+        justify-content: center;
+        padding: 15px;
     }
     
-    /* Catalog & Forms Fixes */
+    /* Catalog, Products & Forms Fixes */
+    .product-grid, .catalog-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 15px;
+    }
+    
     .catalog-section, .contact-section {
-        padding: 40px 15px;
+        padding: 40px 0; /* Let grid handle horizontal padding */
         width: 100%;
         box-sizing: border-box;
         overflow: hidden;
     }
     
-    .catalog-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
+    .catalog-card, .product-card {
         width: 100%;
         box-sizing: border-box;
     }
-    
-    .catalog-card {
-        width: 100%;
-        box-sizing: border-box;
+
+    /* Product card internal adjustments for smaller mobile view */
+    .product-image-wrap {
+        padding: 20px;
+        height: 200px; /* Smaller height so images fit cleanly */
+    }
+
+    .product-details h3 {
+        font-size: 14px;
+        white-space: normal; /* prevent cutoff */
+    }
+
+    .product-details .price {
+        font-size: 14px;
     }
 
     /* Fix any overflowing widths */
