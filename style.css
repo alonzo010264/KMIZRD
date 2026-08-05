@@ -344,8 +344,9 @@ button {
 .cat-img {
     width: 60px;
     height: 60px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 10px;
+    background-color: transparent;
 }
 .cat-placeholder {
     width: 60px;
@@ -709,79 +710,7 @@ button {
         display: none;
     }
 }
-@media (max-width: 768px) {
-    .header {
-        flex-direction: column;
-        gap: 20px;
-        padding: 20px;
-    }
-    .nav-links {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .dropdown-menu {
-        position: static;
-        transform: none !important;
-        opacity: 1;
-        visibility: visible;
-        display: none;
-        min-width: 100%;
-        box-shadow: none;
-        background: rgba(255, 255, 255, 0.05);
-        border: none;
-        border-radius: 8px;
-        margin-top: 5px;
-        max-height: none;
-    }
-    .dropdown:hover .dropdown-menu {
-        display: block;
-    }
-    .dropdown-trigger i {
-        display: none; /* Hide arrow on mobile to save horizontal space */
-    }
-    .dropdown-menu a {
-        text-align: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-    .hero {
-        margin: 20px;
-        height: auto;
-        padding: 40px 20px;
-        flex-direction: column;
-    }
-    .hero-content {
-        padding-bottom: 20px;
-    }
-    .hero-image {
-        width: 100%;
-        height: 300px;
-        margin-top: 20px;
-    }
-    .hero-title {
-        font-size: 36px;
-    }
-    .categories {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .footer-top {
-        grid-template-columns: 1fr;
-    }
-    .footer-bottom {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-}
-}
-@media (max-width: 480px) {
-    .categories, .product-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
+/* Removed conflicting old mobile media queries to prevent bugs */
 /* ==========================================
    ADMIN LOGIN OVERLAY STYLES
    ========================================== */
@@ -2510,8 +2439,8 @@ input:checked + .slider:before {
     
     .brand-logo {
         height: auto !important;
-        max-height: 45px !important;
-        max-width: 150px;
+        max-height: 70px !important;
+        max-width: 180px;
     }
     
     .mobile-menu-btn {
@@ -2578,6 +2507,7 @@ input:checked + .slider:before {
     
     /* Categories Responsive */
     .categories {
+        display: flex;
         flex-direction: column;
         padding: 0 15px;
         margin: 0;
@@ -2589,6 +2519,7 @@ input:checked + .slider:before {
         width: 100%;
         margin-bottom: 15px;
         box-sizing: border-box;
+        justify-content: flex-start;
     }
     
     /* Catalog & Forms Fixes */
@@ -2617,8 +2548,28 @@ input:checked + .slider:before {
         box-sizing: border-box;
     }
     
+    /* Footer Fixes */
     .footer {
-        padding: 30px 15px;
+        padding: 40px 20px;
+    }
+    
+    .footer-top {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        text-align: center;
+    }
+    
+    .footer-brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .footer-bottom {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
     }
     
     /* Instagram Feed Fix */
