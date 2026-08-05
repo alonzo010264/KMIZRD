@@ -2439,8 +2439,8 @@ input:checked + .slider:before {
     
     .brand-logo {
         height: auto !important;
-        max-height: 70px !important;
-        max-width: 180px;
+        max-height: 90px !important;
+        max-width: 250px;
     }
     
     .mobile-menu-btn {
@@ -2551,6 +2551,8 @@ input:checked + .slider:before {
     /* Footer Fixes */
     .footer {
         padding: 40px 20px;
+        margin: 15px;
+        border-radius: 15px;
     }
     
     .footer-top {
