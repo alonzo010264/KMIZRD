@@ -2494,8 +2494,24 @@ input:checked + .slider:before {
 }
 
 @media (max-width: 768px) {
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+        position: relative;
+        margin: 0;
+        padding: 0;
+    }
+
     .header {
         padding: 15px 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .brand-logo {
+        height: auto !important;
+        max-height: 45px !important;
+        max-width: 150px;
     }
     
     .mobile-menu-btn {
@@ -2505,7 +2521,7 @@ input:checked + .slider:before {
     .nav-links {
         position: fixed;
         top: 0;
-        right: -100%;
+        right: -100vw;
         width: 80%;
         max-width: 300px;
         height: 100vh;
@@ -2516,6 +2532,7 @@ input:checked + .slider:before {
         transition: right 0.3s ease;
         box-shadow: -5px 0 15px rgba(0,0,0,0.3);
         z-index: 999;
+        overflow-y: auto;
     }
 
     .nav-links.active {
@@ -2539,9 +2556,10 @@ input:checked + .slider:before {
         padding: 40px 20px;
         flex-direction: column;
         height: auto;
-        min-height: 500px;
+        min-height: 400px;
         text-align: center;
         border-radius: 15px;
+        width: auto; /* Fix overflow margin issue */
     }
     
     .hero-content {
@@ -2550,22 +2568,69 @@ input:checked + .slider:before {
     }
     
     .hero-title {
-        font-size: 40px;
+        font-size: 32px;
         letter-spacing: -1px;
     }
 
     .hero-image {
-        margin-top: 20px;
-        display: none; /* Optionally hide or shrink hero image on mobile to save space */
+        display: none;
     }
     
     /* Categories Responsive */
     .categories {
         flex-direction: column;
         padding: 0 15px;
+        margin: 0;
+        width: 100%;
+        box-sizing: border-box;
     }
     
     .category-card {
         width: 100%;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+    }
+    
+    /* Catalog & Forms Fixes */
+    .catalog-section, .contact-section {
+        padding: 40px 15px;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    
+    .catalog-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .catalog-card {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Fix any overflowing widths */
+    .search-box, .image-gallery, .footer {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .footer {
+        padding: 30px 15px;
+    }
+    
+    /* Instagram Feed Fix */
+    .instagram-feed-container {
+        width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+    
+    .instagram-card {
+        width: 280px;
+        height: 500px;
     }
 }
+
