@@ -301,6 +301,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const { data, error } = await _supabase
                 .from('products')
                 .select('*')
+                .neq('category', 'FAQ')
+                .neq('category', 'TRACKING')
+                .neq('category', 'SYSTEM_USERS')
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -590,13 +593,13 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadOrders() {
         if (!ordersTbody) return;
         try {
-            const { data, error } = await _supabase
+            // Fetch orders
+            const { data: orders, error } = await _supabase
                 .from('store_orders')
                 .select('*')
                 .order('created_at', { ascending: false });
 
             if (error) {
-                // If table doesn't exist yet, just log and exit
                 if (error.code === '42P01') {
                     if (noOrdersMsg) noOrdersMsg.style.display = 'block';
                     const table = document.querySelector('#orders-section .admin-table');
@@ -606,9 +609,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw error;
             }
 
+            // Fetch tracking statuses in parallel
+            const { data: trackingData } = await _supabase
+                .from('products')
+                .select('*')
+                .eq('category', 'TRACKING');
+
             ordersTbody.innerHTML = '';
             
-            if (!data || data.length === 0) {
+            if (!orders || orders.length === 0) {
                 if (noOrdersMsg) noOrdersMsg.style.display = 'block';
                 const table = document.querySelector('#orders-section .admin-table');
                 if (table) table.style.display = 'none';
@@ -620,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const table = document.querySelector('#orders-section .admin-table');
             if (table) table.style.display = 'table';
 
-            data.forEach(order => {
+            orders.forEach(order => {
                 const tr = document.createElement('tr');
                 
                 // Format items list
@@ -659,8 +668,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     minute: '2-digit'
                 });
 
+                // Find tracking status for this order
+                const shortId = order.id.slice(0, 8);
+                const orderTracking = (trackingData || []).find(t => t.name === shortId);
+                let trackingStatus = 'No iniciado';
+                if (orderTracking) {
+                    try {
+                        const info = JSON.parse(orderTracking.description);
+                        trackingStatus = info.status || 'No iniciado';
+                    } catch(e) {}
+                }
+
+                let shippingHTML = '';
+                if (trackingStatus === 'No iniciado') {
+                    shippingHTML = `<span class="badge" style="background-color: #64748b; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px;">No iniciado</span>`;
+                } else if (trackingStatus === 'Preparando') {
+                    shippingHTML = `<span class="badge" style="background-color: #3b82f6; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px;">Preparando</span>`;
+                } else if (trackingStatus === 'En camino') {
+                    shippingHTML = `<span class="badge" style="background-color: #f59e0b; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px;">En camino</span>`;
+                } else if (trackingStatus === 'Entregado') {
+                    shippingHTML = `<span class="badge" style="background-color: #10b981; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px;">Entregado</span>`;
+                }
+
+                shippingHTML += ` <button onclick="manageShipping('${order.id}')" class="admin-btn" style="padding: 4px 8px; font-size: 11px; margin-left: 4px; background: #0272ba; color: #fff; border: none; border-radius: 4px; cursor: pointer;" title="Gestionar Envío"><i class="fa fa-truck"></i></button>`;
+
                 tr.innerHTML = `
-                    <td style="font-weight: 700; font-family: monospace; font-size: 11px;">#${order.id.slice(0, 8)}</td>
+                    <td style="font-weight: 700; font-family: monospace; font-size: 11px;">#${shortId}</td>
                     <td>
                         <div style="font-weight: 700;">${order.customer_name}</div>
                         <div style="font-size: 11px; color: #64748b;">${order.customer_email || ''}</div>
@@ -671,11 +704,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td style="font-weight: 600; font-family: monospace; font-size: 12px; color: #475569;">${order.payment_reference || 'N/A'}</td>
                     <td>${statusHTML}</td>
                     <td style="font-size: 12px; color: #64748b;">${date}</td>
+                    <td>${shippingHTML}</td>
                 `;
                 ordersTbody.appendChild(tr);
             });
 
-            updateOrderMetrics(data);
+            updateOrderMetrics(orders);
+
+            // Expose globally so we can reload table after updates
+            window.loadOrdersRef = loadOrders;
 
         } catch (err) {
             console.error('Error cargando ventas:', err);
@@ -1171,5 +1208,163 @@ window.deleteFaq = async function(id) {
     if (error) { alert('Error: ' + error.message); return; }
     await loadFaqAdmin();
 };
+
+// =============================================
+// SHIPPING & TRACKING MANAGEMENT
+// =============================================
+
+async function manageShipping(orderId) {
+    const modal = document.getElementById('manage-shipping-modal');
+    const orderIdLabel = document.getElementById('ship-order-id-label');
+    const orderIdInput = document.getElementById('ship-order-id');
+    const statusSelect = document.getElementById('ship-status');
+    const detailsText = document.getElementById('ship-details');
+    
+    if (!modal) return;
+    
+    orderIdLabel.textContent = '#' + orderId.slice(0, 8);
+    orderIdInput.value = orderId;
+    statusSelect.value = 'Recibido';
+    detailsText.value = '';
+    
+    modal.style.display = 'flex';
+    
+    await loadShippingHistory(orderId);
+}
+
+async function loadShippingHistory(orderId) {
+    const tbody = document.getElementById('shipping-history-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #64748b; padding: 15px;">Cargando historial...</td></tr>';
+    
+    const { data, error } = await _supabase
+        .from('products')
+        .select('*')
+        .eq('category', 'TRACKING')
+        .eq('name', orderId.slice(0, 8)); // Query by 8 char code
+        
+    if (error || !data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #64748b; padding: 15px;">Sin historial de envíos.</td></tr>';
+        return;
+    }
+    
+    let info;
+    try {
+        info = JSON.parse(data[0].description);
+    } catch(e) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #ef4444; padding: 15px;">Error al decodificar datos.</td></tr>';
+        return;
+    }
+    
+    const history = info.history || [];
+    if (history.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #64748b; padding: 15px;">Sin historial de envíos.</td></tr>';
+        return;
+    }
+    
+    // Sort history newest first
+    const sorted = [...history].sort((a,b) => new Date(b.date) - new Date(a.date));
+    
+    tbody.innerHTML = '';
+    sorted.forEach(item => {
+        const tr = document.createElement('tr');
+        const dateStr = new Date(item.date).toLocaleString('es-DO', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        tr.innerHTML = `
+            <td style="padding: 10px; font-size: 13px; color: #64748b; vertical-align: top;">${dateStr}</td>
+            <td style="padding: 10px; font-size: 13px; font-weight: 700; color: #0f172a; vertical-align: top;">${item.status}</td>
+            <td style="padding: 10px; font-size: 13px; color: #475569; line-height: 1.4; vertical-align: top;">${item.detail}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Add shipping form submit listener
+document.addEventListener('DOMContentLoaded', () => {
+    const shipForm = document.getElementById('shipping-form');
+    const closeBtn = document.getElementById('close-shipping-modal');
+    const modal = document.getElementById('manage-shipping-modal');
+    
+    if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+    
+    if (shipForm) {
+        shipForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const orderId = document.getElementById('ship-order-id').value;
+            const status = document.getElementById('ship-status').value;
+            const detail = document.getElementById('ship-details').value.trim();
+            
+            if (!orderId || !status || !detail) return;
+            
+            // Check if tracking record exists
+            const { data: existing } = await _supabase
+                .from('products')
+                .select('*')
+                .eq('category', 'TRACKING')
+                .eq('name', orderId.slice(0, 8));
+                
+            let trackingDoc = {
+                status: status,
+                history: []
+            };
+            
+            let rowId = null;
+            if (existing && existing.length > 0) {
+                rowId = existing[0].id;
+                try {
+                    trackingDoc = JSON.parse(existing[0].description);
+                } catch(e) {}
+            }
+            
+            // Update status and append history
+            trackingDoc.status = status;
+            trackingDoc.history.push({
+                date: new Date().toISOString(),
+                status: status,
+                detail: detail
+            });
+            
+            let error;
+            if (rowId) {
+                ({ error } = await _supabase
+                    .from('products')
+                    .update({ description: JSON.stringify(trackingDoc) })
+                    .eq('id', rowId));
+            } else {
+                ({ error } = await _supabase
+                    .from('products')
+                    .insert([{
+                        name: orderId.slice(0, 8),
+                        description: JSON.stringify(trackingDoc),
+                        price: Date.now(),
+                        category: 'TRACKING',
+                        sizes: [],
+                        image: 'assets/logo.jpg'
+                    }]));
+            }
+            
+            if (error) {
+                alert('Error al guardar actualización: ' + error.message);
+            } else {
+                document.getElementById('ship-details').value = '';
+                await loadShippingHistory(orderId);
+                // Reload orders table to update status badge
+                if (window.loadOrdersRef) await window.loadOrdersRef();
+            }
+        });
+    }
+});
+
+// Bind globally
+window.manageShipping = manageShipping;
 
 

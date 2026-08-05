@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastrear Pedido | KMIZRD</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand-blue: #0272ba;
+            --brand-dark: #0f172a;
+            --brand-light: #f8fafc;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--brand-dark);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tracking-main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            background: radial-gradient(circle at top right, rgba(2, 114, 186, 0.05), transparent 400px),
+                        radial-gradient(circle at bottom left, rgba(15, 23, 42, 0.03), transparent 400px);
+        }
+
+        .tracking-card {
+            background: #ffffff;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 680px;
+            padding: 45px 40px;
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tracking-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .tracking-logo-container {
+            margin-bottom: 20px;
+        }
+
+        .tracking-logo-container i {
+            background: rgba(2, 114, 186, 0.1);
+            color: var(--brand-blue);
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+
+        .tracking-title {
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--brand-dark);
+            margin: 0 0 10px 0;
+            letter-spacing: -0.8px;
+        }
+
+        .tracking-subtitle {
+            font-size: 15px;
+            color: #64748b;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Search input container with magnifying glass on the left */
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            padding: 6px 8px 6px 20px;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .search-container:focus-within {
+            border-color: var(--brand-blue);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(2, 114, 186, 0.1);
+        }
+
+        .search-icon-left {
+            color: #94a3b8;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .search-container:focus-within .search-icon-left {
+            color: var(--brand-blue);
+        }
+
+        .search-field {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--brand-dark);
+            outline: none;
+            padding: 10px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .search-field::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .search-submit-btn {
+            background-color: var(--brand-blue);
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(2, 114, 186, 0.2);
+        }
+
+        .search-submit-btn:hover {
+            background-color: #025c96;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(2, 114, 186, 0.3);
+        }
+
+        .search-submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .search-help-text {
+            text-align: center;
+            font-size: 12.5px;
+            color: #94a3b8;
+            margin-top: 12px;
+            margin-bottom: 30px;
+        }
+
+        /* Results Panel Styles */
+        .results-panel {
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 35px;
+            text-align: left;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .order-info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(2, 114, 186, 0.06);
+            color: var(--brand-blue);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 13.5px;
+            margin-bottom: 30px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Horizontal Timeline visual tracker */
+        .tracker-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-bottom: 45px;
+            padding: 0 5px;
+        }
+
+        .tracker-steps::before {
+            content: '';
+            position: absolute;
+            top: 22px;
+            left: 20px;
+            right: 20px;
+            height: 4px;
+            background-color: #f1f5f9;
+            z-index: 1;
+        }
+
+        .tracker-bar {
+            position: absolute;
+            top: 22px;
+            left: 20px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-blue) 0%, var(--success-color) 100%);
+            z-index: 1;
+            transition: width 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+            width: 0%;
+        }
+
+        .tracker-node {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tracker-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            border: 4px solid #ffffff;
+            box-shadow: 0 0 0 2px #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            transition: all 0.4s ease;
+        }
+
+        .tracker-node.active .tracker-circle {
+            background-color: var(--brand-blue);
+            color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(2, 114, 186, 0.25);
+            transform: scale(1.1);
+        }
+
+        .tracker-node.completed .tracker-circle {
+            background-color: var(--success-color);
+            color: #ffffff;
+            box-shadow: 0 0 0 2px var(--success-color);
+        }
+
+        .tracker-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            transition: color 0.3s;
+        }
+
+        .tracker-node.active .tracker-label {
+            color: var(--brand-blue);
+        }
+
+        .tracker-node.completed .tracker-label {
+            color: var(--success-color);
+        }
+
+        /* History details list */
+        .history-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 30px;
+        }
+
+        .history-card-header {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--brand-dark);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .history-list::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            bottom: 6px;
+            left: 4px;
+            width: 2px;
+            background-color: #e2e8f0;
+        }
+
+        .history-row {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .history-row::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: -20px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #cbd5e1;
+            border: 2px solid #f8fafc;
+            transition: all 0.3s;
+        }
+
+        .history-row.latest::before {
+            background-color: var(--brand-blue);
+            box-shadow: 0 0 0 3px rgba(2, 114, 186, 0.2);
+            transform: scale(1.2);
+        }
+
+        .row-date {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .row-status {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: var(--brand-dark);
+        }
+
+        .row-detail {
+            font-size: 13.5px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        /* Error and Loading states */
+        .error-card {
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            text-align: left;
+            margin-top: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .error-card i {
+            color: #ef4444;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .error-card-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: #991b1b;
+            margin: 0 0 4px 0;
+        }
+
+        .error-card-desc {
+            font-size: 13px;
+            color: #b91c1c;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 640px) {
+            .tracking-card {
+                padding: 30px 20px;
+            }
+            .tracker-steps {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 25px;
+                padding-left: 15px;
+                margin-bottom: 35px;
+            }
+            .tracker-steps::before {
+                top: 15px;
+                left: 32px;
+                bottom: 15px;
+                width: 4px;
+                height: auto;
+            }
+            .tracker-bar {
+                top: 15px;
+                left: 32px;
+                width: 4px;
+                height: 0%;
+                transition: height 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+            }
+            .tracker-node {
+                flex-direction: row;
+                gap: 20px;
+            }
+            .tracker-circle {
+                width: 38px;
+                height: 38px;
+            }
+            .search-container {
+                padding: 4px 6px 4px 16px;
+            }
+            .search-submit-btn {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Announcement Bar -->
+    <div class="announcement-bar">
+        <p><strong>ENVÍO GRATIS</strong> en pedidos superiores a RD$3,500 &rarr;</p>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <a href="./" class="logo"><img src="assets/logo.jpg" alt="KMIZRD Logo" class="brand-logo"></a>
+        <nav class="nav-links">
+            <a href="./">INICIO</a>
+            <div class="dropdown">
+                <a href="#" class="dropdown-trigger">ARTÍCULOS PERSONALIZADOS <i class="fa fa-chevron-down"></i></a>
+                <div class="dropdown-menu">
+                    <a href="#" class="nav-custom-item" data-product-name="Camiseta de Algodón" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camisetas Algodón</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Camiseta Dryfit" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camisetas Dryfit</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Polo de Cuello" data-product-cat="CAMISETAS" data-product-img="assets/plain_polo.png">Polo de Cuello</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Abrigo / Hoodie" data-product-cat="HOODIES" data-product-img="assets/plain_hoodie.png">Abrigos</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Gorra" data-product-cat="ACCESORIOS" data-product-img="assets/plain_cap.png">Gorras</a>
+                    <a href="#" class="nav-custom-item" data-product-name="Taza o Termo" data-product-cat="ACCESORIOS" data-product-img="assets/plain_thermos.png">Tazas & Termos</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a href="#" class="dropdown-trigger">KOLECCION KMIZ <i class="fa fa-chevron-down"></i></a>
+                <div class="dropdown-menu">
+                    <a href="camisetas/">Oversize</a>
+                    <a href="hoodies/">Abrigos</a>
+                    <a href="accesorios/">Gorras</a>
+                    <a href="colecciones/">Catálogo Digital</a>
+                </div>
+            </div>
+            <a href="faq.html">PREGUNTAS FRECUENTES</a>
+            <a href="rastreo.html" class="active" style="color:#ffffff !important;">RASTREAR PEDIDO</a>
+        </nav>
+        <div class="nav-icons">
+            <button aria-label="Search"><i data-lucide="search"></i></button>
+            <button aria-label="Cart" class="cart-btn">
+                <i data-lucide="shopping-bag"></i>
+                <span class="cart-count">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="tracking-main">
+        <div class="tracking-card">
+            <div class="tracking-header">
+                <div class="tracking-logo-container">
+                    <i class="fa-solid fa-truck-ramp-box"></i>
+                </div>
+                <h1 class="tracking-title">Sigue tu Pedido</h1>
+                <p class="tracking-subtitle">Ingresa el código de 8 dígitos de tu recibo para darle seguimiento al envío de tu compra en tiempo real.</p>
+            </div>
+
+            <!-- Custom Premium Search Container with Lupa (magnifying glass) on the left -->
+            <div class="search-container">
+                <div class="search-icon-left">
+                    <i data-lucide="search"></i>
+                </div>
+                <input type="text" id="tracking-input" class="search-field" placeholder="Escribe el código aquí (ej. f3b2c8a1)..." maxlength="8">
+                <button id="search-btn" class="search-submit-btn">
+                    <span>Buscar</span>
+                    <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
+                </button>
+            </div>
+            <div class="search-help-text">El código de rastreo se encuentra en el correo de confirmación de tu compra.</div>
+
+            <!-- Result Section -->
+            <div id="tracking-result" class="results-panel" style="display: none;">
+                <div class="order-info-badge">
+                    <i data-lucide="receipt" style="width:16px;height:16px;"></i>
+                    <span>PEDIDO: <strong id="ship-order-id-label"></strong></span>
+                </div>
+
+                <!-- Visual Timeline Tracker Steps -->
+                <div class="tracker-steps">
+                    <div class="tracker-bar" id="timeline-progress"></div>
+                    <div class="tracker-node" id="step-1">
+                        <div class="tracker-circle"><i data-lucide="file-check" style="width:18px;height:18px;"></i></div>
+                        <div class="tracker-label">Recibido</div>
+                    </div>
+                    <div class="tracker-node" id="step-2">
+                        <div class="tracker-circle"><i data-lucide="package" style="width:18px;height:18px;"></i></div>
+                        <div class="tracker-label">Preparando</div>
+                    </div>
+                    <div class="tracker-node" id="step-3">
+                        <div class="tracker-circle"><i data-lucide="truck" style="width:18px;height:18px;"></i></div>
+                        <div class="tracker-label">En camino</div>
+                    </div>
+                    <div class="tracker-node" id="step-4">
+                        <div class="tracker-circle"><i data-lucide="smile" style="width:18px;height:18px;"></i></div>
+                        <div class="tracker-label">Entregado</div>
+                    </div>
+                </div>
+
+                <!-- History list of updates -->
+                <div class="history-card">
+                    <div class="history-card-header">
+                        <i data-lucide="list-ordered" style="width:18px;height:18px;color:var(--brand-blue);"></i>
+                        <span>Bitácora de Actualizaciones</span>
+                    </div>
+                    <div class="history-list" id="history-list">
+                        <!-- Dynamic rows -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Notification Card -->
+            <div id="tracking-error" class="error-card" style="display: none;">
+                <i data-lucide="alert-circle" style="width:20px;height:20px;"></i>
+                <div>
+                    <h5 class="error-card-title">Código Inválido</h5>
+                    <p class="error-card-desc" id="error-msg">No se ha podido localizar ningún pedido asociado a ese código de seguimiento. Por favor, revísalo y vuelve a intentarlo.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <img src="assets/logo.jpg" alt="KMIZRD Logo" class="footer-logo">
+                <p>Ropa oversize con diseños únicos que hablan por ti. Calidad, actitud y autenticidad en cada prenda.</p>
+                <div class="social-icons">
+                    <a href="https://instagram.com/kmizrd" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://tiktok.com/@kmizrd" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/18090000000" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://facebook.com/kmizrd" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>TIENDA</h4>
+                <a href="camisetas/">Camisetas</a>
+                <a href="hoodies/">Hoodies</a>
+                <a href="accesorios/">Gorras</a>
+                <a href="colecciones/">Colecciones</a>
+            </div>
+            <div class="footer-links">
+                <h4>AYUDA</h4>
+                <a href="faq.html">Preguntas frecuentes</a>
+                <a href="https://wa.me/18090000000" target="_blank">Contacto</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 KMIZRD. Todos los derechos reservados.</p>
+            <div class="payment-icons">
+                <i class="fab fa-cc-visa" title="Visa"></i>
+                <i class="fab fa-cc-mastercard" title="MasterCard"></i>
+                <i class="fab fa-whatsapp" title="WhatsApp" style="color: #25d366;"></i>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Shopping Cart Drawer (Needed for script.js) -->
+    <div id="cart-drawer" class="cart-drawer-overlay">
+        <div class="cart-drawer-container">
+            <div class="cart-drawer-header">
+                <h3>Tu Carrito (<span id="cart-drawer-count">0</span>)</h3>
+                <button class="cart-drawer-close" id="cart-drawer-close" aria-label="Cerrar carrito"><i data-lucide="x"></i></button>
+            </div>
+            <div class="cart-drawer-items" id="cart-drawer-items"></div>
+            <div class="cart-drawer-footer" id="cart-drawer-footer" style="display: none;">
+                <div class="cart-summary-row">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">RD$0.00</span>
+                </div>
+                <div class="cart-summary-row shipping-row">
+                    <span>Envío</span>
+                    <span id="cart-shipping">Gratis</span>
+                </div>
+                <div class="cart-summary-row total-row">
+                    <span>Total</span>
+                    <span id="cart-total">RD$0.00</span>
+                </div>
+                <button class="cart-checkout-btn">Iniciar Compra &rarr;</button>
+                <div id="paypal-button-container" style="margin-top: 15px; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stripe Payment Modal (Needed for script.js) -->
+    <div id="stripe-modal" class="modal-overlay">
+        <div class="modal-container" style="max-width: 450px; padding: 30px;">
+            <button class="modal-close" id="stripe-modal-close" aria-label="Cerrar"><i data-lucide="x"></i></button>
+            <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 10px; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                <i class="fab fa-stripe-s" style="color: #635bff; font-size: 24px;"></i> Pago Seguro
+            </h3>
+            <form id="stripe-payment-form">
+                <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                    <div id="stripe-card-element"></div>
+                    <div id="stripe-card-errors" role="alert"></div>
+                </div>
+                <button type="submit" id="stripe-submit-btn" class="btn-submit" style="width: 100%;">Pagar Ahora</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Stripe JS SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="script.js?v=1.0.1"></script>
+    <script>
+        const SUPABASE_URL = 'https://hgjcmsqforkvcfatygsl.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
+        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function handleSearch() {
+            const input = document.getElementById('tracking-input').value.trim().toLowerCase();
+            const resultDiv = document.getElementById('tracking-result');
+            const errorDiv = document.getElementById('tracking-error');
+            const errorMsg = document.getElementById('error-msg');
+
+            resultDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            if (!input) return;
+
+            // Search in products table under tracking category
+            const { data, error } = await db
+                .from('products')
+                .select('*')
+                .eq('category', 'TRACKING')
+                .ilike('name', `${input}%`); // Match first 8 chars or full code
+
+            if (error) {
+                errorMsg.textContent = 'Hubo un error al buscar el pedido: ' + error.message;
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                errorMsg.textContent = 'No se encontró ningún pedido con ese código de seguimiento. Verifica el código e intenta nuevamente.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const trackInfo = data[0];
+            let trackingDetails;
+            try {
+                trackingDetails = JSON.parse(trackInfo.description);
+            } catch (e) {
+                errorMsg.textContent = 'Error al decodificar los datos de seguimiento del pedido.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Render Timeline Nodes
+            const currentStatus = trackingDetails.status;
+            const history = trackingDetails.history || [];
+
+            document.getElementById('ship-order-id-label').textContent = '#' + trackInfo.name.toUpperCase();
+
+            // Reset nodes
+            const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
+            steps.forEach(id => {
+                document.getElementById(id).className = 'tracker-node';
+            });
+
+            // Set progress
+            const isMobile = window.innerWidth <= 640;
+            const progressProp = isMobile ? 'height' : 'width';
+            // reset other
+            document.getElementById('timeline-progress').style.width = isMobile ? '4px' : '0%';
+            document.getElementById('timeline-progress').style.height = isMobile ? '0%' : '4px';
+
+            let progressValue = '0%';
+            if (currentStatus === 'Recibido') {
+                document.getElementById('step-1').className = 'tracker-node active';
+                progressValue = '0%';
+            } else if (currentStatus === 'Preparando') {
+                document.getElementById('step-1').className = 'tracker-node completed';
+                document.getElementById('step-2').className = 'tracker-node active';
+                progressValue = '33.33%';
+            } else if (currentStatus === 'En camino') {
+                document.getElementById('step-1').className = 'tracker-node completed';
+                document.getElementById('step-2').className = 'tracker-node completed';
+                document.getElementById('step-3').className = 'tracker-node active';
+                progressValue = '66.66%';
+            } else if (currentStatus === 'Entregado') {
+                document.getElementById('step-1').className = 'tracker-node completed';
+                document.getElementById('step-2').className = 'tracker-node completed';
+                document.getElementById('step-3').className = 'tracker-node completed';
+                document.getElementById('step-4').className = 'tracker-node completed';
+                progressValue = '100%';
+            }
+
+            document.getElementById('timeline-progress').style[progressProp] = progressValue;
+
+            // Render History List (reversed chronological order - newest first)
+            const listContainer = document.getElementById('history-list');
+            listContainer.innerHTML = '';
+
+            const sortedHistory = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedHistory.forEach((item, index) => {
+                const dateStr = new Date(item.date).toLocaleString('es-DO', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const historyDiv = document.createElement('div');
+                historyDiv.className = `history-row ${index === 0 ? 'latest' : ''}`;
+                historyDiv.innerHTML = `
+                    <span class="row-date">${dateStr}</span>
+                    <span class="row-status">${item.status}</span>
+                    <span class="row-detail">${item.detail}</span>
+                `;
+                listContainer.appendChild(historyDiv);
+            });
+
+            resultDiv.style.display = 'block';
+            lucide.createIcons();
+        }
+
+        document.getElementById('search-btn').addEventListener('click', handleSearch);
+        document.getElementById('tracking-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSearch();
+        });
+
+        // If code is in URL hash (e.g. rastreo.html#a1b2c3d4)
+        if (window.location.hash) {
+            const code = window.location.hash.substring(1);
+            if (code.length >= 6) {
+                document.getElementById('tracking-input').value = code;
+                setTimeout(handleSearch, 300);
+            }
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

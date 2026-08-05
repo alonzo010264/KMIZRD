@@ -359,6 +359,7 @@
                                     <th>Referencia / Tarjeta</th>
                                     <th>Estado</th>
                                     <th>Fecha</th>
+                                    <th>Envío</th>
                                 </tr>
                             </thead>
                             <tbody id="admin-orders-tbody">
@@ -573,7 +574,57 @@
         </div>
     </div>
 
+    <!-- Manage Shipping Modal -->
+    <div id="manage-shipping-modal" class="admin-login-overlay" style="display: none; z-index: 1000;">
+        <div class="admin-card" style="width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; margin: auto; position: relative;">
+            <button id="close-shipping-modal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b;"><i class="fa fa-times"></i></button>
+            <h3 style="margin-bottom: 5px;">Gestionar Envío</h3>
+            <p class="card-subtitle" style="margin-bottom: 20px;">Controla el transcurso y actualización de envío del pedido <strong id="ship-order-id-label"></strong></p>
+            
+            <form id="shipping-form" class="admin-form">
+                <input type="hidden" id="ship-order-id">
+                
+                <div class="form-row" style="display:grid; grid-template-columns: 1fr; gap:15px; margin-bottom: 15px;">
+                    <div class="form-group">
+                        <label for="ship-status">Estado del Envío *</label>
+                        <select id="ship-status" required>
+                            <option value="Recibido">Pedido Recibido / Por Procesar</option>
+                            <option value="Preparando">Preparando Pedido / En Almacén</option>
+                            <option value="En camino">Despachado / En camino (Delivery)</option>
+                            <option value="Entregado">Entregado al Cliente</option>
+                        </select>
+                    </div>
+                </div>
 
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="ship-details">Detalles / Ubicación / Nota de la Actualización *</label>
+                    <textarea id="ship-details" required placeholder="Ej. El pedido ha sido despachado de nuestra sucursal central y va en camino con el repartidor Carlos. Tel: 809-555-5555." style="min-height: 80px;"></textarea>
+                </div>
+                
+                <div class="form-actions" style="margin-top: 15px; margin-bottom: 25px;">
+                    <button type="submit" class="admin-btn btn-primary" style="width: 100%;"><i class="fa fa-plus-circle"></i> Agregar Actualización de Envío</button>
+                </div>
+            </form>
+
+            <h4 style="font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 15px; border-top: 1px solid #e2e8f0; padding-top: 20px;">Historial de Transcurso</h4>
+            <div class="table-responsive">
+                <table class="admin-table" style="min-width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 10px; font-size: 11px; width: 30%;">Fecha</th>
+                            <th style="padding: 10px; font-size: 11px; width: 25%;">Estado</th>
+                            <th style="padding: 10px; font-size: 11px; width: 45%;">Detalles / Comentario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shipping-history-tbody">
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: #64748b; padding: 15px;">Sin historial de envíos.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

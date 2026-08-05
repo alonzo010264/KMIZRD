@@ -2482,3 +2482,90 @@ input:checked + .slider:before {
 .gallery-thumb { width: 60px; height: 60px; flex-shrink: 0; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid transparent; opacity: 0.6; transition: all 0.3s ease; }
 .gallery-thumb:hover { opacity: 0.9; transform: translateY(-2px); }
 .gallery-thumb.active { border-color: var(--accent-color); opacity: 1; transform: scale(1.05); }
+
+/* Mobile Navigation Styles */
+.mobile-menu-btn {
+    display: none;
+    color: #fff;
+    font-size: 24px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 15px 20px;
+    }
+    
+    .mobile-menu-btn {
+        display: inline-flex;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background-color: var(--accent-color);
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 80px 30px 30px;
+        transition: right 0.3s ease;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+        z-index: 999;
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .nav-links a {
+        font-size: 16px;
+        padding: 10px 0;
+        width: 100%;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .nav-links a.active::after {
+        display: none;
+    }
+
+    /* Hero Section Responsive */
+    .hero {
+        margin: 15px;
+        padding: 40px 20px;
+        flex-direction: column;
+        height: auto;
+        min-height: 500px;
+        text-align: center;
+        border-radius: 15px;
+    }
+    
+    .hero-content {
+        max-width: 100%;
+        padding-bottom: 20px;
+    }
+    
+    .hero-title {
+        font-size: 40px;
+        letter-spacing: -1px;
+    }
+
+    .hero-image {
+        margin-top: 20px;
+        display: none; /* Optionally hide or shrink hero image on mobile to save space */
+    }
+    
+    /* Categories Responsive */
+    .categories {
+        flex-direction: column;
+        padding: 0 15px;
+    }
+    
+    .category-card {
+        width: 100%;
+    }
+}
