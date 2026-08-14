@@ -214,12 +214,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ? prod.price
                     : `<span style="font-size:13px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>`;
 
+            let imageHTML = '';
+            if (prod.images && prod.images.length > 1) {
+                imageHTML = `
+                    <div class="flip-container">
+                        <div class="flipper">
+                            <div class="front">
+                                <img src="${encodeURI(prod.images[0])}" alt="${prod.name}">
+                            </div>
+                            <div class="back">
+                                <img src="${encodeURI(prod.images[1])}" alt="${prod.name} Trasera">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                imageHTML = `<img src="${encodeURI(prod.image)}" alt="${prod.name}" onerror="console.error('Failed to load image:', this.src); this.style.border='2px solid red';">`;
+            }
+
             card.innerHTML = `
                 <div class="product-image-wrap">
                     ${badgeHTML}
                     ${(prod.images && prod.images.length > 1) ? `<span style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;z-index:2;">${prod.images.length} fotos</span>` : ''}
                     <button class="wishlist-btn"><i data-lucide="heart"></i></button>
-                    <img src="${encodeURI(prod.image)}" alt="${prod.name}" onerror="console.error('Failed to load image:', this.src); this.style.border='2px solid red';">
+                    ${imageHTML}
                 </div>
                 <div class="product-details">
                     <h3>${prod.name}</h3>
