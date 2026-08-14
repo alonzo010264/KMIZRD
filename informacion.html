@@ -61,249 +61,65 @@
         </div>
     </header>
 
-    <main>
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-content">
-                <p class="hero-subtitle">NUEVA COLECCIÓN</p>
-                <h2 class="hero-title" style="font-size: 60px; line-height: 1.1; margin-bottom: 20px; color: #ffeb3b;">Koleccion<br>Kmiz</h2>
-                <p class="hero-desc" style="font-size: 16px; font-weight: 500;">Consulta informacion para conocer mas de nuestros productos<br>Diseños nuevos - Crea tu pedido personalizado</p>
-                <a href="colecciones/" class="btn-primary" style="text-decoration: none;">VER CATÁLOGO &rarr;</a>
-                <div class="carousel-dots">
-                    <span class="dot active"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                </div>
-            </div>
-            <div class="hero-image">
-                <!-- We use the generated hero image here. Ideally it should be masked or blend with the dark background -->
-                <img src="assets/hero_bg.png" alt="Diseños de camisetas">
-            </div>
-        </section>
+    <main class="info-layout">
+        <!-- Sidebar -->
+        <aside class="info-sidebar">
+            <ul>
+                <li class="active"><a href="#">CAMISETAS</a></li>
+                <li><a href="#">POLO DE CUELLO</a></li>
+                <li><a href="#">ABRIGOS</a></li>
+                <li><a href="#">GORRAS</a></li>
+                <li><a href="#">TAZAS & TERMOS</a></li>
+                <li><a href="#">BORDADO</a></li>
+                <li><a href="#">SUBLIMACION</a></li>
+            </ul>
+        </aside>
 
+        <!-- Content -->
+        <section class="info-content">
+            <!-- Item 1 -->
+            <div class="info-item">
+                <h3>Camiseta 100% Algodón</h3>
+                <p>Confeccionada con algodón de alta calidad, ofrece una textura suave, fresca y cómoda. Ideal para el uso diario y perfecta para personalización mediante DTF, serigrafía o bordado.</p>
+                <img src="assets/plain_tshirt.png" alt="Camiseta Algodon" style="background: #f1f5f9;">
+            </div>
 
+            <!-- Item 2 -->
+            <div class="info-item">
+                <h3>Camiseta 100% Poliéster</h3>
+                <p>Ligera, resistente y de secado rápido. Mantiene sus colores por más tiempo y es la opción ideal para sublimación, ropa deportiva y uso continuo.</p>
+                <img src="assets/plain_tshirt.png" alt="Camiseta Poliester" style="background: #3b82f6;">
+            </div>
 
-        <!-- Featured Products Section -->
-        <section id="catalog-section" class="featured-products">
-            <div class="section-header">
-                <h2>PRODUCTOS DESTACADOS</h2>
-                <a href="#catalog-section" class="catalog-card-link">Ver todos &rarr;</a>
+            <!-- Item 3 -->
+            <div class="info-item">
+                <h3>Camiseta Ojo de Ángel</h3>
+                <p>Fabricada con un tejido transpirable de textura tipo malla que favorece la circulación del aire. Brinda frescura, comodidad y un excelente rendimiento para actividades deportivas o el día a día.</p>
+                <img src="assets/plain_tshirt.png" alt="Camiseta Ojo de Angel" style="background: #cbd5e1;">
             </div>
-            <div class="product-grid">
-                <!-- Products loaded dynamically from Supabase via script.js -->
-            </div>
-        </section>
 
-        <!-- Features Section -->
-        <section class="features">
-            <div class="feature-item">
-                <i data-lucide="truck" class="feature-icon"></i>
-                <div class="feature-text">
-                    <h4>ENVÍO GRATIS</h4>
-                    <p>En pedidos superiores a $60</p>
-                </div>
+            <!-- Item 4 -->
+            <div class="info-item">
+                <h3>Camiseta Oversize Algodón</h3>
+                <p>Diseñada con un corte amplio y moderno que combina estilo y comodidad. Elaborada en algodón de excelente calidad, es perfecta para un look urbano y para personalizaciones de gran impacto.</p>
+                <img src="assets/plain_tshirt.png" alt="Camiseta Oversize" style="background: #0f172a;">
             </div>
-            <div class="feature-divider"></div>
-            <div class="feature-item">
-                <i data-lucide="shield-check" class="feature-icon"></i>
-                <div class="feature-text">
-                    <h4>PAGO SEGURO</h4>
-                    <p>Tus datos siempre protegidos</p>
-                </div>
+
+            <!-- Item 5 -->
+            <div class="info-item">
+                <h3>Camiseta Manga Larga Algodón</h3>
+                <p>La combinación perfecta entre comodidad y protección. Su confección en algodón ofrece suavidad al tacto, siendo ideal para climas frescos, uniformes o uso casual.</p>
+                <img src="assets/plain_tshirt.png" alt="Manga Larga Algodon" style="background: #475569;">
             </div>
-            <div class="feature-divider"></div>
-            <div class="feature-item">
-                <i data-lucide="refresh-cw" class="feature-icon"></i>
-                <div class="feature-text">
-                    <h4>CAMBIOS FÁCILES</h4>
-                    <p>30 días para cambios</p>
-                </div>
-            </div>
-            <div class="feature-divider"></div>
-            <div class="feature-item">
-                <i data-lucide="headphones" class="feature-icon"></i>
-                <div class="feature-text">
-                    <h4>ATENCIÓN AL CLIENTE</h4>
-                    <p>Estamos para ayudarte</p>
-                </div>
+
+            <!-- Item 6 -->
+            <div class="info-item">
+                <h3>Camiseta Manga Larga Dryfit</h3>
+                <p>Confeccionada con tela Dryfit de alto rendimiento que ayuda a mantener el cuerpo seco al absorber y evaporar el sudor rápidamente. Ideal para entrenamientos, deportes y actividades al aire libre.</p>
+                <img src="assets/plain_tshirt.png" alt="Manga Larga Dryfit" style="background: #000000;">
             </div>
         </section>
     </main>
-
-    <!-- Instagram Carousel Section -->
-    <section class="instagram-carousel-section">
-        <div class="instagram-carousel-header">
-            <i class="fab fa-instagram instagram-header-icon"></i>
-            <h2>SÍGUENOS EN INSTAGRAM</h2>
-            <a href="https://instagram.com/kmizrd" target="_blank" class="instagram-username">@kmizrd</a>
-        </div>
-        <div class="instagram-marquee">
-            <div class="instagram-track">
-                <!-- Card 1 -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/reel/DDQBkW9RkrZ/', '_blank')">
-                    <iframe src="https://www.instagram.com/reel/DDQBkW9RkrZ/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 2 -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/DDPfk3VObU8/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/DDPfk3VObU8/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 3 -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/DBg8_T8xx-n/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/DBg8_T8xx-n/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 4 -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/DAYmK-oOCZ8/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/DAYmK-oOCZ8/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 5 -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C_s-6pvJj0g/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C_s-6pvJj0g/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 6 -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C7pCCoOusge/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C7pCCoOusge/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 7 -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C51r-7dOwpH/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C51r-7dOwpH/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 8 -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C5ovFeiuAaF/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C5ovFeiuAaF/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 9 -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C4BfcThuliP/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C4BfcThuliP/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 10 -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C3LqAqBuld7/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C3LqAqBuld7/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-
-                <!-- Duplicates for seamless marquee -->
-                <!-- Card 1 Duplicate -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/reel/DDQBkW9RkrZ/', '_blank')">
-                    <iframe src="https://www.instagram.com/reel/DDQBkW9RkrZ/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 2 Duplicate -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/DDPfk3VObU8/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/DDPfk3VObU8/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 3 Duplicate -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/DBg8_T8xx-n/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/DBg8_T8xx-n/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 4 Duplicate -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/DAYmK-oOCZ8/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/DAYmK-oOCZ8/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 5 Duplicate -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C_s-6pvJj0g/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C_s-6pvJj0g/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 6 Duplicate -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C7pCCoOusge/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C7pCCoOusge/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 7 Duplicate -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C51r-7dOwpH/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C51r-7dOwpH/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 8 Duplicate -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C5ovFeiuAaF/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C5ovFeiuAaF/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 9 Duplicate -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C4BfcThuliP/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C4BfcThuliP/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-                <!-- Card 10 Duplicate -->
-                <div class="instagram-card" onclick="window.open('https://www.instagram.com/p/C3LqAqBuld7/', '_blank')">
-                    <iframe src="https://www.instagram.com/p/C3LqAqBuld7/embed/" frameborder="0" scrolling="no" allowtransparency="true" loading="lazy"></iframe>
-                    <div class="instagram-card-overlay">
-                        <i class="fab fa-instagram"></i>
-                        <span>Ver publicación</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <footer class="footer">
         <div class="footer-top">

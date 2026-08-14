@@ -1715,3 +1715,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ==========================================
+// Custom Modal: Type and Size Logic
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const typeSelect = document.getElementById('custom-modal-type-select');
+    if (typeSelect) {
+        typeSelect.addEventListener('change', (e) => {
+            const modalName = document.getElementById('custom-modal-product-name');
+            if (modalName) {
+                modalName.textContent = e.target.value;
+            }
+        });
+    }
+
+    const sizeBtns = document.querySelectorAll('.custom-size-btn');
+    sizeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            sizeBtns.forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'transparent';
+                b.style.color = '#fff';
+            });
+            btn.classList.add('active');
+            btn.style.background = 'var(--accent-color)';
+            btn.style.color = '#0f172a';
+        });
+    });
+});
