@@ -579,14 +579,152 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Simple interaction for hero carousel dots
-    const dots = document.querySelectorAll('.dot');
-    dots.forEach(dot => {
-        dot.addEventListener('click', () => {
-            document.querySelector('.dot.active').classList.remove('active');
-            dot.classList.add('active');
+    // Dynamic Hero Banner Carousel Controller
+    function initHeroBannerCarousel() {
+        const carousel = document.querySelector('.hero-carousel');
+        if (!carousel) return;
+
+        const track = carousel.querySelector('.carousel-track');
+        const slides = carousel.querySelectorAll('.carousel-slide');
+        const prevBtn = carousel.querySelector('.carousel-nav-btn.prev');
+        const nextBtn = carousel.querySelector('.carousel-nav-btn.next');
+        const indicators = carousel.querySelectorAll('.indicator-dot');
+
+        if (!track || slides.length === 0) return;
+
+        let currentIndex = 0;
+        let slideInterval = null;
+        const autoPlayDelay = 4500; // 4.5 seconds per banner
+
+        function updateCarousel(index) {
+            if (index < 0) {
+                currentIndex = slides.length - 1;
+            } else if (index >= slides.length) {
+                currentIndex = 0;
+            } else {
+                currentIndex = index;
+            }
+
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentIndex);
+            });
+
+            indicators.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentIndex);
+            });
+        }
+
+        function nextSlide() {
+            updateCarousel(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            updateCarousel(currentIndex - 1);
+        }
+
+        function startAutoPlay() {
+            stopAutoPlay();
+            slideInterval = setInterval(nextSlide, autoPlayDelay);
+        }
+
+        function stopAutoPlay() {
+            if (slideInterval) {
+                clearInterval(slideInterval);
+                slideInterval = null;
+            }
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                nextSlide();
+                startAutoPlay();
+            });
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                prevSlide();
+                startAutoPlay();
+            });
+        }
+
+        indicators.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const targetSlide = parseInt(dot.getAttribute('data-slide'), 10);
+                if (!isNaN(targetSlide)) {
+                    updateCarousel(targetSlide);
+                    startAutoPlay();
+                }
+            });
         });
-    });
+
+        carousel.addEventListener('mouseenter', stopAutoPlay);
+        carousel.addEventListener('mouseleave', startAutoPlay);
+
+        // Touch swipe support (Mobile)
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let isSwiping = false;
+
+        carousel.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            isSwiping = false;
+            stopAutoPlay();
+        }, { passive: true });
+
+        carousel.addEventListener('touchmove', (e) => {
+            const currentX = e.changedTouches[0].screenX;
+            if (Math.abs(currentX - touchStartX) > 10) {
+                isSwiping = true;
+            }
+        }, { passive: true });
+
+        carousel.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diffX = touchStartX - touchEndX;
+            if (Math.abs(diffX) > 40) {
+                if (diffX > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+            }
+            startAutoPlay();
+            setTimeout(() => { isSwiping = false; }, 100);
+        }, { passive: true });
+
+        // Prevent accidental link clicks when swiping
+        carousel.querySelectorAll('.hero-banner-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (isSwiping) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+        });
+
+        // Keyboard navigation
+        carousel.setAttribute('tabindex', '0');
+        carousel.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+                startAutoPlay();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+                startAutoPlay();
+            }
+        });
+
+        // Initialize autoplay
+        startAutoPlay();
+    }
+
+    initHeroBannerCarousel();
 
     // 5. Shopping Cart Functions
     function updateCartUI() {

@@ -234,20 +234,43 @@ button {
     overflow: hidden;
 }
 
-/* Modern Full Banner */
+/* Modern Full Banner & Carousel */
 .hero.hero-banner {
     height: auto;
     min-height: unset;
     background-color: #050505;
     display: block;
     padding: 0;
+    position: relative;
+    overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
 }
 
 .hero.hero-banner:hover {
     transform: translateY(-2px);
     box-shadow: 0 14px 35px rgba(0, 118, 200, 0.25);
+}
+
+.carousel-track-container {
+    overflow: hidden;
+    width: 100%;
+    border-radius: 20px;
+    position: relative;
+}
+
+.carousel-track {
+    display: flex;
+    width: 100%;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    width: 100%;
+    flex-shrink: 0;
 }
 
 .hero-banner-link {
@@ -264,6 +287,87 @@ button {
     display: block;
     object-fit: cover;
     border-radius: 20px;
+}
+
+/* Navigation Buttons (Prev / Next) */
+.carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    outline: none;
+}
+
+.hero.hero-banner:hover .carousel-nav-btn {
+    opacity: 1;
+}
+
+.carousel-nav-btn:hover {
+    background: rgba(0, 118, 200, 0.95);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 15px rgba(0, 118, 200, 0.4);
+}
+
+.carousel-nav-btn.prev {
+    left: 18px;
+}
+
+.carousel-nav-btn.next {
+    right: 18px;
+}
+
+/* Indicators (Dots) */
+.carousel-indicators {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+    padding: 6px 14px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.indicator-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: none;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    padding: 0;
+}
+
+.indicator-dot:hover {
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.indicator-dot.active {
+    width: 28px;
+    border-radius: 6px;
+    background: #0284c7;
+    box-shadow: 0 0 12px rgba(2, 132, 199, 0.7);
 }
 
 .hero-content {
@@ -2615,8 +2719,41 @@ input:checked + .slider:before {
         margin: 12px 15px 20px;
     }
 
+    .hero.hero-banner .carousel-track-container {
+        border-radius: 14px;
+    }
+
     .hero.hero-banner .hero-banner-img {
         border-radius: 14px;
+    }
+
+    .carousel-nav-btn {
+        opacity: 0.85;
+        width: 32px;
+        height: 32px;
+    }
+
+    .carousel-nav-btn.prev {
+        left: 8px;
+    }
+
+    .carousel-nav-btn.next {
+        right: 8px;
+    }
+
+    .carousel-indicators {
+        bottom: 10px;
+        padding: 4px 10px;
+        gap: 6px;
+    }
+
+    .indicator-dot {
+        width: 6px;
+        height: 6px;
+    }
+
+    .indicator-dot.active {
+        width: 18px;
     }
     
     .hero-content {

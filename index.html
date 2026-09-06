@@ -62,11 +62,59 @@
     </header>
 
     <main>
-        <!-- Hero Banner Section -->
-        <section class="hero hero-banner">
-            <a href="colecciones/" class="hero-banner-link" title="Ver Colección KMIZRD" aria-label="KMIZRD - Camisetas Oversize - Compra Ahora">
-                <img src="assets/banner_kmizrd.png" alt="KMIZRD - Se el creador de lo que vistes - Camisetas Oversize" class="hero-banner-img">
-            </a>
+        <!-- Hero Banner Carousel Section -->
+        <section class="hero hero-banner hero-carousel" aria-label="Banners Principales KMIZRD">
+            <div class="carousel-track-container">
+                <div class="carousel-track">
+                    <!-- Slide 1: Camisetas Oversize & Diseños Únicos -->
+                    <div class="carousel-slide active">
+                        <a href="colecciones/" class="hero-banner-link" title="Ver Colección KMIZRD" aria-label="KMIZRD - Camisetas Oversize - Compra Ahora">
+                            <img src="assets/banner_1.png" alt="KMIZRD - Camisetas Oversize Algodón 100% - Diseños Únicos" class="hero-banner-img" fetchpriority="high">
+                        </a>
+                    </div>
+                    <!-- Slide 2: Artículos Personalizados para Empresas y Eventos -->
+                    <div class="carousel-slide">
+                        <a href="#" class="hero-banner-link nav-custom-item" data-product-name="Artículos Personalizados para Empresas" data-product-cat="EMPRESAS & EVENTOS" data-product-img="assets/banner_2.png" title="Cotizar Artículos Personalizados para Empresas y Eventos" aria-label="KMIZRD - Artículos Personalizados para Empresas y Eventos">
+                            <img src="assets/banner_2.png" alt="KMIZRD - Artículos Personalizados para Empresas y Eventos" class="hero-banner-img" loading="lazy">
+                        </a>
+                    </div>
+                    <!-- Slide 3: Crea Tu Marca - Hoodies en Diferentes Colores -->
+                    <div class="carousel-slide">
+                        <a href="hoodies/" class="hero-banner-link" title="Crea Tu Marca Con Nosotros - Hoodies y Oversize" aria-label="KMIZRD - Hoodies y Colección">
+                            <img src="assets/banner_3.png" alt="KMIZRD - Crea Tu Marca Con Nosotros - Hoodies y Oversize" class="hero-banner-img" loading="lazy">
+                        </a>
+                    </div>
+                    <!-- Slide 4: Envíos a Todo el País -->
+                    <div class="carousel-slide">
+                        <a href="informacion.html" class="hero-banner-link" title="Envíos Seguros a Todo el País - Santo Domingo y el Interior" aria-label="KMIZRD - Envíos a Todo el País">
+                            <img src="assets/banner_4.png" alt="KMIZRD - Envíos Seguros a Todo el País Santo Domingo y el Interior" class="hero-banner-img" loading="lazy">
+                        </a>
+                    </div>
+                    <!-- Slide 5: Polos y Gorras Bordados para tu Uniforme -->
+                    <div class="carousel-slide">
+                        <a href="#" class="hero-banner-link nav-custom-item" data-product-name="Polos y Gorras Bordados" data-product-cat="UNIFORMES & BORDADOS" data-product-img="assets/banner_5.png" title="Crea tu Pedido - Polos y Gorras Bordados" aria-label="KMIZRD - Polos y Gorras Bordados para tu Uniforme">
+                            <img src="assets/banner_5.png" alt="KMIZRD - Polos y Gorras Bordados para tu Uniforme" class="hero-banner-img" loading="lazy">
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <button class="carousel-nav-btn prev" type="button" aria-label="Banner anterior">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button class="carousel-nav-btn next" type="button" aria-label="Banner siguiente">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+
+            <!-- Indicators (Dots) -->
+            <div class="carousel-indicators" role="tablist" aria-label="Indicadores de banner">
+                <button type="button" class="indicator-dot active" data-slide="0" aria-label="Banner 1"></button>
+                <button type="button" class="indicator-dot" data-slide="1" aria-label="Banner 2"></button>
+                <button type="button" class="indicator-dot" data-slide="2" aria-label="Banner 3"></button>
+                <button type="button" class="indicator-dot" data-slide="3" aria-label="Banner 4"></button>
+                <button type="button" class="indicator-dot" data-slide="4" aria-label="Banner 5"></button>
+            </div>
         </section>
 
 
