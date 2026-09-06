@@ -234,6 +234,38 @@ button {
     overflow: hidden;
 }
 
+/* Modern Full Banner */
+.hero.hero-banner {
+    height: auto;
+    min-height: unset;
+    background-color: #050505;
+    display: block;
+    padding: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero.hero-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 35px rgba(0, 118, 200, 0.25);
+}
+
+.hero-banner-link {
+    display: block;
+    width: 100%;
+    line-height: 0;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.hero-banner-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    border-radius: 20px;
+}
+
 .hero-content {
     max-width: 500px;
     z-index: 2;
@@ -2574,6 +2606,17 @@ input:checked + .slider:before {
         text-align: center;
         border-radius: 15px;
         width: auto; /* Fix overflow margin issue */
+    }
+
+    .hero.hero-banner {
+        padding: 0;
+        min-height: unset;
+        border-radius: 14px;
+        margin: 12px 15px 20px;
+    }
+
+    .hero.hero-banner .hero-banner-img {
+        border-radius: 14px;
     }
     
     .hero-content {
