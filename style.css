@@ -50,9 +50,11 @@ button {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 40px;
+    padding: 14px 40px;
     background-color: var(--accent-color); /* Blue background to match logo */
     color: #fff;
+    min-height: 80px;
+    box-sizing: border-box;
 }
 
 
@@ -205,18 +207,31 @@ button {
 
 /* Brand Logo Image */
 .brand-logo {
-    height: 220px; /* Increased further to display logo prominently */
+    height: 65px;
     width: auto;
+    max-width: 220px;
     display: block;
+    object-fit: contain;
+    transition: transform 0.25s ease;
+}
+
+.brand-logo:hover {
+    transform: scale(1.04);
 }
 
 .footer-logo {
-    height: 110px;
+    height: 75px;
     width: auto;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    max-width: 220px;
+    border-radius: 8px;
+    margin-bottom: 22px;
     display: block;
     object-fit: contain;
+    transition: transform 0.25s ease;
+}
+
+.footer-logo:hover {
+    transform: scale(1.03);
 }
 
 /* Hero Section */
@@ -246,6 +261,15 @@ button {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     user-select: none;
+    margin: 20px 40px;
+}
+
+.hero.hero-banner.banner-top {
+    margin: 20px 40px 14px;
+}
+
+.hero.hero-banner.banner-bottom {
+    margin: 0 40px 30px;
 }
 
 .hero.hero-banner:hover {
@@ -715,60 +739,70 @@ button {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr;
     gap: 40px;
-    margin-bottom: 60px;
+    margin-bottom: 50px;
 }
 
-
 .footer-brand p {
-    font-size: 13px;
-    color: rgba(255,255,255,0.9);
-    line-height: 1.6;
-    margin-bottom: 20px;
-    max-width: 250px;
+    font-size: 15px;
+    color: rgba(255,255,255,0.95);
+    line-height: 1.65;
+    margin-bottom: 24px;
+    max-width: 320px;
 }
 
 .social-icons {
     display: flex;
-    gap: 18px;
+    gap: 16px;
 }
 
 .social-icons a {
     color: #fff;
-    font-size: 20px;
+    font-size: 22px;
     transition: all 0.3s ease;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
 }
 
 .social-icons a:hover {
-    color: #1a1a1a;
-    transform: translateY(-3px);
+    color: #fff;
+    background: #1a1a1a;
+    transform: translateY(-3px) scale(1.05);
 }
 
 .footer-links h4, .footer-newsletter h4 {
-    color: #1a1a1a; /* Black text on blue background */
-    font-size: 13px;
-    font-weight: 800;
+    color: #0f172a; /* Black text on blue background */
+    font-size: 16px;
+    font-weight: 900;
     margin-bottom: 20px;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
 }
 
 .footer-links a {
     display: block;
-    font-size: 13px;
-    color: rgba(255,255,255,0.9);
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.95);
     margin-bottom: 12px;
-    transition: color 0.3s;
+    padding: 2px 0;
+    transition: all 0.25s ease;
 }
 
 .footer-links a:hover {
     color: #fff;
-    transform: translateX(2px);
+    transform: translateX(4px);
+    text-shadow: 0 0 2px rgba(255,255,255,0.5);
 }
 
 .footer-newsletter p {
-    font-size: 13px;
-    color: rgba(255,255,255,0.9);
-    margin-bottom: 15px;
+    font-size: 14.5px;
+    color: rgba(255,255,255,0.95);
+    margin-bottom: 16px;
     line-height: 1.5;
 }
 
@@ -784,7 +818,7 @@ button {
     border-right: none;
     padding: 12px 15px;
     color: #fff;
-    font-size: 13px;
+    font-size: 14px;
     font-family: inherit;
     border-radius: 5px 0 0 5px;
 }
@@ -801,7 +835,7 @@ button {
 .newsletter-form button {
     background-color: #1a1a1a;
     color: #fff;
-    padding: 0 15px;
+    padding: 0 18px;
     border-radius: 0 5px 5px 0;
     display: flex;
     align-items: center;
@@ -817,8 +851,8 @@ button {
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    font-size: 11px;
-    color: rgba(255,255,255,0.8);
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
     cursor: pointer;
 }
 
@@ -833,9 +867,10 @@ button {
     justify-content: space-between;
     align-items: center;
     padding-top: 30px;
-    border-top: 1px solid rgba(255,255,255,0.2);
-    font-size: 12px;
-    color: rgba(255,255,255,0.8);
+    border-top: 1px solid rgba(255,255,255,0.25);
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
 }
 
 .footer-badges {
@@ -938,13 +973,15 @@ button {
 }
 
 .login-logo {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
+    width: 140px;
+    height: 60px;
+    border-radius: 12px;
+    object-fit: contain;
     margin-bottom: 20px;
-    border: 4px solid var(--accent-color);
+    border: 3px solid var(--accent-color);
     box-shadow: 0 8px 16px rgba(2, 114, 186, 0.2);
+    background-color: var(--accent-color);
+    padding: 6px;
 }
 
 .login-header h1 {
@@ -1111,8 +1148,10 @@ button {
 }
 
 .admin-logo-img {
-    height: 160px; /* Enlarged to make the logo text inside readable */
+    height: 55px;
     width: auto;
+    max-width: 180px;
+    object-fit: contain;
 }
 
 .admin-nav {
@@ -2653,15 +2692,18 @@ input:checked + .slider:before {
     }
 
     .header {
-        padding: 15px 20px;
+        padding: 12px 18px;
         width: 100%;
         box-sizing: border-box;
     }
     
     .brand-logo {
-        height: auto !important;
-        max-height: 90px !important;
-        max-width: 250px;
+        height: 52px !important;
+        max-height: 52px !important;
+        width: auto !important;
+        max-width: 165px !important;
+        object-fit: contain;
+        display: block;
     }
     
     .nav-icons .mobile-menu-btn {
@@ -2717,6 +2759,14 @@ input:checked + .slider:before {
         min-height: unset;
         border-radius: 14px;
         margin: 12px 15px 20px;
+    }
+
+    .hero.hero-banner.banner-top {
+        margin: 12px 15px 10px;
+    }
+
+    .hero.hero-banner.banner-bottom {
+        margin: 0 15px 22px;
     }
 
     .hero.hero-banner .carousel-track-container {
@@ -2836,15 +2886,15 @@ input:checked + .slider:before {
     
     /* Footer Fixes */
     .footer {
-        padding: 40px 20px;
-        margin: 15px;
-        border-radius: 15px;
+        padding: 40px 24px;
+        margin: 20px 12px;
+        border-radius: 18px;
     }
     
     .footer-top {
         display: flex;
         flex-direction: column;
-        gap: 40px;
+        gap: 35px;
         text-align: center;
     }
     
@@ -2853,11 +2903,60 @@ input:checked + .slider:before {
         flex-direction: column;
         align-items: center;
     }
+
+    .footer-brand p {
+        max-width: 100%;
+        font-size: 15px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .footer-logo {
+        height: 62px !important;
+        max-height: 62px !important;
+        width: auto !important;
+        max-width: 180px !important;
+        margin: 0 auto 18px auto;
+        display: block;
+        object-fit: contain;
+    }
+
+    .social-icons {
+        justify-content: center;
+        gap: 16px;
+    }
+
+    .social-icons a {
+        font-size: 22px;
+        width: 44px;
+        height: 44px;
+    }
+
+    .footer-links h4, .footer-newsletter h4 {
+        font-size: 17px;
+        margin-bottom: 14px;
+    }
+
+    .footer-links a {
+        font-size: 15.5px;
+        padding: 6px 0;
+        margin-bottom: 6px;
+    }
     
     .footer-bottom {
         flex-direction: column;
-        gap: 20px;
+        gap: 18px;
         text-align: center;
+        font-size: 14px;
+    }
+
+    .payment-icons {
+        justify-content: center;
+        gap: 18px;
+    }
+
+    .payment-icons i {
+        font-size: 34px;
     }
     
     /* Instagram Feed Fix */
@@ -2870,6 +2969,20 @@ input:checked + .slider:before {
     .instagram-card {
         width: 280px;
         height: 500px;
+    }
+}
+
+@media (max-width: 380px) {
+    .header {
+        padding: 10px 14px;
+    }
+    .brand-logo {
+        height: 46px !important;
+        max-height: 46px !important;
+        max-width: 135px !important;
+    }
+    .nav-icons {
+        gap: 12px;
     }
 }
 
