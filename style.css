@@ -3112,7 +3112,7 @@ input:checked + .slider:before {
    ========================================= */
 .premium-showcase {
     position: relative;
-    height: 280vh; /* Ample scroll distance for a smooth 10s scrub */
+    height: 520vh; /* Mayor recorrido para que el video avance lento, cinematográfico y controlado */
     background-color: #080c14;
     margin: 0;
     padding: 0;
@@ -3278,10 +3278,40 @@ input:checked + .slider:before {
     transition: width 0.05s linear;
 }
 
+/* Subtle Scroll Hint Indicator */
+.premium-scroll-hint {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    z-index: 15;
+    pointer-events: none;
+    transition: opacity 0.4s ease-out;
+}
+
+.hint-arrow {
+    animation: bounceHint 1.8s infinite ease-in-out;
+    color: #38bdf8;
+}
+
+@keyframes bounceHint {
+    0%, 100% { transform: translateY(0); opacity: 0.5; }
+    50% { transform: translateY(6px); opacity: 1; }
+}
+
 /* Responsive Styles for Tablets & Smartphones */
 @media (max-width: 900px) {
     .premium-showcase {
-        height: 250vh;
+        height: 440vh;
     }
 
     .premium-video {
@@ -3321,5 +3351,9 @@ input:checked + .slider:before {
         right: auto;
         transform: translateX(-50%);
         width: 100px;
+    }
+
+    .premium-scroll-hint {
+        bottom: 45px;
     }
 }

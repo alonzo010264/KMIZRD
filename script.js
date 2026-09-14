@@ -1896,6 +1896,7 @@ function initPremiumScrollVideo() {
     const heading = document.getElementById('ps-heading');
     const btnWrap = document.getElementById('ps-btn-wrap');
     const progressBar = document.getElementById('premium-scroll-progress');
+    const scrollHint = document.getElementById('ps-scroll-hint');
 
     if (!showcase || !video) return;
 
@@ -1943,23 +1944,30 @@ function initPremiumScrollVideo() {
             targetTime = progress * video.duration;
         }
 
+        // Scroll Hint fades away as soon as user begins scrolling
+        if (scrollHint) {
+            const hintOpacity = Math.max(0, 1 - progress / 0.05);
+            scrollHint.style.opacity = hintOpacity;
+            scrollHint.style.transform = `translateX(-50%) translateY(${(1 - hintOpacity) * 8}px)`;
+        }
+
         // Animate editorial text elements smoothly based on progress
-        // Tag appears from progress 0.05 to 0.22
-        const tagProgress = Math.max(0, Math.min(1, (progress - 0.05) / 0.17));
+        // Tag appears from progress 0.08 to 0.26
+        const tagProgress = Math.max(0, Math.min(1, (progress - 0.08) / 0.18));
         if (tag) {
             tag.style.opacity = tagProgress;
             tag.style.transform = `translateY(${(1 - tagProgress) * 18}px)`;
         }
 
-        // Heading appears from progress 0.18 to 0.42
-        const headProgress = Math.max(0, Math.min(1, (progress - 0.18) / 0.24));
+        // Heading appears from progress 0.20 to 0.45
+        const headProgress = Math.max(0, Math.min(1, (progress - 0.20) / 0.25));
         if (heading) {
             heading.style.opacity = headProgress;
             heading.style.transform = `translateY(${(1 - headProgress) * 22}px)`;
         }
 
-        // CTA Button appears from progress 0.35 to 0.60
-        const btnProgress = Math.max(0, Math.min(1, (progress - 0.35) / 0.25));
+        // CTA Button appears from progress 0.38 to 0.65
+        const btnProgress = Math.max(0, Math.min(1, (progress - 0.38) / 0.27));
         if (btnWrap) {
             btnWrap.style.opacity = btnProgress;
             btnWrap.style.transform = `translateY(${(1 - btnProgress) * 18}px)`;
@@ -1971,20 +1979,12 @@ function initPremiumScrollVideo() {
         }
     }
 
-    // Smooth RAF loop: interpolates currentTime towards targetTime for butter-smooth scrubbing
+    // Smooth RAF loop: interpolates currentTime towards targetTime for slow, butter-smooth scrubbing
     function render() {
         if (isVideoReady && video.duration && !isNaN(video.duration)) {
             const diff = targetTime - currentTime;
-            if (Math.abs(diff) > 0.015) {
-                currentTime += diff * 0.22; // smooth linear interpolation
-                const safeTime = Math.max(0, Math.min(video.duration - 0.04, currentTime));
-                if ('fastSeek' in video) {
-                    try { video.fastSeek(safeTime); } catch (e) { video.currentTime = safeTime; }
-                } else {
-                    video.currentTime = safeTime;
-                }
-            } else if (Math.abs(diff) > 0.002) {
-                currentTime = targetTime;
+            if (Math.abs(diff) > 0.005) {
+                currentTime += diff * 0.15; // Smooth cushioned easing
                 const safeTime = Math.max(0, Math.min(video.duration - 0.04, currentTime));
                 video.currentTime = safeTime;
             }
