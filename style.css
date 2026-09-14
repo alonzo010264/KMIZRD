@@ -50,11 +50,18 @@ button {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 40px;
+    padding: 12px 40px;
     background-color: var(--accent-color); /* Blue background to match logo */
     color: #fff;
-    min-height: 80px;
+    min-height: 88px;
     box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+    .header {
+        padding: 14px 48px;
+        min-height: 96px;
+    }
 }
 
 
@@ -207,12 +214,19 @@ button {
 
 /* Brand Logo Image */
 .brand-logo {
-    height: 65px;
+    height: 75px;
     width: auto;
-    max-width: 220px;
+    max-width: 260px;
     display: block;
     object-fit: contain;
     transition: transform 0.25s ease;
+}
+
+@media (min-width: 1024px) {
+    .brand-logo {
+        height: 85px;
+        max-width: 290px;
+    }
 }
 
 .brand-logo:hover {
@@ -220,14 +234,21 @@ button {
 }
 
 .footer-logo {
-    height: 75px;
+    height: 95px;
     width: auto;
-    max-width: 220px;
+    max-width: 280px;
     border-radius: 8px;
     margin-bottom: 22px;
     display: block;
     object-fit: contain;
     transition: transform 0.25s ease;
+}
+
+@media (min-width: 1024px) {
+    .footer-logo {
+        height: 110px;
+        max-width: 330px;
+    }
 }
 
 .footer-logo:hover {
