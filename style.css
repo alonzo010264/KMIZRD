@@ -3106,3 +3106,220 @@ input:checked + .slider:before {
         aspect-ratio: 1;
     }
 }
+
+/* =========================================
+   PREMIUM SCROLL-DRIVEN PRODUCT SHOWCASE
+   ========================================= */
+.premium-showcase {
+    position: relative;
+    height: 280vh; /* Ample scroll distance for a smooth 10s scrub */
+    background-color: #080c14;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.premium-sticky-container {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #080c14;
+}
+
+.premium-video-wrapper {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.premium-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 28% center; /* Keep the 3 shirts prominently visible on left/center */
+    display: block;
+    pointer-events: none;
+    background-color: #080c14;
+}
+
+/* Cinematic Vignette & Gradient for right-side editorial readability */
+.premium-video-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 35% 50%, transparent 42%, rgba(8, 12, 20, 0.45) 70%, rgba(8, 12, 20, 0.95) 100%),
+                linear-gradient(90deg, transparent 30%, rgba(8, 12, 20, 0.4) 55%, rgba(8, 12, 20, 0.9) 80%, #080c14 100%),
+                linear-gradient(to bottom, rgba(8, 12, 20, 0.85) 0%, transparent 18%, transparent 82%, rgba(8, 12, 20, 0.85) 100%);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Right-side Content Layer */
+.premium-content-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 8vw 0 0;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.premium-content-inner {
+    max-width: 480px;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.premium-tag {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 3.5px;
+    color: #38bdf8;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+    will-change: opacity, transform;
+    text-shadow: 0 2px 10px rgba(56, 189, 248, 0.4);
+}
+
+.premium-heading {
+    font-size: clamp(34px, 4.5vw, 62px);
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin: 0 0 28px 0;
+    opacity: 0;
+    transform: translateY(25px);
+    transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+    will-change: opacity, transform;
+    text-shadow: 0 4px 25px rgba(0, 0, 0, 0.85);
+}
+
+.premium-btn-wrapper {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+    will-change: opacity, transform;
+}
+
+.btn-premium-collection {
+    background: var(--accent-color, #0272ba);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 16px 36px;
+    border-radius: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 10px 30px rgba(2, 114, 186, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+}
+
+.btn-premium-collection:hover {
+    background: #ffffff;
+    color: var(--accent-color, #0272ba);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 16px 35px rgba(2, 114, 186, 0.6);
+    border-color: #ffffff;
+}
+
+.btn-premium-collection svg {
+    transition: transform 0.3s ease;
+}
+
+.btn-premium-collection:hover svg {
+    transform: translateX(4px);
+}
+
+/* Subtle Glowing Progress Line */
+.premium-scroll-indicator {
+    position: absolute;
+    bottom: 34px;
+    right: 8vw;
+    width: 140px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.premium-scroll-progress {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #0284c7);
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+    transition: width 0.05s linear;
+}
+
+/* Responsive Styles for Tablets & Smartphones */
+@media (max-width: 900px) {
+    .premium-showcase {
+        height: 250vh;
+    }
+
+    .premium-video {
+        object-position: center 25%;
+    }
+
+    .premium-video-overlay {
+        background: linear-gradient(to top, rgba(8, 12, 20, 0.98) 0%, rgba(8, 12, 20, 0.88) 38%, rgba(8, 12, 20, 0.25) 70%, transparent 100%),
+                    linear-gradient(to bottom, rgba(8, 12, 20, 0.75) 0%, transparent 15%);
+    }
+
+    .premium-content-wrapper {
+        justify-content: center;
+        align-items: flex-end;
+        padding: 0 24px 60px 24px;
+        text-align: center;
+    }
+
+    .premium-content-inner {
+        align-items: center;
+        max-width: 100%;
+    }
+
+    .premium-heading {
+        font-size: clamp(28px, 7vw, 42px);
+        margin-bottom: 22px;
+    }
+
+    .btn-premium-collection {
+        padding: 14px 28px;
+        font-size: 13px;
+    }
+
+    .premium-scroll-indicator {
+        bottom: 20px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: 100px;
+    }
+}

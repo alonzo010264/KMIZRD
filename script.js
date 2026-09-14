@@ -1885,3 +1885,134 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// ==========================================
+// Interactive Scroll-Driven Video Showcase
+// ==========================================
+function initPremiumScrollVideo() {
+    const showcase = document.getElementById('premium-showcase');
+    const video = document.getElementById('premium-scroll-video');
+    const tag = document.getElementById('ps-tag');
+    const heading = document.getElementById('ps-heading');
+    const btnWrap = document.getElementById('ps-btn-wrap');
+    const progressBar = document.getElementById('premium-scroll-progress');
+
+    if (!showcase || !video) return;
+
+    // Strict requirements: no autoplay, no loop, kept paused
+    video.pause();
+    video.currentTime = 0;
+
+    let targetTime = 0;
+    let currentTime = 0;
+    let isVideoReady = false;
+    let isTicking = false;
+
+    function handleVideoReady() {
+        if (!isVideoReady && video.duration && !isNaN(video.duration)) {
+            isVideoReady = true;
+            video.pause();
+            onScroll();
+        }
+    }
+
+    video.addEventListener('loadedmetadata', handleVideoReady);
+    video.addEventListener('canplay', handleVideoReady);
+    video.addEventListener('canplaythrough', handleVideoReady);
+
+    if (video.readyState >= 1) {
+        handleVideoReady();
+    }
+
+    // Scroll calculations
+    function calculateProgress() {
+        const rect = showcase.getBoundingClientRect();
+        const maxScroll = showcase.offsetHeight - window.innerHeight;
+        if (maxScroll <= 0) return 0;
+
+        const scrolled = -rect.top;
+        const progress = Math.max(0, Math.min(1, scrolled / maxScroll));
+        return progress;
+    }
+
+    function onScroll() {
+        const progress = calculateProgress();
+
+        if (video.duration && !isNaN(video.duration)) {
+            // Map progress (0.0 to 1.0) directly to video duration (0s to 10s)
+            targetTime = progress * video.duration;
+        }
+
+        // Animate editorial text elements smoothly based on progress
+        // Tag appears from progress 0.05 to 0.22
+        const tagProgress = Math.max(0, Math.min(1, (progress - 0.05) / 0.17));
+        if (tag) {
+            tag.style.opacity = tagProgress;
+            tag.style.transform = `translateY(${(1 - tagProgress) * 18}px)`;
+        }
+
+        // Heading appears from progress 0.18 to 0.42
+        const headProgress = Math.max(0, Math.min(1, (progress - 0.18) / 0.24));
+        if (heading) {
+            heading.style.opacity = headProgress;
+            heading.style.transform = `translateY(${(1 - headProgress) * 22}px)`;
+        }
+
+        // CTA Button appears from progress 0.35 to 0.60
+        const btnProgress = Math.max(0, Math.min(1, (progress - 0.35) / 0.25));
+        if (btnWrap) {
+            btnWrap.style.opacity = btnProgress;
+            btnWrap.style.transform = `translateY(${(1 - btnProgress) * 18}px)`;
+        }
+
+        // Subtle glowing progress line
+        if (progressBar) {
+            progressBar.style.width = `${progress * 100}%`;
+        }
+    }
+
+    // Smooth RAF loop: interpolates currentTime towards targetTime for butter-smooth scrubbing
+    function render() {
+        if (isVideoReady && video.duration && !isNaN(video.duration)) {
+            const diff = targetTime - currentTime;
+            if (Math.abs(diff) > 0.015) {
+                currentTime += diff * 0.22; // smooth linear interpolation
+                const safeTime = Math.max(0, Math.min(video.duration - 0.04, currentTime));
+                if ('fastSeek' in video) {
+                    try { video.fastSeek(safeTime); } catch (e) { video.currentTime = safeTime; }
+                } else {
+                    video.currentTime = safeTime;
+                }
+            } else if (Math.abs(diff) > 0.002) {
+                currentTime = targetTime;
+                const safeTime = Math.max(0, Math.min(video.duration - 0.04, currentTime));
+                video.currentTime = safeTime;
+            }
+        }
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+
+    // Passive scroll listener for optimal 60fps performance
+    window.addEventListener('scroll', () => {
+        if (!isTicking) {
+            requestAnimationFrame(() => {
+                onScroll();
+                isTicking = false;
+            });
+            isTicking = true;
+        }
+    }, { passive: true });
+
+    window.addEventListener('resize', onScroll, { passive: true });
+
+    // Initial call
+    onScroll();
+}
+
+// Run on DOMContentLoaded or immediately if DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPremiumScrollVideo);
+} else {
+    initPremiumScrollVideo();
+}
