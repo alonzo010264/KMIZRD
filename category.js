@@ -281,7 +281,7 @@
         if (products.length === 0) { if (emptyEl) emptyEl.style.display = 'block'; return; }
         if (emptyEl) emptyEl.style.display = 'none';
         products.forEach(prod => {
-            const isColeccion = (prod.category || '').toLowerCase().includes('coleccion');
+            const isColeccion = (prod.category || '').toLowerCase().includes('coleccion') || (prod.category || '').toLowerCase().includes('oversize');
             const price = parseFloat(String(prod.price).replace(/[^0-9.]/g, ''));
             const card = document.createElement('div');
             card.className = 'cat-product-card';
@@ -422,7 +422,7 @@
         currentProduct = variant;
         buildGallery(variant.images && variant.images.length > 0 ? variant.images : [variant.image]);
         document.getElementById('modal-product-name').textContent = getBaseName(variant.name);
-        const isColeccionVariant = (variant.category || '').toLowerCase().includes('coleccion');
+        const isColeccionVariant = (variant.category || '').toLowerCase().includes('coleccion') || (variant.category || '').toLowerCase().includes('oversize');
         const priceElV = document.getElementById('modal-product-price');
         if (!isColeccionVariant) {
             priceElV.innerHTML = '<span style="font-size:14px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>';
@@ -444,7 +444,7 @@
     function openProductModal(product) {
         currentProduct = product;
         const variants = product.variants || [product];
-        const isColeccion = (product.category || '').toLowerCase().includes('coleccion');
+        const isColeccion = (product.category || '').toLowerCase().includes('coleccion') || (product.category || '').toLowerCase().includes('oversize');
 
         // Gallery from first variant
         buildGallery(product.images && product.images.length > 0 ? product.images : [product.image]);
@@ -530,7 +530,7 @@
             if (!currentProduct) return;
             const activeSize = document.querySelector('.size-badge-modal.active');
             const size = activeSize ? activeSize.textContent : 'Única';
-            const isColeccion = (currentProduct.category || '').toLowerCase().includes('coleccion');
+            const isColeccion = (currentProduct.category || '').toLowerCase().includes('coleccion') || (currentProduct.category || '').toLowerCase().includes('oversize');
             if (isColeccion) {
                 addToCart(currentProduct, size);
                 closeProductModal();
@@ -758,3 +758,5 @@
     });
 
 })();
+
+
