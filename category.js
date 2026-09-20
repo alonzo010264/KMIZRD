@@ -14,7 +14,7 @@
     let colorMap = {};
 
     function getBaseName(name) {
-        if (currentCategory === 'OVERSIZE') return name;
+        if (CATEGORY === 'OVERSIZE') return name;
         return name.replace(/[-_]\d{2,}$/, '').replace(/\s+\d+$/, '').trim();
     }
 
