@@ -220,16 +220,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="flip-container">
                         <div class="flipper">
                             <div class="front">
-                                <img src="${encodeURI(prod.images[0])}" alt="${prod.name}">
+                                <img src="${encodeURI(prod.images[0])}" alt="${prod.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/logo.jpg';">
                             </div>
                             <div class="back">
-                                <img src="${encodeURI(prod.images[1])}" alt="${prod.name} Trasera">
+                                <img src="${encodeURI(prod.images[1])}" alt="${prod.name} Trasera" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/logo.jpg';">
                             </div>
                         </div>
                     </div>
                 `;
             } else {
-                imageHTML = `<img src="${encodeURI(prod.image)}" alt="${prod.name}" onerror="console.error('Failed to load image:', this.src); this.style.border='2px solid red';">`;
+                imageHTML = `<img src="${encodeURI(prod.image)}" alt="${prod.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/logo.jpg';">`;
             }
 
             card.innerHTML = `

@@ -33,6 +33,7 @@
         if (nameLower.includes('azul')) return 'Azul';
         if (nameLower.includes('naranja')) return 'Naranja';
         if (nameLower.includes('beige')) return 'Beige';
+        if (nameLower.includes('rosa')) return 'Rosa';
         return 'Negro';
     }
 
@@ -291,7 +292,7 @@
                     <span class="cat-card-badge new">NUEVO</span>
                     ${!isColeccion ? `<span class="cat-card-badge custom" style="top:44px;">✦ PERSONALIZABLE</span>` : ''}
                     ${(prod.images && prod.images.length > 1) ? `<span style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;z-index:2;">${prod.images.length} fotos</span>` : ''}
-                    <img src="${prod.image}" alt="${prod.name}" loading="lazy">
+                    <img src="${prod.image}" alt="${prod.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='../assets/logo.jpg';">
                     <div class="cat-card-actions">
                         ${isColeccion
                             ? `<button class="cat-action-btn cart" data-action="cart" title="Añadir al carrito"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button>`
@@ -579,6 +580,9 @@
                 break;
             case 'naranja':
                 bg = 'rgba(234, 88, 12, 0.8)';
+                break;
+            case 'rosa':
+                bg = 'rgba(244, 114, 182, 0.7)';
                 break;
             default:
                 bg = 'transparent';
