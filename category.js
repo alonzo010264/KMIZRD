@@ -590,17 +590,129 @@
         overlay.style.backgroundColor = bg;
     }
 
+    const CUSTOM_CATALOG = {
+        'CAMISETAS': {
+            label: 'Camisetas',
+            image: '../assets/plain_tshirt.png',
+            types: [
+                'Camiseta 100% Algodón',
+                'Camiseta 100% Poliéster',
+                'Camiseta Ojo de Ángel',
+                'Camiseta Oversize Algodón',
+                'Camiseta Manga Larga Algodón',
+                'Camiseta Manga Larga Dryfit'
+            ],
+            sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+        },
+        'ABRIGOS': {
+            label: 'Abrigos',
+            image: '../assets/plain_hoodie.png',
+            types: [
+                'Hoodie Clásico con Capucha y Bolsillo',
+                'Abrigo Cuello Redondo (Sweater)',
+                'Hoodie Oversize Premium',
+                'Abrigo con Cierre / Cremallera'
+            ],
+            sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+        },
+        'GORRAS': {
+            label: 'Gorras',
+            image: '../assets/plain_cap.png',
+            types: [
+                'Gorra Trucker (Malla)',
+                'Gorra Clásica (Dad Cap)',
+                'Gorra Plana (Snapback)',
+                'Gorra Cerrada (Flexfit)'
+            ],
+            sizes: ['Ajustable / Talla Única']
+        },
+        'POLOS': {
+            label: 'Polos',
+            image: '../assets/plain_polo.png',
+            types: [
+                'Polo Piqué Clásico (Algodón)',
+                'Polo Dryfit Deportivo',
+                'Polo Manga Larga Piqué'
+            ],
+            sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+        },
+        'OTROS': {
+            label: 'Otros',
+            image: '../assets/plain_thermos.png',
+            types: [
+                'Taza Blanca de Cerámica (11 oz)',
+                'Taza Mágica Personalizada',
+                'Termo de Acero Inoxidable',
+                'Termo Deportivo de Aluminio',
+                'Bolsas Ecológicas (Tote Bags)'
+            ],
+            sizes: ['Estándar']
+        }
+    };
+
+    function resolveCustomCategory(cat) {
+        if (!cat) return 'CAMISETAS';
+        const c = cat.toUpperCase();
+        if (c.includes('ABRIGO') || c.includes('HOODIE')) return 'ABRIGOS';
+        if (c.includes('GORRA') || c.includes('CAP') || c.includes('ACCESORIO')) return 'GORRAS';
+        if (c.includes('POLO')) return 'POLOS';
+        if (c.includes('OTRO') || c.includes('TAZA') || c.includes('TERMO') || c.includes('BOLSA')) return 'OTROS';
+        return 'CAMISETAS';
+    }
+
     function openPersonalizationModal(product, size) {
-        customCurrentProduct = product;
-        customCurrentSize = size || 'Única';
+        const catKey = resolveCustomCategory(product.category);
+        const config = CUSTOM_CATALOG[catKey] || CUSTOM_CATALOG['CAMISETAS'];
+
+        const resolvedImg = product.image || config.image;
+        customCurrentProduct = {
+            name: product.name || config.types[0],
+            category: config.label,
+            image: resolvedImg
+        };
+        customCurrentSize = size || config.sizes[0] || 'Única';
+
         const img = document.getElementById('custom-modal-product-img');
         const cat = document.getElementById('custom-modal-product-cat');
         const name = document.getElementById('custom-modal-product-name');
         const sizeEl = document.getElementById('custom-modal-product-size');
-        if (img) img.src = product.image;
-        if (cat) cat.textContent = product.category;
-        if (name) name.textContent = product.name;
+        const catSelect = document.getElementById('custom-modal-cat-select');
+        const typeSelect = document.getElementById('custom-modal-type-select');
+        const sizesContainer = document.getElementById('custom-modal-sizes');
+
+        if (catSelect) catSelect.value = catKey;
+        if (img) img.src = resolvedImg;
+        if (cat) cat.textContent = config.label.toUpperCase();
+        if (name) name.textContent = product.name || config.types[0];
         if (sizeEl) sizeEl.textContent = size && size !== 'Única' ? `Talla: ${size}` : '';
+
+        if (typeSelect) {
+            typeSelect.innerHTML = config.types.map(t =>
+                `<option value="${t}" ${t === product.name ? 'selected' : ''}>${t}</option>`
+            ).join('');
+        }
+
+        if (sizesContainer) {
+            sizesContainer.innerHTML = config.sizes.map((s, idx) =>
+                `<button type="button" class="custom-size-btn ${idx === 0 ? 'active' : ''}" style="font-size: 10px; padding: 4px 8px; border: 1px solid ${idx === 0 ? 'var(--accent-color)' : '#475569'}; background: ${idx === 0 ? 'var(--accent-color)' : 'transparent'}; color: ${idx === 0 ? '#0f172a' : '#fff'}; font-weight: 700; border-radius: 4px; cursor: pointer;">${s}</button>`
+            ).join('');
+            sizesContainer.querySelectorAll('.custom-size-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    sizesContainer.querySelectorAll('.custom-size-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.color = '#fff';
+                        b.style.borderColor = '#475569';
+                    });
+                    btn.classList.add('active');
+                    btn.style.background = 'var(--accent-color)';
+                    btn.style.color = '#0f172a';
+                    btn.style.borderColor = 'var(--accent-color)';
+                    customCurrentSize = btn.textContent.trim();
+                });
+            });
+        }
+
         const descEl = document.getElementById('custom-desc');
         if (descEl) descEl.value = '';
         
@@ -610,8 +722,8 @@
         updateOverlayColor(chosenColor);
 
         // Pre-load product image as reference
-        customBase64Image = product.image;
-        if (customPreviewImage) customPreviewImage.src = product.image;
+        customBase64Image = resolvedImg;
+        if (customPreviewImage) customPreviewImage.src = resolvedImg;
         if (customDragArea) {
             const di = customDragArea.querySelector('.drag-icon');
             const dt = customDragArea.querySelector('.drag-text');
@@ -741,12 +853,28 @@
     });
 
     // Navigation Custom Items Click handler
+    const modalCatSelect = document.getElementById('custom-modal-cat-select');
+    if (modalCatSelect) {
+        modalCatSelect.addEventListener('change', (e) => {
+            openPersonalizationModal({ category: e.target.value });
+        });
+    }
+
+    const modalTypeSelect = document.getElementById('custom-modal-type-select');
+    if (modalTypeSelect) {
+        modalTypeSelect.addEventListener('change', (e) => {
+            const modalName = document.getElementById('custom-modal-product-name');
+            if (modalName) modalName.textContent = e.target.value;
+            if (customCurrentProduct) customCurrentProduct.name = e.target.value;
+        });
+    }
+
     document.querySelectorAll('.nav-custom-item').forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
-            const name = item.getAttribute('data-product-name') || 'Prenda Personalizada';
-            const cat = item.getAttribute('data-product-cat') || 'PERSONALIZACIÓN';
-            const img = item.getAttribute('data-product-img') || '../assets/logo.jpg';
+            const name = item.getAttribute('data-product-name') || '';
+            const cat = item.getAttribute('data-product-cat') || 'CAMISETAS';
+            const img = item.getAttribute('data-product-img') || '';
             openPersonalizationModal({ name, category: cat, image: img }, 'M');
         });
     });

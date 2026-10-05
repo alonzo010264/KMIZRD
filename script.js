@@ -1562,25 +1562,174 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // ==========================================
+    // Multi-Category Custom Catalog & Modal Handler
+    // ==========================================
+    const CUSTOM_CATALOG = {
+        'CAMISETAS': {
+            label: 'Camisetas',
+            image: 'assets/plain_tshirt.png',
+            types: [
+                'Camiseta 100% Algodón',
+                'Camiseta 100% Poliéster',
+                'Camiseta Ojo de Ángel',
+                'Camiseta Oversize Algodón',
+                'Camiseta Manga Larga Algodón',
+                'Camiseta Manga Larga Dryfit'
+            ],
+            sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+        },
+        'ABRIGOS': {
+            label: 'Abrigos',
+            image: 'assets/plain_hoodie.png',
+            types: [
+                'Hoodie Clásico con Capucha y Bolsillo',
+                'Abrigo Cuello Redondo (Sweater)',
+                'Hoodie Oversize Premium',
+                'Abrigo con Cierre / Cremallera'
+            ],
+            sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+        },
+        'GORRAS': {
+            label: 'Gorras',
+            image: 'assets/plain_cap.png',
+            types: [
+                'Gorra Trucker (Malla)',
+                'Gorra Clásica (Dad Cap)',
+                'Gorra Plana (Snapback)',
+                'Gorra Cerrada (Flexfit)'
+            ],
+            sizes: ['Ajustable / Talla Única']
+        },
+        'POLOS': {
+            label: 'Polos',
+            image: 'assets/plain_polo.png',
+            types: [
+                'Polo Piqué Clásico (Algodón)',
+                'Polo Dryfit Deportivo',
+                'Polo Manga Larga Piqué'
+            ],
+            sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL']
+        },
+        'OTROS': {
+            label: 'Otros',
+            image: 'assets/plain_thermos.png',
+            types: [
+                'Taza Blanca de Cerámica (11 oz)',
+                'Taza Mágica Personalizada',
+                'Termo de Acero Inoxidable',
+                'Termo Deportivo de Aluminio',
+                'Bolsas Ecológicas (Tote Bags)'
+            ],
+            sizes: ['Estándar']
+        }
+    };
+
+    function resolveCustomCategory(cat) {
+        if (!cat) return 'CAMISETAS';
+        const c = cat.toUpperCase();
+        if (c.includes('ABRIGO') || c.includes('HOODIE')) return 'ABRIGOS';
+        if (c.includes('GORRA') || c.includes('CAP') || c.includes('ACCESORIO')) return 'GORRAS';
+        if (c.includes('POLO')) return 'POLOS';
+        if (c.includes('OTRO') || c.includes('TAZA') || c.includes('TERMO') || c.includes('BOLSA')) return 'OTROS';
+        return 'CAMISETAS';
+    }
+
+    function setupCustomModalForCategory(catKey, selectedTypeName) {
+        const resolvedKey = resolveCustomCategory(catKey);
+        const config = CUSTOM_CATALOG[resolvedKey] || CUSTOM_CATALOG['CAMISETAS'];
+
+        const catSelect = document.getElementById('custom-modal-cat-select');
+        if (catSelect) catSelect.value = resolvedKey;
+
+        const catSpan = document.getElementById('custom-modal-product-cat');
+        if (catSpan) catSpan.textContent = config.label.toUpperCase();
+
+        const imgEl = document.getElementById('custom-modal-product-img');
+        if (imgEl) imgEl.src = config.image;
+
+        const typeSelect = document.getElementById('custom-modal-type-select');
+        if (typeSelect) {
+            typeSelect.innerHTML = config.types.map(t =>
+                `<option value="${t}" ${t === selectedTypeName ? 'selected' : ''}>${t}</option>`
+            ).join('');
+        }
+
+        const chosenType = (typeSelect && typeSelect.value) ? typeSelect.value : (selectedTypeName || config.types[0]);
+        const modalName = document.getElementById('custom-modal-product-name');
+        if (modalName) modalName.textContent = chosenType;
+
+        const sizesContainer = document.getElementById('custom-modal-sizes');
+        if (sizesContainer) {
+            sizesContainer.innerHTML = config.sizes.map((s, idx) =>
+                `<button type="button" class="custom-size-btn ${idx === 0 ? 'active' : ''}" style="font-size: 10px; padding: 4px 8px; border: 1px solid ${idx === 0 ? 'var(--accent-color)' : '#475569'}; background: ${idx === 0 ? 'var(--accent-color)' : 'transparent'}; color: ${idx === 0 ? '#0f172a' : '#fff'}; font-weight: 700; border-radius: 4px; cursor: pointer;">${s}</button>`
+            ).join('');
+            customCurrentSize = config.sizes[0] || 'Única';
+
+            sizesContainer.querySelectorAll('.custom-size-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    sizesContainer.querySelectorAll('.custom-size-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.color = '#fff';
+                        b.style.borderColor = '#475569';
+                    });
+                    btn.classList.add('active');
+                    btn.style.background = 'var(--accent-color)';
+                    btn.style.color = '#0f172a';
+                    btn.style.borderColor = 'var(--accent-color)';
+                    customCurrentSize = btn.textContent.trim();
+                });
+            });
+        }
+
+        customCurrentProduct = {
+            name: chosenType,
+            category: config.label,
+            image: config.image
+        };
+        customBase64Image = config.image;
+
+        const previewImg = document.getElementById('custom-image-preview');
+        const previewCont = document.getElementById('custom-image-preview-container');
+        const customDragArea = document.getElementById('custom-drag-area');
+        if (previewImg) previewImg.src = config.image;
+        if (customDragArea) {
+            const di = customDragArea.querySelector('.drag-icon');
+            const dt = customDragArea.querySelector('.drag-text');
+            if (di) di.style.display = 'none';
+            if (dt) dt.style.display = 'none';
+        }
+        if (previewCont) previewCont.style.display = 'flex';
+    }
+
+    // Modal Category & Type Select Change Listeners
+    const modalCatSelect = document.getElementById('custom-modal-cat-select');
+    if (modalCatSelect) {
+        modalCatSelect.addEventListener('change', (e) => {
+            setupCustomModalForCategory(e.target.value);
+        });
+    }
+
+    const modalTypeSelect = document.getElementById('custom-modal-type-select');
+    if (modalTypeSelect) {
+        modalTypeSelect.addEventListener('change', (e) => {
+            const modalName = document.getElementById('custom-modal-product-name');
+            if (modalName) modalName.textContent = e.target.value;
+            if (customCurrentProduct) customCurrentProduct.name = e.target.value;
+        });
+    }
+
     // Navigation Custom Items Click handler
     document.querySelectorAll('.nav-custom-item').forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
-            const name = item.getAttribute('data-product-name') || 'Prenda Personalizada';
-            const cat = item.getAttribute('data-product-cat') || 'PERSONALIZACIÓN';
-            const img = item.getAttribute('data-product-img') || 'assets/logo.jpg';
+            const cat = item.getAttribute('data-product-cat') || 'CAMISETAS';
+            const name = item.getAttribute('data-product-name') || '';
 
             const personalizationModal = document.getElementById('personalization-modal');
             if (personalizationModal) {
-                const modalImg = document.getElementById('custom-modal-product-img');
-                const modalCat = document.getElementById('custom-modal-product-cat');
-                const modalName = document.getElementById('custom-modal-product-name');
-                const modalSize = document.getElementById('custom-modal-product-size');
-
-                if (modalImg) modalImg.src = img;
-                if (modalCat) modalCat.textContent = cat;
-                if (modalName) modalName.textContent = name;
-                if (modalSize) modalSize.textContent = 'Talla: M (Estándar)';
+                setupCustomModalForCategory(cat, name);
 
                 // Reset color picker
                 const customColorsContainer = document.getElementById('custom-colors');
@@ -1597,23 +1746,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Reset description
                 const descTextarea = document.getElementById('custom-desc');
                 if (descTextarea) descTextarea.value = '';
-
-                // Load product image as reference
-                customBase64Image = img;
-                const previewImg = document.getElementById('custom-image-preview');
-                const previewCont = document.getElementById('custom-image-preview-container');
-                const customDragArea = document.getElementById('custom-drag-area');
-                const dragIcon = customDragArea ? customDragArea.querySelector('.drag-icon') : null;
-                const dragText = customDragArea ? customDragArea.querySelector('.drag-text') : null;
-                
-                if (previewImg) previewImg.src = img;
-                if (dragIcon) dragIcon.style.display = 'none';
-                if (dragText) dragText.style.display = 'none';
-                if (previewCont) previewCont.style.display = 'flex';
-
-                // Store product context
-                customCurrentProduct = { name, category: cat, image: img };
-                customCurrentSize = 'M';
 
                 personalizationModal.classList.add('active');
                 document.body.style.overflow = 'hidden';

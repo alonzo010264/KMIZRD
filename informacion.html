@@ -29,12 +29,11 @@
             <div class="dropdown">
                 <a href="#" class="dropdown-trigger">ARTÍCULOS PERSONALIZADOS <i class="fa fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
-                    <a href="#" class="nav-custom-item" data-product-name="Camiseta 100% Algodon" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camiseta 100% Algodon</a>
-                    <a href="#" class="nav-custom-item" data-product-name="Camiseta 100% Poliester" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camiseta 100% Poliester</a>
-                    <a href="#" class="nav-custom-item" data-product-name="Camiseta Ojo de Angel" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camiseta Ojo de Angel</a>
-                    <a href="#" class="nav-custom-item" data-product-name="Camisetas Oversize Algodon" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camisetas Oversize Algodon</a>
-                    <a href="#" class="nav-custom-item" data-product-name="Camisetas Manga Larga Algodon" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camisetas Manga Larga Algodon</a>
-                    <a href="#" class="nav-custom-item" data-product-name="Camisetas Manga Larga Dryfit" data-product-cat="CAMISETAS" data-product-img="assets/plain_tshirt.png">Camisetas Manga Larga Dryfit</a>
+                    <a href="#" class="nav-custom-item" data-product-cat="CAMISETAS" data-product-name="Camisetas Personalizadas" data-product-img="assets/plain_tshirt.png">Camisetas</a>
+                    <a href="#" class="nav-custom-item" data-product-cat="ABRIGOS" data-product-name="Abrigos Personalizados" data-product-img="assets/plain_hoodie.png">Abrigos</a>
+                    <a href="#" class="nav-custom-item" data-product-cat="GORRAS" data-product-name="Gorras Personalizadas" data-product-img="assets/plain_cap.png">Gorras</a>
+                    <a href="#" class="nav-custom-item" data-product-cat="POLOS" data-product-name="Polos Personalizados" data-product-img="assets/plain_polo.png">Polos</a>
+                    <a href="#" class="nav-custom-item" data-product-cat="OTROS" data-product-name="Otros Artículos Personalizados" data-product-img="assets/plain_thermos.png">Otros</a>
                 </div>
             </div>
             <div class="dropdown">
@@ -167,15 +166,23 @@
                         <div id="custom-modal-product-overlay" style="position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; transition: all 0.3s; background-color: transparent;"></div>
                     </div>
                     <div style="text-align: center; width: 100%; margin-bottom: 15px;">
-                        <span id="custom-modal-product-cat" style="font-size: 10px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">CAMISETAS</span>
-                        <select id="custom-modal-type-select" style="width: 100%; padding: 8px; font-size: 12px; font-weight: 700; color: #0f172a; border-radius: 6px; border: none; margin-bottom: 10px; cursor: pointer;">
-                            <option value="Camiseta 100% Algodon">Camiseta 100% Algodón</option>
-                            <option value="Camiseta 100% Poliester">Camiseta 100% Poliéster</option>
-                            <option value="Camiseta Ojo de Angel">Camiseta Ojo de Ángel</option>
-                            <option value="Camisetas Oversize Algodon">Camiseta Oversize Algodón</option>
-                            <option value="Camisetas Manga Larga Algodon">Camiseta Manga Larga Algodón</option>
-                            <option value="Camisetas Manga Larga Dryfit">Camiseta Manga Larga Dryfit</option>
+                        <span id="custom-modal-product-cat" style="font-size: 10px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">CATEGORÍA</span>
+                        <select id="custom-modal-cat-select" style="width: 100%; padding: 7px 10px; font-size: 11px; font-weight: 800; color: #38bdf8; background: #1e293b; border: 1px solid #38bdf8; border-radius: 6px; margin-bottom: 8px; cursor: pointer; text-transform: uppercase;">
+                            <option value="CAMISETAS">Camisetas</option>
+                            <option value="ABRIGOS">Abrigos</option>
+                            <option value="GORRAS">Gorras</option>
+                            <option value="POLOS">Polos</option>
+                            <option value="OTROS">Otros (Tazas, Termos)</option>
                         </select>
+                        <select id="custom-modal-type-select" style="width: 100%; padding: 8px; font-size: 12px; font-weight: 700; color: #0f172a; border-radius: 6px; border: none; margin-bottom: 10px; cursor: pointer;">
+                            <option value="Camiseta 100% Algodón">Camiseta 100% Algodón</option>
+                            <option value="Camiseta 100% Poliéster">Camiseta 100% Poliéster</option>
+                            <option value="Camiseta Ojo de Ángel">Camiseta Ojo de Ángel</option>
+                            <option value="Camiseta Oversize Algodón">Camiseta Oversize Algodón</option>
+                            <option value="Camiseta Manga Larga Algodón">Camiseta Manga Larga Algodón</option>
+                            <option value="Camiseta Manga Larga Dryfit">Camiseta Manga Larga Dryfit</option>
+                        </select>
+                        <div id="custom-modal-sizes-label" style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">TALLAS DISPONIBLES</div>
                         <div id="custom-modal-sizes" style="display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
                             <button type="button" class="custom-size-btn active" style="font-size: 10px; padding: 4px 8px; border: 1px solid var(--accent-color); background: var(--accent-color); color: #0f172a; font-weight: 700; border-radius: 4px; cursor: pointer;">XS</button>
                             <button type="button" class="custom-size-btn" style="font-size: 10px; padding: 4px 8px; border: 1px solid #475569; background: transparent; color: #fff; border-radius: 4px; cursor: pointer;">S</button>
