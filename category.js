@@ -14,6 +14,7 @@
     let colorMap = {};
 
     function getBaseName(name) {
+        if (name.toLowerCase().startsWith('camiseta oversize') && CATEGORY !== 'COLECCIONES') return name;
         if (CATEGORY === 'OVERSIZE' || CATEGORY === 'HOODIES') return name;
         return name.replace(/[-_]\d{2,}$/, '').replace(/\s+\d+$/, '').trim();
     }
@@ -250,17 +251,23 @@
                 .neq('category', 'SYSTEM_USERS')
                 .order('created_at', { ascending: false });
             if (CATEGORY) {
-                query = query.ilike('category', `%${CATEGORY.toLowerCase().replace('camisetas','camiseta').replace('hoodies','hoodie').replace('accesorios','accesorio').replace('colecciones','coleccion').replace('novedades','nuevo').replace('ofertas','oferta')}%`);
+                if (CATEGORY === 'CAMISETAS' || CATEGORY === 'CAMISETA') {
+                    query = query.or('category.ilike.%COLECCION%,category.ilike.%OVERSIZE%,category.ilike.%CAMISETA%');
+                } else {
+                    query = query.ilike('category', `%${CATEGORY.toLowerCase().replace('hoodies','hoodie').replace('accesorios','accesorio').replace('colecciones','coleccion').replace('novedades','nuevo').replace('ofertas','oferta')}%`);
+                }
             }
             const { data, error } = await query;
             if (error) throw error;
-            const rawProducts = (data || []).map(p => {
-                const rawImages = (p.image || '').split(',').map(s => s.trim()).filter(Boolean);
-                const images = rawImages.map(img =>
-                    (!img.startsWith('data:') && !img.startsWith('http')) ? `../${img}` : img
-                );
-                return { ...p, images, image: images[0] || '' };
-            });
+            const rawProducts = (data || [])
+                .filter(p => !p.image?.includes('plain_tshirt') && !p.name?.toLowerCase().includes('camiseta lisa'))
+                .map(p => {
+                    const rawImages = (p.image || '').split(',').map(s => s.trim()).filter(Boolean);
+                    const images = rawImages.map(img =>
+                        (!img.startsWith('data:') && !img.startsWith('http')) ? `../${img}` : img
+                    );
+                    return { ...p, images, image: images[0] || '' };
+                });
 
             // Group variants by base design name
             const groups = {};
@@ -294,7 +301,7 @@
         if (products.length === 0) { if (emptyEl) emptyEl.style.display = 'block'; return; }
         if (emptyEl) emptyEl.style.display = 'none';
         products.forEach(prod => {
-            const isColeccion = (prod.category || '').toLowerCase().includes('coleccion') || (prod.category || '').toLowerCase().includes('oversize') || (prod.category || '').toLowerCase().includes('hoodie');
+            const isColeccion = (prod.category || '').toLowerCase().includes('coleccion') || (prod.category || '').toLowerCase().includes('oversize') || (prod.category || '').toLowerCase().includes('hoodie') || (prod.category || '').toLowerCase().includes('camiseta') || price > 0;
             const price = parseFloat(String(prod.price).replace(/[^0-9.]/g, ''));
             const card = document.createElement('div');
             card.className = 'cat-product-card';
@@ -891,7 +898,97 @@
         });
     });
 
+    // ---------- MOBILE MENU & ACCORDION NAVIGATION ----------
+    function initMobileNav() {
+        let backdrop = document.querySelector('.mobile-menu-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.className = 'mobile-menu-backdrop';
+            document.body.appendChild(backdrop);
+        }
+
+        const mobileBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+        const closeBtn = document.querySelector('.mobile-menu-close');
+
+        function openNav() {
+            if (navLinks) navLinks.classList.add('active');
+            if (backdrop) backdrop.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNav() {
+            if (navLinks) navLinks.classList.remove('active');
+            if (backdrop) backdrop.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (navLinks && navLinks.classList.contains('active')) {
+                    closeNav();
+                } else {
+                    openNav();
+                }
+            });
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeNav();
+            });
+        }
+
+        if (backdrop) {
+            backdrop.addEventListener('click', closeNav);
+        }
+
+        // Dropdown toggle on mobile (accordion behavior)
+        document.querySelectorAll('.dropdown-trigger').forEach(trigger => {
+            trigger.addEventListener('click', (e) => {
+                if (window.innerWidth <= 991) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const parentDropdown = trigger.closest('.dropdown');
+                    if (parentDropdown) {
+                        const isOpen = parentDropdown.classList.contains('active');
+                        document.querySelectorAll('.dropdown.active').forEach(d => {
+                            if (d !== parentDropdown) d.classList.remove('active');
+                        });
+                        if (isOpen) {
+                            parentDropdown.classList.remove('active');
+                        } else {
+                            parentDropdown.classList.add('active');
+                        }
+                    }
+                }
+            });
+        });
+
+        // Close drawer when clicking a leaf link inside nav-links
+        if (navLinks) {
+            navLinks.querySelectorAll('a:not(.dropdown-trigger)').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 991) {
+                        closeNav();
+                    }
+                });
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (navLinks && navLinks.classList.contains('active')) {
+                if (!navLinks.contains(e.target) && !mobileBtn?.contains(e.target)) {
+                    closeNav();
+                }
+            }
+        });
+    }
+
     // ---------- INIT ----------
+    initMobileNav();
     updateCartUI();
     loadDynamicWhatsAppNumber();
     loadColorMap().then(() => loadProducts());

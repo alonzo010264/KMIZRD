@@ -21,11 +21,15 @@
 
     <!-- Navigation Header -->
     <header class="header">
-        <a href="#" class="logo">
+        <a href="./" class="logo" aria-label="KMIZRD Inicio">
             <img src="assets/logo.jpg" alt="KMIZRD Logo" class="brand-logo">
         </a>
         <nav class="nav-links">
-            <a href="./" class="active">INICIO</a>
+            <div class="nav-links-mobile-header">
+                <span class="mobile-brand-title">KMIZRD</span>
+                <button class="mobile-menu-close" aria-label="Cerrar"><i data-lucide="x"></i></button>
+            </div>
+            <a href="./">INICIO</a>
             <div class="dropdown">
                 <a href="#" class="dropdown-trigger">ARTÍCULOS PERSONALIZADOS <i class="fa fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
@@ -39,13 +43,13 @@
             <div class="dropdown">
                 <a href="#" class="dropdown-trigger">KOLECCION KMIZ <i class="fa fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
-                    <a href="camisetas/">Oversize</a>
+                    <a href="oversize/">Oversize</a>
                     <a href="hoodies/">Abrigos</a>
                     <a href="accesorios/">Gorras</a>
                     <a href="colecciones/">Catálogo Digital</a>
                 </div>
             </div>
-            <a href="informacion.html">INFORMACIÓN</a>
+            <a href="informacion.html" class="active">INFORMACIÓN</a>
             <a href="#" class="nav-custom-item" data-product-name="Prenda Personalizada" data-product-cat="PERSONALIZACIÓN" data-product-img="assets/logo.jpg" style="border:1px solid rgba(255,255,255,0.4); padding: 5px 15px; border-radius: 4px;">CREA TU PEDIDO</a>
         </nav>
         <div class="nav-icons">
@@ -59,6 +63,7 @@
             </button>
         </div>
     </header>
+    <div class="mobile-menu-backdrop"></div>
 
     <!-- Hero Section -->
     <section class="info-hero" style="background: linear-gradient(135deg, #091322 0%, #0272ba 100%); color: #fff; padding: 70px 20px 60px; text-align: center; position: relative; overflow: hidden;">
