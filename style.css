@@ -65,6 +65,15 @@ button {
 }
 
 
+/* Hide mobile drawer elements on desktop */
+.nav-links-mobile-header {
+    display: none !important;
+}
+
+.mobile-menu-backdrop {
+    display: none;
+}
+
 .nav-links {
     display: flex;
     gap: 30px;
@@ -2703,7 +2712,7 @@ input:checked + .slider:before {
     cursor: pointer;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991px) {
     html, body {
         overflow-x: hidden;
         width: 100%;
@@ -2779,7 +2788,7 @@ input:checked + .slider:before {
 
     /* Mobile drawer top header with close button */
     .nav-links-mobile-header {
-        display: flex;
+        display: flex !important;
         justify-content: space-between;
         align-items: center;
         padding-bottom: 16px;
@@ -2795,20 +2804,27 @@ input:checked + .slider:before {
         color: #fff;
     }
     .mobile-menu-close {
-        background: rgba(255, 255, 255, 0.08);
-        border: none;
-        color: #fff;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: background 0.2s;
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: none !important;
+        color: #fff !important;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: background 0.2s !important;
+    }
+    .mobile-menu-close i,
+    .mobile-menu-close svg {
+        color: #fff !important;
+        stroke: #fff !important;
+        width: 20px !important;
+        height: 20px !important;
     }
     .mobile-menu-close:active {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.25) !important;
     }
 
     /* Regular links inside mobile drawer */

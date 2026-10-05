@@ -242,6 +242,20 @@
         const emptyEl = document.getElementById('cat-empty');
         const countEl = document.getElementById('results-count');
         if (!grid) return;
+
+        // Instant render from session cache if available
+        const cacheKey = 'kmizrd_cache_cat_' + CATEGORY;
+        try {
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (Date.now() - parsed.time < 180000 && Array.isArray(parsed.products) && parsed.products.length > 0) {
+                    allProducts = parsed.products;
+                    renderProducts(allProducts);
+                }
+            }
+        } catch (e) {}
+
         try {
             let query = _supabase
                 .from('products')
@@ -282,6 +296,11 @@
                 const rep = { ...variants[0], variants };
                 return rep;
             });
+
+            // Update session cache
+            try {
+                sessionStorage.setItem(cacheKey, JSON.stringify({ time: Date.now(), products: allProducts }));
+            } catch (e) {}
 
             renderProducts(allProducts);
         } catch (err) {
