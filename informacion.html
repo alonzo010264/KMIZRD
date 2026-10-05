@@ -29,11 +29,11 @@
             <div class="dropdown">
                 <a href="#" class="dropdown-trigger">ARTÍCULOS PERSONALIZADOS <i class="fa fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
-                    <a href="#" class="nav-custom-item" data-product-cat="CAMISETAS" data-product-name="Camisetas Personalizadas" data-product-img="assets/plain_tshirt.png">Camisetas</a>
-                    <a href="#" class="nav-custom-item" data-product-cat="ABRIGOS" data-product-name="Abrigos Personalizados" data-product-img="assets/plain_hoodie.png">Abrigos</a>
-                    <a href="#" class="nav-custom-item" data-product-cat="GORRAS" data-product-name="Gorras Personalizadas" data-product-img="assets/plain_cap.png">Gorras</a>
-                    <a href="#" class="nav-custom-item" data-product-cat="POLOS" data-product-name="Polos Personalizados" data-product-img="assets/plain_polo.png">Polos</a>
-                    <a href="#" class="nav-custom-item" data-product-cat="OTROS" data-product-name="Otros Artículos Personalizados" data-product-img="assets/plain_thermos.png">Otros</a>
+                    <a href="camisetas/">Camisetas</a>
+                    <a href="hoodies/">Abrigos</a>
+                    <a href="accesorios/">Gorras</a>
+                    <a href="polos/">Polos</a>
+                    <a href="otros/">Otros</a>
                 </div>
             </div>
             <div class="dropdown">
@@ -60,70 +60,193 @@
         </div>
     </header>
 
-    <main class="info-layout">
-        <!-- Sidebar -->
-        <aside class="info-sidebar">
-            <ul>
-                <li class="active"><a href="#">CAMISETAS</a></li>
-                <li><a href="#">POLO DE CUELLO</a></li>
-                <li><a href="#">ABRIGOS</a></li>
-                <li><a href="#">GORRAS</a></li>
-                <li><a href="#">TAZAS & TERMOS</a></li>
-                <li><a href="#">BORDADO</a></li>
-                <li><a href="#">SUBLIMACION</a></li>
-            </ul>
-        </aside>
+    <!-- Hero Section -->
+    <section class="info-hero" style="background: linear-gradient(135deg, #091322 0%, #0272ba 100%); color: #fff; padding: 70px 20px 60px; text-align: center; position: relative; overflow: hidden;">
+        <div style="max-width: 900px; margin: 0 auto; position: relative; z-index: 2;">
+            <span style="display: inline-block; background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.4); margin-bottom: 16px;">CONOCE NUESTRO PROCESO</span>
+            <h1 style="font-size: clamp(28px, 5vw, 44px); font-weight: 900; line-height: 1.15; margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px;">CÓMO TRABAJAMOS EN KMIZRD</h1>
+            <p style="font-size: clamp(15px, 2.5vw, 18px); color: #cbd5e1; max-width: 720px; margin: 0 auto 30px; line-height: 1.6;">De la idea a la prenda terminada. Nos dedicamos a la confección y personalización textil de alta gama para marcas, empresas, eventos y amantes del estilo urbano con acabados de máxima durabilidad.</p>
+            <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+                <a href="#proceso" class="btn-primary" style="padding: 14px 28px; border-radius: 30px; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;">Ver Nuestro Proceso <i data-lucide="arrow-down"></i></a>
+                <a href="https://wa.me/18090000000" target="_blank" class="btn-secondary" style="background: #25d366; color: #fff; border: none; padding: 14px 28px; border-radius: 30px; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-whatsapp"></i> Hablar con un Asesor</a>
+            </div>
+        </div>
+    </section>
 
-        <!-- Content -->
-        <section class="info-content">
-            <!-- Item 1 -->
-            <div class="info-item">
-                <h3>Camiseta 100% Algodón</h3>
-                <p>Confeccionada con algodón de alta calidad, ofrece una textura suave, fresca y cómoda. Ideal para el uso diario y perfecta para personalización mediante DTF, serigrafía o bordado.</p>
-                <img src="assets/plain_tshirt.png" alt="Camiseta Algodon" style="background: #f1f5f9;">
+    <main id="proceso" style="max-width: 1200px; margin: 0 auto; padding: 60px 20px;">
+        
+        <!-- Section: 4 Steps Workflow -->
+        <section style="margin-bottom: 70px;">
+            <div style="text-align: center; max-width: 650px; margin: 0 auto 40px;">
+                <span style="font-size: 12px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.5px;">PASO A PASO</span>
+                <h2 style="font-size: clamp(24px, 4vw, 34px); font-weight: 900; color: #0f172a; margin: 8px 0 12px;">Flujo de Trabajo Transparente</h2>
+                <p style="font-size: 15px; color: #64748b; line-height: 1.6;">Así es como garantizamos que cada pedido supere tus expectativas en tiempo y calidad.</p>
             </div>
 
-            <!-- Item 2 -->
-            <div class="info-item">
-                <h3>Camiseta 100% Poliéster</h3>
-                <p>Ligera, resistente y de secado rápido. Mantiene sus colores por más tiempo y es la opción ideal para sublimación, ropa deportiva y uso continuo.</p>
-                <img src="assets/plain_tshirt.png" alt="Camiseta Poliester" style="background: #3b82f6;">
-            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
+                <!-- Step 1 -->
+                <div class="process-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); position: relative; transition: all 0.3s ease;">
+                    <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(2, 114, 186, 0.1); color: var(--accent-color); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; margin-bottom: 20px;">01</div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 10px;">Asesoría & Selección</h3>
+                    <p style="font-size: 14px; color: #64748b; line-height: 1.6;">Te ayudamos a elegir la prenda y tela adecuada: algodón 100%, poliéster deportivo, cortes oversize, abrigos con capucha, polos piqué o gorras de estructura premium.</p>
+                </div>
 
-            <!-- Item 3 -->
-            <div class="info-item">
-                <h3>Camiseta Ojo de Ángel</h3>
-                <p>Fabricada con un tejido transpirable de textura tipo malla que favorece la circulación del aire. Brinda frescura, comodidad y un excelente rendimiento para actividades deportivas o el día a día.</p>
-                <img src="assets/plain_tshirt.png" alt="Camiseta Ojo de Angel" style="background: #cbd5e1;">
-            </div>
+                <!-- Step 2 -->
+                <div class="process-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); position: relative; transition: all 0.3s ease;">
+                    <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(2, 114, 186, 0.1); color: var(--accent-color); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; margin-bottom: 20px;">02</div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 10px;">Muestra Digital Previa</h3>
+                    <p style="font-size: 14px; color: #64748b; line-height: 1.6;">Envías tu diseño o idea. Elaboramos una maqueta digital (mockup) a escala real para que veas exactamente la ubicación, colores y proporciones antes de estampar o bordar.</p>
+                </div>
 
-            <!-- Item 4 -->
-            <div class="info-item">
-                <h3>Camiseta Oversize Algodón</h3>
-                <p>Diseñada con un corte amplio y moderno que combina estilo y comodidad. Elaborada en algodón de excelente calidad, es perfecta para un look urbano y para personalizaciones de gran impacto.</p>
-                <img src="assets/plain_tshirt.png" alt="Camiseta Oversize" style="background: #0f172a;">
-            </div>
+                <!-- Step 3 -->
+                <div class="process-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); position: relative; transition: all 0.3s ease;">
+                    <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(2, 114, 186, 0.1); color: var(--accent-color); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; margin-bottom: 20px;">03</div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 10px;">Producción Especializada</h3>
+                    <p style="font-size: 14px; color: #64748b; line-height: 1.6;">Aplicamos tecnología industrial de bordado computarizado, DTF textil de alta definición o sublimación térmica directa asegurando fijación y tacto insuperable.</p>
+                </div>
 
-            <!-- Item 5 -->
-            <div class="info-item">
-                <h3>Camiseta Manga Larga Algodón</h3>
-                <p>La combinación perfecta entre comodidad y protección. Su confección en algodón ofrece suavidad al tacto, siendo ideal para climas frescos, uniformes o uso casual.</p>
-                <img src="assets/plain_tshirt.png" alt="Manga Larga Algodon" style="background: #475569;">
-            </div>
-
-            <!-- Item 6 -->
-            <div class="info-item">
-                <h3>Camiseta Manga Larga Dryfit</h3>
-                <p>Confeccionada con tela Dryfit de alto rendimiento que ayuda a mantener el cuerpo seco al absorber y evaporar el sudor rápidamente. Ideal para entrenamientos, deportes y actividades al aire libre.</p>
-                <img src="assets/plain_tshirt.png" alt="Manga Larga Dryfit" style="background: #000000;">
+                <!-- Step 4 -->
+                <div class="process-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); position: relative; transition: all 0.3s ease;">
+                    <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(2, 114, 186, 0.1); color: var(--accent-color); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; margin-bottom: 20px;">04</div>
+                    <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 10px;">Control de Calidad & Despacho</h3>
+                    <p style="font-size: 14px; color: #64748b; line-height: 1.6;">Cada pieza pasa por inspección de costuras y planchado. Empacamos con protección individual y enviamos con número de rastreo directo a tu dirección o sucursal.</p>
+                </div>
             </div>
         </section>
+
+        <!-- Section: Técnicas de Personalización (Visuales del Taller) -->
+        <section style="margin-bottom: 70px;">
+            <div style="text-align: center; max-width: 650px; margin: 0 auto 40px;">
+                <span style="font-size: 12px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.5px;">TECNOLOGÍA TEXTIL</span>
+                <h2 style="font-size: clamp(24px, 4vw, 34px); font-weight: 900; color: #0f172a; margin: 8px 0 12px;">Nuestras Técnicas de Acabado</h2>
+                <p style="font-size: 15px; color: #64748b; line-height: 1.6;">Utilizamos los mejores insumos del mercado para garantizar que el estampado o bordado dure tanto como la prenda.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;">
+                
+                <!-- Técnica 1: Bordado Computarizado -->
+                <div class="tech-card" style="background: #fff; border-radius: 18px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 6px 20px rgba(0,0,0,0.04);">
+                    <div style="height: 220px; overflow: hidden; position: relative;">
+                        <img src="assets/banner_5.png" alt="Polos y Gorras Bordados" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+                        <span style="position: absolute; top: 14px; left: 14px; background: rgba(15, 23, 42, 0.85); color: #fff; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 20px; backdrop-filter: blur(4px);">MÁXIMA DURABILIDAD</span>
+                    </div>
+                    <div style="padding: 26px;">
+                        <h3 style="font-size: 20px; font-weight: 900; color: #0f172a; margin-bottom: 10px;">Bordado Computarizado de Alta Densidad</h3>
+                        <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin-bottom: 16px;">Hilos reforzados con colores vivos y relieve elegante. La técnica preferida para gorras estructuradas, uniformes corporativos y polos ejecutivos.</p>
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; color: #334155; line-height: 2;">
+                            <li><i class="fa fa-check-circle" style="color: var(--accent-color); margin-right: 8px;"></i> Inalterable ante cientos de lavados</li>
+                            <li><i class="fa fa-check-circle" style="color: var(--accent-color); margin-right: 8px;"></i> Acabado sobrio, elegante y corporativo</li>
+                            <li><i class="fa fa-check-circle" style="color: var(--accent-color); margin-right: 8px;"></i> Ideal en gorras, polos piqué y abrigos</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Técnica 2: Sublimación Completa -->
+                <div class="tech-card" style="background: #fff; border-radius: 18px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 6px 20px rgba(0,0,0,0.04);">
+                    <div style="height: 220px; overflow: hidden; position: relative;">
+                        <img src="assets/banner_6.png" alt="Sublimación Completa Textil" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+                        <span style="position: absolute; top: 14px; left: 14px; background: rgba(15, 23, 42, 0.85); color: #fff; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 20px; backdrop-filter: blur(4px);">FULL PRINT & DEPORTES</span>
+                    </div>
+                    <div style="padding: 26px;">
+                        <h3 style="font-size: 20px; font-weight: 900; color: #0f172a; margin-bottom: 10px;">Sublimación Completa a Todo Color</h3>
+                        <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin-bottom: 16px;">La tinta se fusiona directamente con la fibra textil a nivel molecular. La prenda mantiene el 100% de transpirabilidad sin peso adicional.</p>
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; color: #334155; line-height: 2;">
+                            <li><i class="fa fa-check-circle" style="color: var(--accent-color); margin-right: 8px;"></i> Cero textura al tacto (transpirable 100%)</li>
+                            <li><i class="fa fa-check-circle" style="color: var(--accent-color); margin-right: 8px;"></i> Colores fotográficos sin límite de tonos</li>
+                            <li><i class="fa fa-check-circle" style="color: var(--accent-color); margin-right: 8px;"></i> Excelente en camisetas deportivas y tazas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Técnica 3: Soluciones Empresariales & Eventos -->
+                <div class="tech-card" style="background: #fff; border-radius: 18px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 6px 20px rgba(0,0,0,0.04);">
+                    <div style="height: 220px; overflow: hidden; position: relative;">
+                        <img src="assets/banner_2.png" alt="Artículos para Empresas y Eventos" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease;">
+                        <span style="position: absolute; top: 14px; left: 14px; background: rgba(15, 23, 42, 0.85); color: #fff; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 20px; backdrop-filter: blur(4px);">POR MAYOR & EMPRESAS</span>
+                    </div>
+                    <div style="padding: 26px;">
+                        <h3 style="font-size: 20px; font-weight: 900; color: #0f172a; margin-bottom: 10px;">Dotación Corporativa y Eventos</h3>
+                        <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin-bottom: 16px;">Manejamos pedidos al por mayor para empresas, promociones colegiales, convenciones y lanzamientos de marca con precios preferenciales.</p>
+                        <ul style="list-style: none; padding: 0; margin: 0; font-size: 13px; color: #334155; line-height: 2;">
+                            <li><i class="fa fa-check-circle" style="color: var(--accent-color); margin-right: 8px;"></i> Descuentos escalonados por volumen</li>
+                            <li><i class="fa fa-check-circle" style="color: var(--accent-color); margin-right: 8px;"></i> Tiempos de entrega estrictos y garantizados</li>
+                            <li><i class="fa fa-check-circle" style="color: var(--accent-color); margin-right: 8px;"></i> Facturación formal con comprobante fiscal</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section: Envíos & Cobertura Nacional -->
+        <section style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 24px; padding: 40px; margin-bottom: 70px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 36px; align-items: center;">
+                <div>
+                    <span style="font-size: 12px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.5px;">LOGÍSTICA & DISTRIBUCIÓN</span>
+                    <h2 style="font-size: clamp(24px, 3.5vw, 32px); font-weight: 900; color: #0f172a; margin: 8px 0 16px;">Envíos Seguros a Todo el País</h2>
+                    <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 24px;">No importa en qué rincón de República Dominicana te encuentres. Gestionamos despachos diarios con las agencias líderes para que tu orden llegue puntual y en perfecto estado.</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div style="background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                            <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 4px;"><i class="fa fa-truck" style="color: var(--accent-color); margin-right: 6px;"></i> Santo Domingo</h4>
+                            <p style="font-size: 12px; color: #64748b;">Entregas express y puntos de recogida convenientes.</p>
+                        </div>
+                        <div style="background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                            <h4 style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 4px;"><i class="fa fa-map-marker-alt" style="color: var(--accent-color); margin-right: 6px;"></i> Todo el Interior</h4>
+                            <p style="font-size: 12px; color: #64748b;">Vimenpaq, Metro Pac, Caribe Tours y agencias de encomiendas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.06);">
+                    <img src="assets/banner_4.png" alt="Envíos a todo el país Santo Domingo y el Interior" style="width: 100%; height: auto; display: block;">
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Preguntas Frecuentes sobre el Servicio -->
+        <section style="margin-bottom: 50px;">
+            <div style="text-align: center; max-width: 650px; margin: 0 auto 36px;">
+                <span style="font-size: 12px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.5px;">DUDAS COMUNES</span>
+                <h2 style="font-size: clamp(22px, 3.5vw, 30px); font-weight: 900; color: #0f172a; margin: 8px 0 10px;">Preguntas Frecuentes sobre el Proceso</h2>
+            </div>
+
+            <div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px;">
+                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px;">
+                    <h4 style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 6px;">¿Cuál es el tiempo de producción y entrega?</h4>
+                    <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin: 0;">Los pedidos personalizados individuales habitualmente tardan entre 2 a 4 días laborables. Para pedidos empresariales al por mayor, el plazo se coordina según el volumen (generalmente entre 4 a 8 días laborables).</p>
+                </div>
+
+                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px;">
+                    <h4 style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 6px;">¿Puedo pedir desde 1 sola pieza?</h4>
+                    <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin: 0;">¡Totalmente! Trabajamos pedidos individuales personalizados con la misma dedicación que órdenes corporativas de 500 prendas.</p>
+                </div>
+
+                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px;">
+                    <h4 style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 6px;">¿En qué formato debo enviar mi diseño o logo?</h4>
+                    <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin: 0;">Recomendamos archivos en PNG con fondo transparente a 300 DPI, PDF o vector (Illustrator/EPS). Si solo tienes una foto o idea, nuestro equipo te ayuda a vectorizarla o afinarla.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Box -->
+        <section style="background: linear-gradient(135deg, #0272ba 0%, #034f81 100%); border-radius: 24px; padding: 50px 30px; text-align: center; color: #fff;">
+            <h2 style="font-size: clamp(22px, 3.5vw, 32px); font-weight: 900; margin-bottom: 12px;">¿Listo para iniciar tu pedido personalizado?</h2>
+            <p style="font-size: 15px; color: #e2e8f0; max-width: 600px; margin: 0 auto 28px; line-height: 1.6;">Cuéntanos qué tienes en mente y te entregaremos una cotización detallada junto con tu muestra digital sin compromiso.</p>
+            <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+                <a href="#" class="nav-custom-item btn-primary" data-product-cat="CAMISETAS" data-product-name="Prenda Personalizada" data-product-img="assets/plain_tshirt.png" style="background: #fff; color: #0272ba; padding: 14px 30px; border-radius: 30px; font-weight: 900; font-size: 14px; text-decoration: none;">Crear Mi Pedido Ahora</a>
+                <a href="https://wa.me/18090000000" target="_blank" style="background: #25d366; color: #fff; padding: 14px 30px; border-radius: 30px; font-weight: 900; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;"><i class="fab fa-whatsapp"></i> Chatear por WhatsApp</a>
+            </div>
+        </section>
+
     </main>
 
     <footer class="footer">
         <div class="footer-top">
             <div class="footer-brand">
-                <img src="assets/logo.jpg" alt="KMIZRD Logo" class="footer-logo">
+                <a href="./" class="footer-logo-link" aria-label="Ir al Inicio">
+                    <img src="assets/logo.jpg" alt="KMIZRD Logo" class="footer-logo">
+                </a>
                 <p>Ropa oversize con diseños únicos que hablan por ti. Calidad, actitud y autenticidad en cada prenda.</p>
                 <div class="social-icons">
                     <a href="https://instagram.com/kmizrd" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>

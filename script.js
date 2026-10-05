@@ -799,7 +799,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             cartItemsContainer.appendChild(cartItemEl);
         });
 
-        if (cartCountBadge) cartCountBadge.textContent = totalQty;
+        if (cartCountBadge) {
+            cartCountBadge.textContent = totalQty;
+            cartCountBadge.classList.add('bump');
+            setTimeout(() => cartCountBadge.classList.remove('bump'), 350);
+        }
         const drawerCount = document.getElementById('cart-drawer-count');
         if (drawerCount) drawerCount.textContent = totalQty;
 
@@ -918,13 +922,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Header Cart click opens drawer
-    if (cartBtn) {
-        cartBtn.addEventListener('click', () => {
-            cartDrawer.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-    }
+    // Header Cart click opens drawer (globally delegated)
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.cart-btn, [aria-label="Cart"], .open-cart-btn');
+        if (btn) {
+            e.preventDefault();
+            const drawer = document.getElementById('cart-drawer');
+            if (drawer) {
+                drawer.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                if (typeof updateCartUI === 'function') updateCartUI();
+            }
+        }
+    });
 
     // Cart Drawer close button click
     if (cartCloseBtn) {
