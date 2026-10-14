@@ -410,18 +410,146 @@
 }
 .cart-checkout-btn:hover { background: #128c7e; }
 
-/* Responsive */
+/* Responsive Overhaul for Mobile & Touch Devices */
+@media (max-width: 768px), (hover: none) {
+    .cat-card-actions {
+        opacity: 1 !important;
+        transform: none !important;
+        bottom: 8px !important;
+        right: 8px !important;
+        gap: 6px !important;
+    }
+    .cat-action-btn {
+        width: 34px !important;
+        height: 34px !important;
+    }
+}
+
 @media (max-width: 768px) {
-    .cat-page-hero { padding: 50px 20px 40px; }
-    .cat-main { padding: 30px 20px 50px; }
-    .cat-filters-bar { padding: 14px 20px; }
-    .cat-product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .cat-custom-cta { padding: 30px 20px; }
+    .cat-page-hero { padding: 45px 18px 35px; }
+    .cat-main { padding: 24px 14px 45px; }
+    .cat-filters-bar { padding: 12px 16px; }
+    .cat-product-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 40px; }
+    .cat-custom-cta { padding: 28px 18px; }
     .cat-custom-cta-content { flex-direction: column; text-align: center; }
     .cat-custom-cta-text h2 { font-size: 20px; }
-    .custom-items-grid { grid-template-columns: repeat(2, 1fr); }
+    .custom-items-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+    /* Personalization Modal on Category Pages */
+    #personalization-modal .modal-container {
+        width: 94% !important;
+        max-width: 94% !important;
+        max-height: 90vh !important;
+        max-height: 90dvh !important;
+        overflow-y: auto !important;
+        margin: 16px auto !important;
+        border-radius: 16px !important;
+    }
+
+    #personalization-modal .modal-container > div[style*="grid-template-columns"],
+    #personalization-modal .personalization-grid {
+        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    #personalization-modal .modal-container > div > div:first-child {
+        padding: 22px 16px !important;
+    }
+
+    #personalization-modal .modal-container > div > div:last-child {
+        padding: 24px 16px !important;
+    }
 }
+
 @media (max-width: 480px) {
-    .cat-product-grid { grid-template-columns: 1fr; }
-    .custom-items-grid { grid-template-columns: 1fr 1fr; }
+    .cat-main { 
+        padding: 16px 8px 35px !important; 
+    }
+    .cat-product-grid { 
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 10px !important; 
+        margin-bottom: 30px !important;
+    }
+    .cat-product-card {
+        border-radius: 14px !important;
+    }
+    .cat-card-info {
+        padding: 10px 8px 12px !important;
+    }
+    .cat-card-category {
+        font-size: 9px !important;
+        margin-bottom: 2px !important;
+    }
+    .cat-card-name {
+        font-size: 13px !important;
+        margin-bottom: 4px !important;
+        line-height: 1.25 !important;
+        font-weight: 800 !important;
+    }
+    .cat-card-price {
+        font-size: 14px !important;
+    }
+    .cat-card-price .old-price {
+        font-size: 11px !important;
+    }
+    .cat-card-badge {
+        font-size: 8.5px !important;
+        padding: 2px 6px !important;
+        top: 8px !important;
+        left: 8px !important;
+        letter-spacing: 0.5px !important;
+    }
+    .cat-card-actions {
+        bottom: 6px !important;
+        right: 6px !important;
+        gap: 4px !important;
+    }
+    .cat-action-btn {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    .cat-action-btn svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+    .cat-card-sizes {
+        gap: 4px !important;
+        margin-top: 6px !important;
+    }
+    .cat-size-dot {
+        font-size: 9px !important;
+        padding: 2px 5px !important;
+    }
+    .cat-card-custom-tag {
+        font-size: 10px !important;
+        margin-top: 6px !important;
+    }
+    .cat-page-hero { 
+        padding: 32px 14px 24px !important; 
+    }
+    .cat-page-title { 
+        font-size: 24px !important; 
+    }
+    .cat-page-desc { 
+        font-size: 12.5px !important; 
+    }
+    .cat-filters-bar { 
+        padding: 10px 12px !important; 
+        gap: 8px !important; 
+        flex-wrap: wrap !important; 
+    }
+    .custom-items-grid { 
+        grid-template-columns: 1fr 1fr !important; 
+        gap: 8px !important; 
+    }
+    .custom-item-card { 
+        padding: 12px 8px !important; 
+    }
+    .custom-item-title {
+        font-size: 12px !important;
+    }
+    .custom-item-desc {
+        font-size: 10.5px !important;
+    }
 }

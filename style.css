@@ -2066,6 +2066,32 @@ button {
     .recommendations-grid {
         grid-template-columns: 1fr;
     }
+
+    /* Personalization Modal Mobile Adaptations */
+    #personalization-modal .modal-container {
+        width: 94% !important;
+        max-width: 94% !important;
+        max-height: 90vh !important;
+        max-height: 90dvh !important;
+        overflow-y: auto !important;
+        margin: 16px auto !important;
+        border-radius: 16px !important;
+    }
+
+    #personalization-modal .modal-container > div[style*="grid-template-columns"],
+    #personalization-modal .personalization-grid {
+        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    #personalization-modal .modal-container > div > div:first-child {
+        padding: 22px 16px !important;
+    }
+
+    #personalization-modal .modal-container > div > div:last-child {
+        padding: 24px 16px !important;
+    }
 }
 
 .product-grid .empty-state {
@@ -3070,6 +3096,40 @@ input:checked + .slider:before {
         padding: 15px;
     }
     
+    /* Features Section Responsive */
+    .features {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 14px !important;
+        margin: 16px 12px !important;
+        padding: 22px 14px !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.04) !important;
+        background-color: #fff !important;
+        width: auto !important;
+    }
+    .feature-item {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 8px !important;
+        align-items: center !important;
+    }
+    .feature-divider {
+        display: none !important;
+    }
+    .feature-icon {
+        width: 28px !important;
+        height: 28px !important;
+    }
+    .feature-text h4 {
+        font-size: 13px !important;
+        margin-bottom: 2px !important;
+    }
+    .feature-text p {
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+    }
+
     /* Catalog, Products & Forms Fixes */
     .product-grid, .catalog-grid {
         display: grid;
@@ -3519,50 +3579,59 @@ input:checked + .slider:before {
 /* Responsive Styles for Tablets & Smartphones */
 @media (max-width: 900px) {
     .premium-showcase {
-        height: 440vh;
+        height: auto !important;
+        min-height: 520px !important;
+        position: relative !important;
+    }
+
+    .premium-sticky-container {
+        position: relative !important;
+        height: 80vh !important;
+        min-height: 500px !important;
+    }
+
+    .premium-tag,
+    .premium-heading,
+    .premium-btn-wrapper {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .premium-scroll-indicator,
+    .premium-scroll-hint {
+        display: none !important;
     }
 
     .premium-video {
-        object-position: center 25%;
+        object-position: center center !important;
     }
 
     .premium-video-overlay {
-        background: linear-gradient(to top, rgba(8, 12, 20, 0.98) 0%, rgba(8, 12, 20, 0.88) 38%, rgba(8, 12, 20, 0.25) 70%, transparent 100%),
-                    linear-gradient(to bottom, rgba(8, 12, 20, 0.75) 0%, transparent 15%);
+        background: radial-gradient(circle at center, rgba(8, 12, 20, 0.45) 0%, rgba(8, 12, 20, 0.88) 75%, #080c14 100%),
+                    linear-gradient(to top, rgba(8, 12, 20, 0.95) 0%, rgba(8, 12, 20, 0.5) 50%, rgba(8, 12, 20, 0.8) 100%) !important;
     }
 
     .premium-content-wrapper {
-        justify-content: center;
-        align-items: flex-end;
-        padding: 0 24px 60px 24px;
-        text-align: center;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 40px 20px !important;
+        text-align: center !important;
     }
 
     .premium-content-inner {
-        align-items: center;
-        max-width: 100%;
+        align-items: center !important;
+        max-width: 100% !important;
     }
 
     .premium-heading {
-        font-size: clamp(28px, 7vw, 42px);
-        margin-bottom: 22px;
+        font-size: clamp(26px, 6.5vw, 38px) !important;
+        margin-bottom: 22px !important;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9) !important;
     }
 
     .btn-premium-collection {
-        padding: 14px 28px;
-        font-size: 13px;
-    }
-
-    .premium-scroll-indicator {
-        bottom: 20px;
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
-        width: 100px;
-    }
-
-    .premium-scroll-hint {
-        bottom: 45px;
+        padding: 14px 28px !important;
+        font-size: 13px !important;
     }
 }
 

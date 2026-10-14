@@ -2111,9 +2111,22 @@ function initPremiumScrollVideo() {
 
     if (!showcase || !video) return;
 
-    // Strict requirements: no autoplay, no loop, kept paused
-    video.pause();
-    video.currentTime = 0;
+    const isMobile = () => window.innerWidth <= 900;
+
+    if (isMobile()) {
+        if (tag) { tag.style.opacity = '1'; tag.style.transform = 'none'; }
+        if (heading) { heading.style.opacity = '1'; heading.style.transform = 'none'; }
+        if (btnWrap) { btnWrap.style.opacity = '1'; btnWrap.style.transform = 'none'; }
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.play().catch(() => {});
+    } else {
+        video.pause();
+        video.currentTime = 0;
+    }
 
     let targetTime = 0;
     let currentTime = 0;
@@ -2123,8 +2136,12 @@ function initPremiumScrollVideo() {
     function handleVideoReady() {
         if (!isVideoReady && video.duration && !isNaN(video.duration)) {
             isVideoReady = true;
-            video.pause();
-            onScroll();
+            if (!isMobile()) {
+                video.pause();
+                onScroll();
+            } else {
+                video.play().catch(() => {});
+            }
         }
     }
 
@@ -2148,6 +2165,16 @@ function initPremiumScrollVideo() {
     }
 
     function onScroll() {
+        if (isMobile()) {
+            if (tag) { tag.style.opacity = '1'; tag.style.transform = 'none'; }
+            if (heading) { heading.style.opacity = '1'; heading.style.transform = 'none'; }
+            if (btnWrap) { btnWrap.style.opacity = '1'; btnWrap.style.transform = 'none'; }
+            if (video && video.paused) {
+                video.play().catch(() => {});
+            }
+            return;
+        }
+
         const progress = calculateProgress();
 
         if (video.duration && !isNaN(video.duration)) {
@@ -2192,7 +2219,7 @@ function initPremiumScrollVideo() {
 
     // Smooth RAF loop: interpolates currentTime towards targetTime for slow, butter-smooth scrubbing
     function render() {
-        if (isVideoReady && video.duration && !isNaN(video.duration)) {
+        if (!isMobile() && isVideoReady && video.duration && !isNaN(video.duration)) {
             const diff = targetTime - currentTime;
             if (Math.abs(diff) > 0.005) {
                 currentTime += diff * 0.15; // Smooth cushioned easing
