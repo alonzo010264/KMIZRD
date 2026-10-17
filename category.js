@@ -1,3 +1,14 @@
+// Ensure page refresh always starts cleanly at the top
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+window.addEventListener('beforeunload', () => {
+    window.scrollTo(0, 0);
+});
+if (!window.location.hash || window.location.hash === '#') {
+    window.scrollTo(0, 0);
+}
+
 /**
  * category.js - Shared script for all category pages.
  * Reads data-category attribute from its own <script> tag to filter products.
