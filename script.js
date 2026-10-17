@@ -44,6 +44,14 @@ function getBaseName(name) {
     return name.replace(/[-_]\d{2,}$/, '').replace(/\s+\d+$/, '').trim();
 }
 
+function parseNumericPrice(price) {
+    if (typeof price === 'number') return isNaN(price) ? 0 : price;
+    if (!price) return 0;
+    const str = String(price).replace(/,/g, '');
+    const match = str.match(/\d+(\.\d+)?/);
+    return match ? parseFloat(match[0]) : 0;
+}
+
 function getProductColor(prod) {
     const imgPath = prod.image || (prod.images && prod.images[0]) || '';
     const normalized = imgPath.replace(/^(\.\.\/)+/, '').replace(/\\/g, '/');
@@ -320,16 +328,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('modal-product-img').alt = variant.name;
         document.getElementById('modal-product-name').textContent = variant.name;
         
-        const catLower = (variant.category || '').toLowerCase();
-        const isColeccion = catLower === 'colección' || catLower === 'colecciones' || catLower === 'coleccion';
+        const numPrice = parseNumericPrice(variant.price);
         const isDiscount = variant.name.toLowerCase() === 'gorra clasica';
         const priceEl = document.getElementById('modal-product-price');
-        if (!isColeccion) {
-            priceEl.innerHTML = '<span style="font-size:14px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>';
-        } else if (isDiscount) {
+        if (isDiscount) {
             priceEl.innerHTML = `<span class="old-price" style="font-size: 18px;">RD$1,500.00</span> RD$1,200.00`;
+        } else if (numPrice > 0) {
+            priceEl.innerHTML = `RD$${numPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
         } else {
-            priceEl.innerHTML = variant.price;
+            priceEl.innerHTML = variant.price || 'RD$1,500.00';
         }
         document.getElementById('modal-product-desc').textContent = variant.desc || variant.description || '';
 
@@ -399,18 +406,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         const baseName = getBaseName(product.name);
         const group = (window.__productGroups && window.__productGroups[baseName]) || [product];
 
-        // Toggle button styling for customization request
+        // Button is ALWAYS Add to Cart
         const modalAddCartBtn = document.querySelector('.modal-add-cart-btn');
         if (modalAddCartBtn) {
-            const catLower = (product.category || '').toLowerCase();
-            const isColeccion = catLower === 'colección' || catLower === 'colecciones' || catLower === 'coleccion';
-            
-            if (!isColeccion) {
-                modalAddCartBtn.innerHTML = '<i class="fas fa-palette"></i> Solicitar Personalización';
-                modalAddCartBtn.classList.add('personalize-btn');
-            } else {
-                modalAddCartBtn.innerHTML = '<i class="fa fa-shopping-cart"></i> Añadir al Carrito';
-                modalAddCartBtn.classList.remove('personalize-btn');
+            modalAddCartBtn.innerHTML = '<i class="fa fa-shopping-cart"></i> Añadir al Carrito';
+            modalAddCartBtn.classList.remove('personalize-btn');
+
+            // Add secondary customize button if not already present
+            let modalCustBtn = document.getElementById('modal-customize-link');
+            if (!modalCustBtn) {
+                modalCustBtn = document.createElement('button');
+                modalCustBtn.id = 'modal-customize-link';
+                modalCustBtn.type = 'button';
+                modalCustBtn.className = 'modal-customize-btn';
+                modalCustBtn.style.cssText = 'background:transparent; border:1px solid #cbd5e1; color:#0f172a; padding:10px 18px; border-radius:30px; font-weight:700; font-size:13px; cursor:pointer; width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s;';
+                modalCustBtn.innerHTML = '<i class="fas fa-palette" style="color:var(--accent-color);"></i> Personalizar con mi diseño o logo';
+                modalCustBtn.addEventListener('click', () => {
+                    if (!currentModalProduct) return;
+                    const activeSizeBtn = document.querySelector('.size-badge-modal.active');
+                    const size = activeSizeBtn ? activeSizeBtn.textContent : 'Única';
+                    closeProductModal();
+                    openPersonalizationModal(currentModalProduct, size);
+                });
+                modalAddCartBtn.parentNode.insertBefore(modalCustBtn, modalAddCartBtn.nextSibling);
             }
         }
 
@@ -768,17 +786,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         cart.forEach((item, index) => {
             totalQty += item.quantity;
             
-            // Extract numeric price (e.g. "RD$2,000.00" -> 2000.00)
-            const numericPrice = parseFloat(item.price.replace(/[^\d.]/g, '')) || 0;
+            const numericPrice = parseNumericPrice(item.price);
             const itemSubtotal = numericPrice * item.quantity;
             subtotal += itemSubtotal;
 
             const cartItemEl = document.createElement('div');
             cartItemEl.className = 'cart-item';
             const colorHTML = item.color ? `, Color: <strong>${item.color}</strong>` : '';
+            const rawImg = (item.image && typeof item.image === 'string') ? item.image.split(',')[0].trim().replace(/^(\.\.\/)+/, '') : 'assets/logo.jpg';
+            const priceText = numericPrice > 0 ? `RD$${itemSubtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}` : 'RD$1,500.00';
+
             cartItemEl.innerHTML = `
                 <div class="cart-item-img">
-                    <img src="${encodeURI(item.image.split(',')[0])}" alt="${item.name}">
+                    <img src="${encodeURI(rawImg)}" alt="${item.name}" onerror="this.onerror=null;this.src='assets/logo.jpg';">
                 </div>
                 <div class="cart-item-info">
                     <h4>${item.name}</h4>
@@ -789,7 +809,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                            <span>${item.quantity}</span>
                            <button class="qty-btn-plus" data-index="${index}">&plus;</button>
                         </div>
-                        <span class="cart-item-price">RD$${itemSubtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                        <span class="cart-item-price">${priceText}</span>
                     </div>
                 </div>
                 <button class="cart-item-remove" data-index="${index}" aria-label="Eliminar item">
@@ -826,8 +846,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function addToCart(product, size) {
+        if (!product) return;
+        const selectedSize = size || (product.sizes && product.sizes[0]) || 'Única';
         const color = getProductColor(product);
-        const existingIndex = cart.findIndex(item => item.id === product.id && item.size === size);
+        const numPrice = parseNumericPrice(product.price);
+        
+        let rawImg = product.image || (product.images && product.images[0]) || 'assets/logo.jpg';
+        if (typeof rawImg === 'string' && rawImg.includes(',')) {
+            rawImg = rawImg.split(',')[0].trim();
+        }
+        const cleanImg = rawImg.replace(/^(\.\.\/)+/, '');
+
+        const existingIndex = cart.findIndex(item => item.id === product.id && item.size === selectedSize && item.color === color);
         
         if (existingIndex > -1) {
             cart[existingIndex].quantity += 1;
@@ -835,9 +865,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             cart.push({
                 id: product.id,
                 name: product.name,
-                price: product.price,
-                image: product.image,
-                size: size,
+                price: numPrice,
+                image: cleanImg,
+                size: selectedSize,
                 color: color,
                 quantity: 1
             });
@@ -853,7 +883,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Modal Add-To-Cart / Personalize listener
+    // Modal Add-To-Cart listener (Always adds to cart!)
     const modalAddCartBtn = document.querySelector('.modal-add-cart-btn');
     if (modalAddCartBtn) {
         modalAddCartBtn.addEventListener('click', () => {
@@ -863,62 +893,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const activeSizeBtn = document.querySelector('.size-badge-modal.active');
             const size = activeSizeBtn ? activeSizeBtn.textContent : 'Única';
 
-            const catLower = (currentModalProduct.category || '').toLowerCase();
-            const isColeccion = catLower === 'colección' || catLower === 'colecciones' || catLower === 'coleccion';
+            // Add item to cart!
+            addToCart(currentModalProduct, size);
 
-            if (!isColeccion) {
-                // Open personalization modal
-                const personalizationModal = document.getElementById('personalization-modal');
-                if (personalizationModal) {
-                    // Fill left product preview panel
-                    const modalImg = document.getElementById('custom-modal-product-img');
-                    const modalCat = document.getElementById('custom-modal-product-cat');
-                    const modalName = document.getElementById('custom-modal-product-name');
-                    const modalSize = document.getElementById('custom-modal-product-size');
-
-                    if (modalImg) modalImg.src = currentModalProduct.image;
-                    if (modalCat) modalCat.textContent = currentModalProduct.category;
-                    if (modalName) modalName.textContent = currentModalProduct.name;
-                    if (modalSize) modalSize.textContent = size !== 'Única' ? `Talla: ${size}` : '';
-
-                    // Initialize preview overlay color
-                    const activeColorBtn = customColorsContainer ? customColorsContainer.querySelector('.color-circle.active') : null;
-                    const chosenColor = activeColorBtn ? activeColorBtn.getAttribute('data-color') : 'Negro';
-                    updateOverlayColor(chosenColor);
-
-                    // Pre-fill description
-                    const descTextarea = document.getElementById('custom-desc');
-                    if (descTextarea) descTextarea.value = '';
-
-                    // Pre-load product image as reference (optional)
-                    if (currentModalProduct.image) {
-                        customBase64Image = currentModalProduct.image;
-                        const previewImg = document.getElementById('custom-image-preview');
-                        const previewCont = document.getElementById('custom-image-preview-container');
-                        const dragIcon = customDragArea ? customDragArea.querySelector('.drag-icon') : null;
-                        const dragText = customDragArea ? customDragArea.querySelector('.drag-text') : null;
-                        if (previewImg) previewImg.src = currentModalProduct.image;
-                        if (dragIcon) dragIcon.style.display = 'none';
-                        if (dragText) dragText.style.display = 'none';
-                        if (previewCont) previewCont.style.display = 'flex';
-                    }
-
-                    // Store product context for form submit
-                    customCurrentProduct = currentModalProduct;
-                    customCurrentSize = size;
-
-                    // Close product detail modal, then open personalization modal
-                    closeProductModal();
-                    personalizationModal.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                }
-            } else {
-                // Add item
-                addToCart(currentModalProduct, size);
-
-                // Close modal details
-                closeProductModal();
-            }
+            // Close modal details
+            closeProductModal();
         });
     }
 
@@ -1161,7 +1140,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         let orderText = `¡Hola KMIZRD! Me gustaría realizar un pedido${orderIdText}:\n\n`;
         cart.forEach(item => {
             const colorText = item.color ? `, Color: ${item.color}` : '';
-            orderText += `- ${item.quantity}x ${item.name} (Talla: ${item.size}${colorText}) - ${item.price}\n`;
+            const itemPrice = parseNumericPrice(item.price);
+            const priceFormatted = itemPrice > 0 ? `RD$${itemPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}` : (item.price || 'RD$1,500.00');
+            orderText += `- ${item.quantity}x ${item.name} (Talla: ${item.size}${colorText}) - ${priceFormatted}\n`;
         });
         orderText += `\nSubtotal: ${subtotalText}`;
         orderText += `\nEnvío: ${shippingText}`;

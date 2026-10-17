@@ -19,6 +19,14 @@
         return name.replace(/[-_]\d{2,}$/, '').replace(/\s+\d+$/, '').trim();
     }
 
+    function parseNumericPrice(price) {
+        if (typeof price === 'number') return isNaN(price) ? 0 : price;
+        if (!price) return 0;
+        const str = String(price).replace(/,/g, '');
+        const match = str.match(/\d+(\.\d+)?/);
+        return match ? parseFloat(match[0]) : 0;
+    }
+
     function getProductColor(prod) {
         const imgPath = prod.image || (prod.images && prod.images[0]) || '';
         const normalized = imgPath.replace(/^(\.\.\/)+/, '').replace(/\\/g, '/');
@@ -108,17 +116,26 @@
         let subtotal = 0;
         itemsEl.innerHTML = '';
         cart.forEach((item, idx) => {
-            const price = parseFloat(String(item.price).replace(/[^0-9.]/g, ''));
+            const price = parseNumericPrice(item.price);
             subtotal += price * item.quantity;
             const div = document.createElement('div');
             div.className = 'cart-item';
             const colorText = item.color ? `, Color: ${item.color}` : '';
+            
+            // Normalize image path for category pages
+            let itemImg = item.image || '../assets/logo.jpg';
+            if (!itemImg.startsWith('http') && !itemImg.startsWith('data:')) {
+                itemImg = '../' + itemImg.replace(/^(\.\.\/)+/, '');
+            }
+
+            const itemTotal = price > 0 ? `RD$${(price * item.quantity).toLocaleString('en-US', {minimumFractionDigits:2})}` : 'RD$1,500.00';
+
             div.innerHTML = `
-                <div class="cart-item-img"><img src="${item.image}" alt="${item.name}" style="width:60px;height:60px;object-fit:cover;border-radius:10px;"></div>
+                <div class="cart-item-img"><img src="${itemImg}" alt="${item.name}" onerror="this.onerror=null;this.src='../assets/logo.jpg';" style="width:60px;height:60px;object-fit:cover;border-radius:10px;"></div>
                 <div class="cart-item-details" style="flex:1;padding:0 12px;">
                     <div style="font-weight:700;font-size:14px;color:#0f172a;">${item.name}</div>
                     <div style="font-size:12px;color:#64748b;margin:2px 0;">Talla: ${item.size}${colorText}</div>
-                    <div style="font-size:14px;font-weight:800;color:var(--accent-color);">RD$${(price * item.quantity).toLocaleString('en-US', {minimumFractionDigits:2})}</div>
+                    <div style="font-size:14px;font-weight:800;color:var(--accent-color);">${itemTotal}</div>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;">
                     <button class="qty-btn minus-btn" data-index="${idx}" style="width:28px;height:28px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;">-</button>
@@ -129,20 +146,48 @@
             itemsEl.appendChild(div);
         });
         const subtotalEl = document.getElementById('cart-subtotal');
+        const shippingEl = document.getElementById('cart-shipping');
         const totalEl = document.getElementById('cart-total');
+        const shipping = subtotal >= 3500 ? 0 : (subtotal > 0 ? 200 : 0);
+        const total = subtotal + shipping;
         if (subtotalEl) subtotalEl.textContent = `RD$${subtotal.toLocaleString('en-US', {minimumFractionDigits:2})}`;
-        if (totalEl) totalEl.textContent = `RD$${subtotal.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        if (shippingEl) shippingEl.textContent = shipping === 0 ? 'Gratis' : `RD$${shipping.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        if (totalEl) totalEl.textContent = `RD$${total.toLocaleString('en-US', {minimumFractionDigits:2})}`;
     }
 
     function addToCart(product, size) {
+        if (!product) return;
         const color = getProductColor(product);
-        const existing = cart.find(i => i.id === product.id && i.size === size);
-        if (existing) { existing.quantity += 1; }
-        else { cart.push({ id: product.id, name: product.name, price: product.price, size, color, image: product.image, quantity: 1 }); }
+        const selectedSize = size || (product.sizes && product.sizes[0]) || 'Única';
+        const numPrice = parseNumericPrice(product.price);
+
+        let rawImg = product.image || (product.images && product.images[0]) || 'assets/logo.jpg';
+        if (typeof rawImg === 'string' && rawImg.includes(',')) {
+            rawImg = rawImg.split(',')[0].trim();
+        }
+        const cleanImg = rawImg.replace(/^(\.\.\/)+/, '');
+
+        const existing = cart.find(i => i.id === product.id && i.size === selectedSize && i.color === color);
+        if (existing) { 
+            existing.quantity += 1; 
+        } else { 
+            cart.push({ 
+                id: product.id, 
+                name: product.name, 
+                price: numPrice, 
+                size: selectedSize, 
+                color: color, 
+                image: cleanImg, 
+                quantity: 1 
+            }); 
+        }
         localStorage.setItem('kmizrd_cart', JSON.stringify(cart));
         updateCartUI();
         const drawer = document.getElementById('cart-drawer');
-        if (drawer) { drawer.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        if (drawer) { 
+            drawer.classList.add('active'); 
+            document.body.style.overflow = 'hidden'; 
+        }
     }
 
     document.addEventListener('click', (e) => {
@@ -203,11 +248,12 @@
                 const { data: settings } = await _supabase.from('store_settings').select('whatsapp_number').eq('id', 1).single();
                 const number = settings?.whatsapp_number?.replace(/\D/g, '') || '18090000000';
                 let subtotal = 0;
-                cart.forEach(i => { subtotal += parseFloat(String(i.price).replace(/[^0-9.]/g, '')) * i.quantity; });
+                cart.forEach(i => { subtotal += parseNumericPrice(i.price) * i.quantity; });
                 let msg = `¡Hola KMIZRD! Me gustaría realizar un pedido:\n\n`;
                 cart.forEach(item => {
                     const colorText = item.color ? ` (Color: ${item.color})` : '';
-                    msg += `• ${item.quantity}x ${item.name} (Talla: ${item.size}${colorText}) - RD$${parseFloat(String(item.price).replace(/[^0-9.]/g,'')).toLocaleString('en-US',{minimumFractionDigits:2})}\n`;
+                    const itemPrice = parseNumericPrice(item.price);
+                    msg += `• ${item.quantity}x ${item.name} (Talla: ${item.size}${colorText}) - RD$${itemPrice.toLocaleString('en-US',{minimumFractionDigits:2})}\n`;
                 });
                 msg += `\n💰 Total: RD$${subtotal.toLocaleString('en-US', {minimumFractionDigits:2})}`;
                 // Save order
@@ -320,37 +366,40 @@
         if (products.length === 0) { if (emptyEl) emptyEl.style.display = 'block'; return; }
         if (emptyEl) emptyEl.style.display = 'none';
         products.forEach(prod => {
-            const isColeccion = (prod.category || '').toLowerCase().includes('coleccion') || (prod.category || '').toLowerCase().includes('oversize') || (prod.category || '').toLowerCase().includes('hoodie') || (prod.category || '').toLowerCase().includes('camiseta') || price > 0;
-            const price = parseFloat(String(prod.price).replace(/[^0-9.]/g, ''));
+            const price = parseNumericPrice(prod.price);
+            const priceText = price > 0 ? `RD$${price.toLocaleString('en-US', {minimumFractionDigits:2})}` : 'RD$1,500.00';
             const card = document.createElement('div');
             card.className = 'cat-product-card';
             card.setAttribute('data-id', prod.id);
             card.innerHTML = `
                 <div class="cat-card-image-wrap">
                     <span class="cat-card-badge new">NUEVO</span>
-                    ${!isColeccion ? `<span class="cat-card-badge custom" style="top:44px;">✦ PERSONALIZABLE</span>` : ''}
                     ${(prod.images && prod.images.length > 1) ? `<span style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;z-index:2;">${prod.images.length} fotos</span>` : ''}
                     <img src="${prod.image}" alt="${prod.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='../assets/logo.jpg';">
                     <div class="cat-card-actions">
-                        ${isColeccion
-                            ? `<button class="cat-action-btn cart" data-action="cart" title="Añadir al carrito"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button>`
-                            : `<button class="cat-action-btn customize" data-action="customize" title="Personalizar"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>`
-                        }
+                        <button class="cat-action-btn cart" data-action="cart" title="Añadir al carrito">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        </button>
+                        <button class="cat-action-btn customize" data-action="customize" title="Personalizar diseño">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </button>
                     </div>
                 </div>
                 <div class="cat-card-info">
                     <div class="cat-card-category">${prod.category}</div>
                     <div class="cat-card-name">${getBaseName(prod.name)}</div>
-                    <div class="cat-card-price">${isColeccion ? `RD$${price.toLocaleString('en-US', {minimumFractionDigits:2})}` : '<span style="font-size:13px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>'}</div>
+                    <div class="cat-card-price">${priceText}</div>
                     <div class="cat-card-sizes">${(prod.sizes || []).slice(0, 4).map(s => `<span class="cat-size-dot">${s}</span>`).join('')}${(prod.variants && prod.variants.length > 1) ? `<span class="cat-size-dot" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;">${prod.variants.length} colores</span>` : ''}</div>
-                    ${!isColeccion ? `<div class="cat-card-custom-tag">✦ Solicitar personalización</div>` : ''}
                 </div>`;
             card.addEventListener('click', (e) => {
-                const action = e.target.closest('[data-action]')?.getAttribute('data-action');
+                const actionBtn = e.target.closest('[data-action]');
+                const action = actionBtn?.getAttribute('data-action');
                 if (action === 'cart') {
+                    e.stopPropagation();
                     const firstSize = (prod.sizes || ['Única'])[0];
                     addToCart(prod, firstSize);
                 } else if (action === 'customize') {
+                    e.stopPropagation();
                     openPersonalizationModal(prod, (prod.sizes || ['Única'])[0]);
                 } else {
                     openProductModal(prod);
@@ -461,12 +510,12 @@
         currentProduct = variant;
         buildGallery(variant.images && variant.images.length > 0 ? variant.images : [variant.image]);
         document.getElementById('modal-product-name').textContent = getBaseName(variant.name);
-        const isColeccionVariant = (variant.category || '').toLowerCase().includes('coleccion') || (variant.category || '').toLowerCase().includes('oversize') || (variant.category || '').toLowerCase().includes('hoodie');
+        const numPrice = parseNumericPrice(variant.price);
         const priceElV = document.getElementById('modal-product-price');
-        if (!isColeccionVariant) {
-            priceElV.innerHTML = '<span style="font-size:14px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>';
+        if (numPrice > 0) {
+            priceElV.textContent = `RD$${numPrice.toLocaleString('en-US', {minimumFractionDigits:2})}`;
         } else {
-            priceElV.textContent = `RD$${parseFloat(String(variant.price).replace(/[^0-9.]/g, '')).toLocaleString('en-US', {minimumFractionDigits:2})}`;
+            priceElV.textContent = 'RD$1,500.00';
         }
         document.getElementById('modal-product-desc').textContent = variant.description || '';
         const sizesEl = document.getElementById('modal-sizes-container');
@@ -483,7 +532,6 @@
     function openProductModal(product) {
         currentProduct = product;
         const variants = product.variants || [product];
-        const isColeccion = (product.category || '').toLowerCase().includes('coleccion') || (product.category || '').toLowerCase().includes('oversize') || (product.category || '').toLowerCase().includes('hoodie');
 
         // Gallery from first variant
         buildGallery(product.images && product.images.length > 0 ? product.images : [product.image]);
@@ -491,11 +539,12 @@
         // --- Product Info ---
         document.getElementById('modal-product-category').textContent = product.category;
         document.getElementById('modal-product-name').textContent = getBaseName(product.name);
+        const numPrice = parseNumericPrice(product.price);
         const priceElM = document.getElementById('modal-product-price');
-        if (!isColeccion) {
-            priceElM.innerHTML = '<span style="font-size:14px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>';
+        if (numPrice > 0) {
+            priceElM.textContent = `RD$${numPrice.toLocaleString('en-US', {minimumFractionDigits:2})}`;
         } else {
-            priceElM.textContent = `RD$${parseFloat(String(product.price).replace(/[^0-9.]/g, '')).toLocaleString('en-US', {minimumFractionDigits:2})}`;
+            priceElM.textContent = 'RD$1,500.00';
         }
         document.getElementById('modal-product-desc').textContent = product.description || '';
 
@@ -544,12 +593,25 @@
 
         const addBtn = document.querySelector('.modal-add-cart-btn');
         if (addBtn) {
-            if (isColeccion) {
-                addBtn.innerHTML = '<i class="fa fa-shopping-cart"></i> Añadir al Carrito';
-                addBtn.classList.remove('personalize-btn');
-            } else {
-                addBtn.innerHTML = '<i class="fas fa-palette"></i> Solicitar Personalización';
-                addBtn.classList.add('personalize-btn');
+            addBtn.innerHTML = '<i class="fa fa-shopping-cart"></i> Añadir al Carrito';
+            addBtn.classList.remove('personalize-btn');
+
+            let modalCustBtn = document.getElementById('cat-modal-customize-btn');
+            if (!modalCustBtn) {
+                modalCustBtn = document.createElement('button');
+                modalCustBtn.id = 'cat-modal-customize-btn';
+                modalCustBtn.type = 'button';
+                modalCustBtn.className = 'btn-customize-secondary';
+                modalCustBtn.innerHTML = '<i class="fas fa-palette"></i> Personalizar con mi Logo';
+                modalCustBtn.style.cssText = 'margin-top:10px;width:100%;padding:11px 18px;background:rgba(217,119,6,0.1);color:#d97706;border:1.5px dashed #d97706;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s ease;';
+                modalCustBtn.addEventListener('click', () => {
+                    if (!currentProduct) return;
+                    const activeSizeBtn = document.querySelector('.size-badge-modal.active');
+                    const size = activeSizeBtn ? activeSizeBtn.textContent : 'Única';
+                    closeProductModal();
+                    openPersonalizationModal(currentProduct, size);
+                });
+                addBtn.parentNode.insertBefore(modalCustBtn, addBtn.nextSibling);
             }
         }
         if (modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
@@ -569,14 +631,8 @@
             if (!currentProduct) return;
             const activeSize = document.querySelector('.size-badge-modal.active');
             const size = activeSize ? activeSize.textContent : 'Única';
-            const isColeccion = (currentProduct.category || '').toLowerCase().includes('coleccion') || (currentProduct.category || '').toLowerCase().includes('oversize') || (currentProduct.category || '').toLowerCase().includes('hoodie');
-            if (isColeccion) {
-                addToCart(currentProduct, size);
-                closeProductModal();
-            } else {
-                closeProductModal();
-                openPersonalizationModal(currentProduct, size);
-            }
+            addToCart(currentProduct, size);
+            closeProductModal();
         });
     }
 
