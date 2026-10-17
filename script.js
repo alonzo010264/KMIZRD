@@ -63,7 +63,26 @@ function parseNumericPrice(price) {
     return match ? parseFloat(match[0]) : 0;
 }
 
-function getProductColor(prod) {
+
+    function extractProductColors(prod) {
+        if (!prod) return ['Negro'];
+        if (Array.isArray(prod.colors) && prod.colors.length > 0) return prod.colors;
+        if (prod.description) {
+            const m = prod.description.match(/\[colores?:\s*([^\]]+)\]/i);
+            if (m) {
+                return m[1].split(',').map(c => c.trim()).filter(Boolean);
+            }
+        }
+        const fallbackCol = getProductColor(prod);
+        return fallbackCol ? [fallbackCol] : ['Negro'];
+    }
+
+    function getCleanDescription(desc) {
+        if (!desc) return '';
+        return desc.replace(/\[colores?:\s*[^\]]+\]/gi, '').trim();
+    }
+
+    function getProductColor(prod) {
     const imgPath = prod.image || (prod.images && prod.images[0]) || '';
     const normalized = imgPath.replace(/^(\.\.\/)+/, '').replace(/\\/g, '/');
     if (colorMap[normalized]) {
@@ -1030,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3200);
     }
 
-    function addToCart(product, size) {
+    function addToCart(product, size, colorParam) {
         if (!product) return;
 
         // Re-sync with latest cart from localStorage to prevent overwriting
@@ -1043,7 +1062,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {}
 
         const selectedSize = size || (product.sizes && product.sizes[0]) || 'Única';
-        const color = getProductColor(product);
+        const color = colorParam || product._selectedColor || getProductColor(product);
         const numPrice = parseNumericPrice(product.price) || 1500;
         
         let rawImg = product.image || (product.images && product.images[0]) || 'assets/logo.jpg';

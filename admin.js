@@ -152,6 +152,101 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    
+    // ==========================================
+    // PRODUCT COLOR SYSTEM & HELPERS
+    // ==========================================
+    const COLOR_CSS_MAP = {
+        'Negro': '#1a1a1a',
+        'Blanco': '#ffffff',
+        'Gris': '#9ca3af',
+        'Verde': '#16a34a',
+        'Rojo': '#dc2626',
+        'Azul': '#2563eb',
+        'Azul Marino': '#1e3a5f',
+        'Naranja': '#ea580c',
+        'Beige': '#d4b896',
+        'Rosa': '#f472b6'
+    };
+
+    function getColorHex(colorName) {
+        if (!colorName) return '#1a1a1a';
+        return COLOR_CSS_MAP[colorName] || '#64748b';
+    }
+
+    function extractProductColors(prod) {
+        if (Array.isArray(prod.colors) && prod.colors.length > 0) return prod.colors;
+        if (prod.description) {
+            const match = prod.description.match(/\[colores?:\s*([^\]]+)\]/i);
+            if (match) {
+                return match[1].split(',').map(c => c.trim()).filter(Boolean);
+            }
+        }
+        const nameLower = (prod.name || '').toLowerCase();
+        for (const col of Object.keys(COLOR_CSS_MAP)) {
+            if (nameLower.includes(col.toLowerCase())) return [col];
+        }
+        return ['Negro'];
+    }
+
+    function getCleanDescription(desc) {
+        if (!desc) return '';
+        return desc.replace(/\[colores?:\s*[^\]]+\]/gi, '').trim();
+    }
+
+    // Bind color buttons for upload form
+    function bindColorButtons(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.querySelectorAll('.color-btn').forEach(btn => {
+            btn.onclick = () => btn.classList.toggle('active');
+        });
+    }
+
+    // Custom Color Creator helper
+    function setupCustomColorCreator(btnAddId, inputNameId, inputHexId, selectorGridId, btnClass) {
+        const btnAdd = document.getElementById(btnAddId);
+        const inputName = document.getElementById(inputNameId);
+        const inputHex = document.getElementById(inputHexId);
+        const grid = document.getElementById(selectorGridId);
+
+        if (btnAdd && inputName && inputHex && grid) {
+            btnAdd.addEventListener('click', () => {
+                const name = (inputName.value || '').trim();
+                const hex = inputHex.value || '#0272ba';
+                if (!name) {
+                    showAdminToast('Escribe un nombre para el color.', 'error');
+                    return;
+                }
+                COLOR_CSS_MAP[name] = hex;
+
+                // Check if already exists in grid
+                let existingBtn = grid.querySelector(`[data-color="${name}"]`);
+                if (existingBtn) {
+                    existingBtn.classList.add('active');
+                } else {
+                    const newBtn = document.createElement('button');
+                    newBtn.type = 'button';
+                    newBtn.className = `color-btn ${btnClass} active`;
+                    newBtn.setAttribute('data-color', name);
+                    newBtn.setAttribute('data-hex', hex);
+                    newBtn.innerHTML = `<span class="color-circle" style="background:${hex};"></span> ${name}`;
+                    newBtn.onclick = () => newBtn.classList.toggle('active');
+                    grid.appendChild(newBtn);
+                }
+
+                inputName.value = '';
+                showAdminToast(`Color "${name}" añadido con éxito.`, 'success');
+            });
+        }
+    }
+
+    
+    // Initialize Color Selectors
+    bindColorButtons('upload-color-selector');
+    setupCustomColorCreator('btn-add-custom-color-upload', 'upload-custom-name', 'upload-custom-hex', 'upload-color-selector', '');
+    setupCustomColorCreator('btn-add-custom-color-edit', 'edit-custom-name', 'edit-custom-hex', 'edit-color-selector', 'edit-color-btn');
+
     // Size Selector Toggle
     const sizeButtons = document.querySelectorAll('.size-btn');
     sizeButtons.forEach(btn => {
@@ -240,9 +335,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Get selected sizes
         const selectedSizes = [];
-        document.querySelectorAll('.size-btn.active').forEach(btn => {
+        document.querySelectorAll('#upload-section .size-btn.active').forEach(btn => {
             selectedSizes.push(btn.getAttribute('data-size'));
         });
+
+        // Get selected colors
+        const selectedColors = [];
+        document.querySelectorAll('#upload-color-selector .color-btn.active').forEach(btn => {
+            selectedColors.push(btn.getAttribute('data-color'));
+        });
+
+        // Format description with colors metadata tag
+        const cleanDesc = getCleanDescription(desc);
+        const colorTag = selectedColors.length > 0 ? `\n[colores: ${selectedColors.join(', ')}]` : '';
+        const finalDesc = cleanDesc + colorTag;
 
         // Save to Supabase
         try {
@@ -253,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         name: name,
                         price: parseFloat(price),
                         category: category,
-                        description: desc,
+                        description: finalDesc,
                         sizes: selectedSizes,
                         image: base64Image
                     }
@@ -481,13 +587,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 1. Desktop Table Row (>=769px)
                 if (tbody) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
+                    const prodColors = extractProductColors(prod);
+                const colorsBadges = prodColors && prodColors.length > 0
+                    ? prodColors.map(c => `<span class="table-color-dot" style="background:${getColorHex(c)};" title="${c}"></span>`).join('')
+                    : '<span style="font-size:11px;color:#94a3b8;">-</span>';
+
+                tr.innerHTML = `
                         <td>
                             <img src="${imgSrc}" alt="${prod.name}" class="table-img" onerror="this.src='../assets/logo.jpg'">
                         </td>
                         <td>
                             <div class="table-prod-name" style="font-weight: 700; color: #0f172a;">${prod.name}</div>
-                            <div class="table-prod-desc" style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #64748b; font-size: 12px;">${prod.description || '-'}</div>
+                            <div class="table-prod-desc" style="max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #64748b; font-size: 12px;">${getCleanDescription(prod.description) || '-'}</div>
                         </td>
                         <td><span class="table-tag">${prod.category}</span></td>
                         <td>
@@ -496,6 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </span>
                         </td>
                         <td><div class="table-sizes">${sizesBadges}</div></td>
+                        <td><div class="table-colors">${colorsBadges}</div></td>
                         <td style="text-align: center; white-space: nowrap;">
                             <button class="btn-edit" data-id="${prod.id}" title="Editar Producto Completo" style="background: #2563eb; color: white; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; margin-right: 6px;">
                                 <i data-lucide="edit-2"></i>
@@ -531,6 +643,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="mobile-card-info">
                                 <h4 class="mobile-card-title">${prod.name}</h4>
                                 <div class="mobile-card-sizes">${mobileSizesHtml}</div>
+                                <div class="mobile-card-colors">
+                                    <span class="mobile-card-colors-label">Colores:</span>
+                                    ${prodColors.map(c => `<span class="mobile-color-pill"><span class="color-circle" style="width:9px;height:9px;background:${getColorHex(c)};"></span> ${c}</span>`).join('')}
+                                </div>
                             </div>
                         </div>
                         <div class="mobile-card-actions">
@@ -660,7 +776,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('edit-prod-id').value = prod.id;
         document.getElementById('edit-prod-name').value = prod.name || '';
         document.getElementById('edit-prod-price').value = prod.price || 0;
-        document.getElementById('edit-prod-desc').value = prod.description || '';
+        // Clean description for textarea (strip [colores: ...])
+        document.getElementById('edit-prod-desc').value = getCleanDescription(prod.description);
 
         // Category dropdown
         const categorySelect = document.getElementById('edit-prod-category');
@@ -691,6 +808,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Colors
+        const prodColors = extractProductColors(prod);
+        const editColorGrid = document.getElementById('edit-color-selector');
+        if (editColorGrid) {
+            editColorGrid.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+
+            prodColors.forEach(col => {
+                let existingBtn = editColorGrid.querySelector(`[data-color="${col}"]`);
+                if (existingBtn) {
+                    existingBtn.classList.add('active');
+                } else {
+                    // Create dynamic color button
+                    const hex = getColorHex(col);
+                    const newBtn = document.createElement('button');
+                    newBtn.type = 'button';
+                    newBtn.className = 'color-btn edit-color-btn active';
+                    newBtn.setAttribute('data-color', col);
+                    newBtn.setAttribute('data-hex', hex);
+                    newBtn.innerHTML = `<span class="color-circle" style="background:${hex};"></span> ${col}`;
+                    newBtn.onclick = () => newBtn.classList.toggle('active');
+                    editColorGrid.appendChild(newBtn);
+                }
+            });
+        }
+
         if (editModal) editModal.style.display = 'flex';
     }
 
@@ -704,11 +846,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (btn.classList.contains('active')) activeSizes.push(btn.getAttribute('data-size'));
             });
 
+            const activeColors = [];
+            document.querySelectorAll('#edit-color-selector .color-btn.active').forEach(btn => {
+                activeColors.push(btn.getAttribute('data-color'));
+            });
+
+            const cleanDesc = getCleanDescription(document.getElementById('edit-prod-desc').value);
+            const colorTag = activeColors.length > 0 ? `\n[colores: ${activeColors.join(', ')}]` : '';
+            const finalDesc = cleanDesc + colorTag;
+
             const updatedData = {
                 name: document.getElementById('edit-prod-name').value,
                 price: parseFloat(document.getElementById('edit-prod-price').value),
                 category: document.getElementById('edit-prod-category').value,
-                description: document.getElementById('edit-prod-desc').value,
+                description: finalDesc,
                 sizes: activeSizes
             };
 

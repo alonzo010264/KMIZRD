@@ -204,6 +204,31 @@
                                         <button type="button" class="size-btn" data-size="Única">Única</button>
                                     </div>
                                 </div>
+
+                                <!-- Colors Selection for Upload -->
+                                <div class="form-group" style="margin-top: 20px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <label style="margin: 0;">Colores Disponibles *</label>
+                                        <span style="font-size: 11px; color: #64748b;">(Toca para activar/desactivar)</span>
+                                    </div>
+                                    <div class="color-selector-grid" id="upload-color-selector">
+                                        <button type="button" class="color-btn active" data-color="Negro" data-hex="#1a1a1a"><span class="color-circle" style="background:#1a1a1a;"></span> Negro</button>
+                                        <button type="button" class="color-btn" data-color="Blanco" data-hex="#ffffff"><span class="color-circle" style="background:#ffffff; border:1px solid #ccc;"></span> Blanco</button>
+                                        <button type="button" class="color-btn" data-color="Gris" data-hex="#9ca3af"><span class="color-circle" style="background:#9ca3af;"></span> Gris</button>
+                                        <button type="button" class="color-btn" data-color="Verde" data-hex="#16a34a"><span class="color-circle" style="background:#16a34a;"></span> Verde</button>
+                                        <button type="button" class="color-btn" data-color="Rojo" data-hex="#dc2626"><span class="color-circle" style="background:#dc2626;"></span> Rojo</button>
+                                        <button type="button" class="color-btn" data-color="Azul" data-hex="#2563eb"><span class="color-circle" style="background:#2563eb;"></span> Azul</button>
+                                        <button type="button" class="color-btn" data-color="Azul Marino" data-hex="#1e3a5f"><span class="color-circle" style="background:#1e3a5f;"></span> Azul Marino</button>
+                                        <button type="button" class="color-btn" data-color="Naranja" data-hex="#ea580c"><span class="color-circle" style="background:#ea580c;"></span> Naranja</button>
+                                        <button type="button" class="color-btn" data-color="Beige" data-hex="#d4b896"><span class="color-circle" style="background:#d4b896;"></span> Beige</button>
+                                        <button type="button" class="color-btn" data-color="Rosa" data-hex="#f472b6"><span class="color-circle" style="background:#f472b6;"></span> Rosa</button>
+                                    </div>
+                                    <div class="custom-color-creator" style="margin-top: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                        <input type="color" id="upload-custom-hex" value="#8b5cf6" style="width: 38px; height: 38px; padding: 2px; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer;">
+                                        <input type="text" id="upload-custom-name" placeholder="Crear nuevo color (ej. Vino, Crema...)" style="flex: 1; min-width: 170px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                                        <button type="button" id="btn-add-custom-color-upload" class="admin-btn btn-secondary btn-sm" style="padding: 8px 14px;"><i class="fa fa-plus"></i> Crear Color</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
@@ -255,12 +280,13 @@
                         <table class="admin-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 80px;">Imagen</th>
+                                    <th style="width: 75px;">Imagen</th>
                                     <th>Producto</th>
                                     <th>Categoría</th>
                                     <th>Precio</th>
                                     <th>Tallas</th>
-                                    <th style="text-align: center; width: 140px;">Acciones</th>
+                                    <th>Colores</th>
+                                    <th style="text-align: center; width: 130px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="admin-products-tbody">
@@ -647,6 +673,31 @@
                         <button type="button" class="size-btn edit-size-btn" data-size="XL">XL</button>
                         <button type="button" class="size-btn edit-size-btn" data-size="XXL">XXL</button>
                         <button type="button" class="size-btn edit-size-btn" data-size="Única">Única</button>
+                    </div>
+                </div>
+
+                <!-- Colors Selection for Edit -->
+                <div class="form-group" style="margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label style="margin: 0;">Colores Disponibles *</label>
+                        <span style="font-size: 11px; color: #64748b;">(Toca para activar/desactivar)</span>
+                    </div>
+                    <div class="color-selector-grid" id="edit-color-selector">
+                        <button type="button" class="color-btn edit-color-btn" data-color="Negro" data-hex="#1a1a1a"><span class="color-circle" style="background:#1a1a1a;"></span> Negro</button>
+                        <button type="button" class="color-btn edit-color-btn" data-color="Blanco" data-hex="#ffffff"><span class="color-circle" style="background:#ffffff; border:1px solid #ccc;"></span> Blanco</button>
+                        <button type="button" class="color-btn edit-color-btn" data-color="Gris" data-hex="#9ca3af"><span class="color-circle" style="background:#9ca3af;"></span> Gris</button>
+                        <button type="button" class="color-btn edit-color-btn" data-color="Verde" data-hex="#16a34a"><span class="color-circle" style="background:#16a34a;"></span> Verde</button>
+                        <button type="button" class="color-btn edit-color-btn" data-color="Rojo" data-hex="#dc2626"><span class="color-circle" style="background:#dc2626;"></span> Rojo</button>
+                        <button type="button" class="color-btn edit-color-btn" data-color="Azul" data-hex="#2563eb"><span class="color-circle" style="background:#2563eb;"></span> Azul</button>
+                        <button type="button" class="color-btn edit-color-btn" data-color="Azul Marino" data-hex="#1e3a5f"><span class="color-circle" style="background:#1e3a5f;"></span> Azul Marino</button>
+                        <button type="button" class="color-btn edit-color-btn" data-color="Naranja" data-hex="#ea580c"><span class="color-circle" style="background:#ea580c;"></span> Naranja</button>
+                        <button type="button" class="color-btn edit-color-btn" data-color="Beige" data-hex="#d4b896"><span class="color-circle" style="background:#d4b896;"></span> Beige</button>
+                        <button type="button" class="color-btn edit-color-btn" data-color="Rosa" data-hex="#f472b6"><span class="color-circle" style="background:#f472b6;"></span> Rosa</button>
+                    </div>
+                    <div class="custom-color-creator" style="margin-top: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <input type="color" id="edit-custom-hex" value="#8b5cf6" style="width: 38px; height: 38px; padding: 2px; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer;">
+                        <input type="text" id="edit-custom-name" placeholder="Crear nuevo color (ej. Vino, Crema...)" style="flex: 1; min-width: 170px; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px;">
+                        <button type="button" id="btn-add-custom-color-edit" class="admin-btn btn-secondary btn-sm" style="padding: 8px 14px;"><i class="fa fa-plus"></i> Crear Color</button>
                     </div>
                 </div>
                 

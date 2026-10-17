@@ -38,6 +38,25 @@ if (!window.location.hash || window.location.hash === '#') {
         return match ? parseFloat(match[0]) : 0;
     }
 
+    
+    function extractProductColors(prod) {
+        if (!prod) return ['Negro'];
+        if (Array.isArray(prod.colors) && prod.colors.length > 0) return prod.colors;
+        if (prod.description) {
+            const m = prod.description.match(/\[colores?:\s*([^\]]+)\]/i);
+            if (m) {
+                return m[1].split(',').map(c => c.trim()).filter(Boolean);
+            }
+        }
+        const fallbackCol = getProductColor(prod);
+        return fallbackCol ? [fallbackCol] : ['Negro'];
+    }
+
+    function getCleanDescription(desc) {
+        if (!desc) return '';
+        return desc.replace(/\[colores?:\s*[^\]]+\]/gi, '').trim();
+    }
+
     function getProductColor(prod) {
         const imgPath = prod.image || (prod.images && prod.images[0]) || '';
         const normalized = imgPath.replace(/^(\.\.\/)+/, '').replace(/\\/g, '/');
@@ -216,7 +235,7 @@ if (!window.location.hash || window.location.hash === '#') {
         }, 3200);
     }
 
-    function addToCart(product, size) {
+    function addToCart(product, size, colorParam) {
         if (!product) return;
 
         // Re-sync with latest cart from localStorage
@@ -228,7 +247,7 @@ if (!window.location.hash || window.location.hash === '#') {
             }
         } catch (e) {}
 
-        const color = getProductColor(product);
+        const color = colorParam || product._selectedColor || getProductColor(product);
         const selectedSize = size || (product.sizes && product.sizes[0]) || 'Única';
         const numPrice = parseNumericPrice(product.price) || 1500;
 
@@ -676,7 +695,7 @@ if (!window.location.hash || window.location.hash === '#') {
         } else {
             priceElM.textContent = 'RD$1,500.00';
         }
-        document.getElementById('modal-product-desc').textContent = product.description || '';
+        document.getElementById('modal-product-desc').textContent = getCleanDescription(product.description || '');
 
         // --- Color Swatches ---
         const sizesEl = document.getElementById('modal-sizes-container');
@@ -684,7 +703,15 @@ if (!window.location.hash || window.location.hash === '#') {
         const existingSwatches = document.getElementById('color-swatches-panel');
         if (existingSwatches) existingSwatches.remove();
 
+        const prodColors = extractProductColors(product);
+        let availableColors = [];
         if (variants.length > 1) {
+            availableColors = variants.map(v => ({ color: getProductColor(v), variant: v }));
+        } else if (prodColors.length > 0) {
+            availableColors = prodColors.map(c => ({ color: c, variant: product }));
+        }
+
+        if (availableColors.length > 0) {
             const swatchPanel = document.createElement('div');
             swatchPanel.id = 'color-swatches-panel';
             swatchPanel.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center;';
@@ -693,17 +720,23 @@ if (!window.location.hash || window.location.hash === '#') {
             label.style.cssText = 'font-size:13px;font-weight:700;color:#64748b;margin-right:4px;';
             swatchPanel.appendChild(label);
 
-            variants.forEach((v, vi) => {
-                const color = getProductColor(v);
+            currentProduct._selectedColor = availableColors[0].color;
+
+            availableColors.forEach((item, vi) => {
+                const color = item.color;
                 const cssColor = COLOR_CSS[color] || '#888';
                 const swatch = document.createElement('button');
+                swatch.type = 'button';
                 swatch.title = color;
                 swatch.style.cssText = `width:28px;height:28px;border-radius:50%;background:${cssColor};border:3px solid ${vi === 0 ? 'var(--accent-color)' : '#e2e8f0'};cursor:pointer;transition:all 0.2s;outline:none;box-shadow:0 1px 3px rgba(0,0,0,0.15);`;
                 if (color === 'Blanco') swatch.style.boxShadow = '0 0 0 1px #ccc, 0 1px 3px rgba(0,0,0,0.15)';
                 swatch.addEventListener('click', () => {
                     swatchPanel.querySelectorAll('button').forEach(b => b.style.borderColor = '#e2e8f0');
                     swatch.style.borderColor = 'var(--accent-color)';
-                    switchVariant(v);
+                    currentProduct._selectedColor = color;
+                    if (item.variant && item.variant !== product) {
+                        switchVariant(item.variant);
+                    }
                 });
                 swatchPanel.appendChild(swatch);
             });
