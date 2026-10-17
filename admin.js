@@ -584,15 +584,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? prod.sizes.map(s => `<span class="table-size-badge">${s}</span>`).join('')
                     : '<span class="table-size-badge">-</span>';
 
-                // 1. Desktop Table Row (>=769px)
-                if (tbody) {
-                    const tr = document.createElement('tr');
-                    const prodColors = extractProductColors(prod);
+                const prodColors = extractProductColors(prod);
                 const colorsBadges = prodColors && prodColors.length > 0
                     ? prodColors.map(c => `<span class="table-color-dot" style="background:${getColorHex(c)};" title="${c}"></span>`).join('')
                     : '<span style="font-size:11px;color:#94a3b8;">-</span>';
 
-                tr.innerHTML = `
+                // 1. Desktop Table Row (>=769px)
+                if (tbody) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
                         <td>
                             <img src="${imgSrc}" alt="${prod.name}" class="table-img" onerror="this.src='../assets/logo.jpg'">
                         </td>
