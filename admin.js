@@ -291,111 +291,331 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Render Inventory Table
+    // ==========================================
+    // TOAST NOTIFICATION SYSTEM
+    // ==========================================
+    function showAdminToast(message, type = 'success') {
+        let container = document.getElementById('admin-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'admin-toast-container';
+            container.className = 'admin-toast-container';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = `admin-toast ${type}`;
+        
+        let iconHtml = '<i class="fa fa-check-circle" style="color: #10b981;"></i>';
+        if (type === 'error') iconHtml = '<i class="fa fa-exclamation-circle" style="color: #ef4444;"></i>';
+        else if (type === 'info') iconHtml = '<i class="fa fa-info-circle" style="color: #3b82f6;"></i>';
+        
+        toast.innerHTML = `${iconHtml} <span>${message}</span>`;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3500);
+    }
+
+    // ==========================================
+    // MOBILE DRAWER & NAVIGATION
+    // ==========================================
+    const mobileToggleBtn = document.getElementById('admin-mobile-toggle-btn');
+    const mobileCloseBtn = document.getElementById('admin-sidebar-close-btn');
+    const mobileBackdrop = document.getElementById('admin-mobile-backdrop');
+    const adminSidebar = document.getElementById('admin-sidebar') || document.querySelector('.admin-sidebar');
+
+    function openMobileSidebar() {
+        if (adminSidebar) adminSidebar.classList.add('open');
+        if (mobileBackdrop) mobileBackdrop.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileSidebar() {
+        if (adminSidebar) adminSidebar.classList.remove('open');
+        if (mobileBackdrop) mobileBackdrop.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    if (mobileToggleBtn) mobileToggleBtn.addEventListener('click', openMobileSidebar);
+    if (mobileCloseBtn) mobileCloseBtn.addEventListener('click', closeMobileSidebar);
+    if (mobileBackdrop) mobileBackdrop.addEventListener('click', closeMobileSidebar);
+
+    // Close drawer when selecting any nav item on mobile
+    document.querySelectorAll('.admin-nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                closeMobileSidebar();
+            }
+        });
+    });
+
+    // Quick "Nuevo Producto" button inside Inventory
+    const btnQuickNewProd = document.getElementById('btn-quick-new-prod');
+    if (btnQuickNewProd) {
+        btnQuickNewProd.addEventListener('click', () => {
+            const uploadTab = document.querySelector('.admin-nav-item[data-target="upload-section"]');
+            if (uploadTab) uploadTab.click();
+        });
+    }
+
+    // Refresh Button in header
+    const refreshBtn = document.getElementById('admin-refresh-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.classList.add('spinning');
+            showAdminToast('Sincronizando inventario con la base de datos...', 'info');
+            await renderInventory(searchInput ? searchInput.value : '');
+            setTimeout(() => {
+                refreshBtn.classList.remove('spinning');
+                showAdminToast('¡Inventario sincronizado con éxito!', 'success');
+            }, 600);
+        });
+    }
+
+    // ==========================================
+    // RENDER INVENTORY (AUTO-PAGINATED & REALTIME)
+    // ==========================================
     const tbody = document.getElementById('admin-products-tbody');
+    const mobileCardsContainer = document.getElementById('admin-products-cards');
     const emptyState = document.getElementById('no-products-msg');
     const searchInput = document.getElementById('admin-search-input');
+    const categoryFilter = document.getElementById('admin-category-filter');
+    const counterBadge = document.getElementById('inventory-counter-badge');
+    const totalCountHeader = document.getElementById('products-total-count');
 
-    async function renderInventory(searchQuery = '') {
-        try {
+    let allLoadedProducts = [];
+
+    // Auto-paginated fetch loop: fetches all products without truncation regardless of max_rows
+    async function fetchAllProducts() {
+        let all = [];
+        let from = 0;
+        const step = 100;
+        while (true) {
             const { data, error } = await _supabase
                 .from('products')
                 .select('*')
                 .neq('category', 'FAQ')
                 .neq('category', 'TRACKING')
                 .neq('category', 'SYSTEM_USERS')
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: false })
+                .range(from, from + step - 1);
 
-            if (error) throw error;
+            if (error) {
+                console.error('Error fetching chunk:', error);
+                break;
+            }
+            if (!data || data.length === 0) break;
+            all = all.concat(data);
+            if (data.length < step) break;
+            from += step;
+        }
+        return all;
+    }
 
-            tbody.innerHTML = '';
+    async function renderInventory(searchQuery = '') {
+        try {
+            const realtimeBadge = document.getElementById('realtime-status-badge');
+            if (realtimeBadge) realtimeBadge.classList.add('updating');
 
-            const filteredProducts = (data || []).filter(prod => 
-                prod.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                prod.category.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            allLoadedProducts = await fetchAllProducts();
+
+            if (realtimeBadge) realtimeBadge.classList.remove('updating');
+
+            const totalCount = allLoadedProducts.length;
+            if (totalCountHeader) totalCountHeader.textContent = `${totalCount} productos`;
+
+            const currentCat = categoryFilter ? categoryFilter.value : 'ALL';
+            const query = (searchQuery || '').trim().toLowerCase();
+
+            // Filter products by category and query
+            const filteredProducts = allLoadedProducts.filter(prod => {
+                if (currentCat !== 'ALL') {
+                    if ((prod.category || '').toUpperCase() !== currentCat.toUpperCase()) {
+                        return false;
+                    }
+                }
+                if (query) {
+                    const name = (prod.name || '').toLowerCase();
+                    const cat = (prod.category || '').toLowerCase();
+                    const price = String(prod.price || '');
+                    return name.includes(query) || cat.includes(query) || price.includes(query);
+                }
+                return true;
+            });
+
+            if (counterBadge) {
+                counterBadge.textContent = `Mostrando ${filteredProducts.length} de ${totalCount} productos`;
+            }
+
+            if (tbody) tbody.innerHTML = '';
+            if (mobileCardsContainer) mobileCardsContainer.innerHTML = '';
 
             if (filteredProducts.length === 0) {
-                emptyState.style.display = 'flex';
+                if (emptyState) emptyState.style.display = 'flex';
                 return;
             }
 
-            emptyState.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'none';
 
+            // Populate both Desktop Table and Mobile Cards
             filteredProducts.forEach(prod => {
-                const tr = document.createElement('tr');
-                
-                const sizesBadges = prod.sizes && prod.sizes.length > 0 
-                    ? prod.sizes.map(s => `<span class="table-size-badge">${s}</span>`).join('')
-                    : '<span class="table-size-badge">-</span>';
-
-                const formattedPrice = prod.price.toString().startsWith('RD$') 
-                    ? prod.price 
-                    : `RD$${parseFloat(prod.price).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                const formattedPrice = prod.price.toString().startsWith('RD$')
+                    ? prod.price
+                    : `RD$${parseFloat(prod.price || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
                 let rawImg = prod.image || '';
                 if (rawImg.includes(',')) {
                     rawImg = rawImg.split(',')[0].trim();
                 }
-                const imgSrc = (rawImg && !rawImg.startsWith('data:') && !rawImg.startsWith('http')) 
-                    ? `../${rawImg}` 
-                    : rawImg;
+                const imgSrc = (rawImg && !rawImg.startsWith('data:') && !rawImg.startsWith('http'))
+                    ? `../${rawImg}`
+                    : (rawImg || '../assets/logo.jpg');
 
-                tr.innerHTML = `
-                    <td><img src="${imgSrc}" alt="${prod.name}" class="table-img"></td>
-                    <td>
-                        <div class="table-prod-name">${prod.name}</div>
-                        <div class="table-prod-desc">${prod.description}</div>
-                    </td>
-                    <td><span class="table-tag">${prod.category}</span></td>
-                    <td><span class="table-price">${formattedPrice}</span></td>
-                    <td><div class="table-sizes">${sizesBadges}</div></td>
-                    <td>
-                        <button class="btn-edit" data-id="${prod.id}" title="Editar Producto" style="background: #3b82f6; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; margin-right: 5px;">
-                            <i data-lucide="edit-2"></i>
-                        </button>
-                        <button class="btn-delete" data-id="${prod.id}" title="Eliminar Producto">
-                            <i data-lucide="trash-2"></i>
-                        </button>
-                    </td>
-                `;
+                const sizesBadges = prod.sizes && prod.sizes.length > 0
+                    ? prod.sizes.map(s => `<span class="table-size-badge">${s}</span>`).join('')
+                    : '<span class="table-size-badge">-</span>';
 
-                tbody.appendChild(tr);
+                // 1. Desktop Table Row (>=769px)
+                if (tbody) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <img src="${imgSrc}" alt="${prod.name}" class="table-img" onerror="this.src='../assets/logo.jpg'">
+                        </td>
+                        <td>
+                            <div class="table-prod-name" style="font-weight: 700; color: #0f172a;">${prod.name}</div>
+                            <div class="table-prod-desc" style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #64748b; font-size: 12px;">${prod.description || '-'}</div>
+                        </td>
+                        <td><span class="table-tag">${prod.category}</span></td>
+                        <td>
+                            <span class="table-price" style="font-weight: 800; color: var(--accent-color, #0272ba); cursor: pointer;" title="Clic para modificar precio rápido" data-id="${prod.id}">
+                                ${formattedPrice} <i class="fa fa-pen" style="font-size: 10px; margin-left: 4px; opacity: 0.6;"></i>
+                            </span>
+                        </td>
+                        <td><div class="table-sizes">${sizesBadges}</div></td>
+                        <td style="text-align: center; white-space: nowrap;">
+                            <button class="btn-edit" data-id="${prod.id}" title="Editar Producto Completo" style="background: #2563eb; color: white; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; margin-right: 6px;">
+                                <i data-lucide="edit-2"></i>
+                            </button>
+                            <button class="btn-quick-price" data-id="${prod.id}" title="Modificar Precio Rápido" style="background: #059669; color: white; border: none; padding: 7px 11px; border-radius: 8px; cursor: pointer; margin-right: 6px;">
+                                <i class="fa fa-dollar-sign"></i>
+                            </button>
+                            <button class="btn-delete" data-id="${prod.id}" title="Eliminar Producto" style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 7px 11px; border-radius: 8px; cursor: pointer;">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+
+                // 2. Mobile Responsive Card (<=768px)
+                if (mobileCardsContainer) {
+                    const card = document.createElement('div');
+                    card.className = 'admin-prod-card-mobile';
+                    card.setAttribute('data-id', prod.id);
+
+                    const mobileSizesHtml = prod.sizes && prod.sizes.length > 0
+                        ? prod.sizes.map(s => `<span class="mobile-card-size-pill">${s}</span>`).join('')
+                        : '<span class="mobile-card-size-pill">Única</span>';
+
+                    card.innerHTML = `
+                        <div class="mobile-card-header">
+                            <span class="mobile-card-tag">${prod.category}</span>
+                            <span class="mobile-card-price">${formattedPrice}</span>
+                        </div>
+                        <div class="mobile-card-body">
+                            <img src="${imgSrc}" alt="${prod.name}" class="mobile-card-img" onerror="this.src='../assets/logo.jpg'">
+                            <div class="mobile-card-info">
+                                <h4 class="mobile-card-title">${prod.name}</h4>
+                                <div class="mobile-card-sizes">${mobileSizesHtml}</div>
+                            </div>
+                        </div>
+                        <div class="mobile-card-actions">
+                            <button type="button" class="btn-mobile-edit" data-id="${prod.id}">
+                                <i class="fa fa-edit"></i> <span>Editar</span>
+                            </button>
+                            <button type="button" class="btn-mobile-price" data-id="${prod.id}">
+                                <i class="fa fa-dollar-sign"></i> <span>Precio</span>
+                            </button>
+                            <button type="button" class="btn-mobile-delete" data-id="${prod.id}" title="Eliminar">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    mobileCardsContainer.appendChild(card);
+                }
             });
 
             // Re-initialize Lucide Icons for dynamic content
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
 
-            // Attach delete event listeners
-            const deleteButtons = tbody.querySelectorAll('.btn-delete');
-            deleteButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const prodId = btn.getAttribute('data-id');
-                    deleteProduct(prodId);
-                });
-            });
+            // Bind actions to cards and table
+            bindInventoryActionEvents(filteredProducts);
 
-            // Attach edit event listeners
-            const editButtons = tbody.querySelectorAll('.btn-edit');
-            editButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const prodId = btn.getAttribute('data-id');
-                    const prod = filteredProducts.find(p => p.id == prodId);
-                    if (prod) openEditModal(prod);
-                });
-            });
         } catch (err) {
             console.error('Error cargando inventario de Supabase:', err);
+            showAdminToast('Error cargando productos: ' + err.message, 'error');
         }
     }
 
+    function bindInventoryActionEvents(productsList) {
+        // Edit Full Modal
+        document.querySelectorAll('.btn-edit, .btn-mobile-edit').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const prodId = btn.getAttribute('data-id');
+                const prod = productsList.find(p => String(p.id) === String(prodId));
+                if (prod) openEditModal(prod);
+            });
+        });
+
+        // Quick Price Edit Modal
+        document.querySelectorAll('.btn-quick-price, .btn-mobile-price, .table-price').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const prodId = btn.getAttribute('data-id');
+                const prod = productsList.find(p => String(p.id) === String(prodId));
+                if (prod) openQuickPriceModal(prod);
+            });
+        });
+
+        // Delete Product
+        document.querySelectorAll('.btn-delete, .btn-mobile-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const prodId = btn.getAttribute('data-id');
+                deleteProduct(prodId);
+            });
+        });
+    }
+
+    // Filter listeners
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            renderInventory(e.target.value);
+        });
+    }
+
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', () => {
+            renderInventory(searchInput ? searchInput.value : '');
+        });
+    }
+
     // ==========================================
-    // EDIT PRODUCT LOGIC
+    // EDIT PRODUCT LOGIC (WITH IMAGE UPDATE)
     // ==========================================
     const editModal = document.getElementById('edit-product-modal');
     const closeEditBtn = document.getElementById('close-edit-modal');
+    const cancelEditBtn = document.getElementById('btn-cancel-edit-modal');
     const editForm = document.getElementById('edit-product-form');
-    
+    const editImgInput = document.getElementById('edit-prod-image-file');
+    const editImgPreview = document.getElementById('edit-prod-img-preview');
+    const editImgStatus = document.getElementById('edit-img-status');
+
+    let currentEditingProduct = null;
+    let newEditBase64Image = '';
+
     // Size selection for edit
     const editSizeButtons = document.querySelectorAll('.edit-size-btn');
     editSizeButtons.forEach(btn => {
@@ -404,23 +624,65 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    closeEditBtn.addEventListener('click', () => {
-        editModal.style.display = 'none';
-    });
+    if (editImgInput) {
+        editImgInput.addEventListener('change', () => {
+            const file = editImgInput.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    newEditBase64Image = e.target.result;
+                    if (editImgPreview) editImgPreview.src = newEditBase64Image;
+                    if (editImgStatus) {
+                        editImgStatus.textContent = '✓ Nueva imagen seleccionada';
+                        editImgStatus.style.color = '#10b981';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    function closeEditProductModal() {
+        if (editModal) editModal.style.display = 'none';
+        currentEditingProduct = null;
+        newEditBase64Image = '';
+        if (editImgInput) editImgInput.value = '';
+    }
+
+    if (closeEditBtn) closeEditBtn.addEventListener('click', closeEditProductModal);
+    if (cancelEditBtn) cancelEditBtn.addEventListener('click', closeEditProductModal);
 
     function openEditModal(prod) {
+        currentEditingProduct = prod;
+        newEditBase64Image = '';
+        if (editImgInput) editImgInput.value = '';
+
         document.getElementById('edit-prod-id').value = prod.id;
-        document.getElementById('edit-prod-name').value = prod.name;
-        document.getElementById('edit-prod-price').value = prod.price;
-        document.getElementById('edit-prod-desc').value = prod.description;
-        
+        document.getElementById('edit-prod-name').value = prod.name || '';
+        document.getElementById('edit-prod-price').value = prod.price || 0;
+        document.getElementById('edit-prod-desc').value = prod.description || '';
+
+        // Category dropdown
         const categorySelect = document.getElementById('edit-prod-category');
-        if([...categorySelect.options].some(opt => opt.value === prod.category)) {
-            categorySelect.value = prod.category;
-        } else {
-            categorySelect.value = 'COLECCIONES'; // Fallback
+        if (categorySelect) {
+            categorySelect.value = prod.category || 'COLECCIONES';
         }
 
+        // Image Preview
+        if (editImgPreview) {
+            let rawImg = prod.image || '';
+            if (rawImg.includes(',')) rawImg = rawImg.split(',')[0].trim();
+            const imgSrc = (rawImg && !rawImg.startsWith('data:') && !rawImg.startsWith('http'))
+                ? `../${rawImg}`
+                : (rawImg || '../assets/logo.jpg');
+            editImgPreview.src = imgSrc;
+        }
+        if (editImgStatus) {
+            editImgStatus.textContent = 'Mantener foto actual';
+            editImgStatus.style.color = '#64748b';
+        }
+
+        // Sizes
         editSizeButtons.forEach(btn => {
             if (prod.sizes && prod.sizes.includes(btn.getAttribute('data-size'))) {
                 btn.classList.add('active');
@@ -429,49 +691,119 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        editModal.style.display = 'flex';
+        if (editModal) editModal.style.display = 'flex';
     }
 
-    editForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('edit-prod-id').value;
-        
-        const activeSizes = [];
-        editSizeButtons.forEach(btn => {
-            if (btn.classList.contains('active')) activeSizes.push(btn.getAttribute('data-size'));
+    if (editForm) {
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-prod-id').value;
+
+            const activeSizes = [];
+            editSizeButtons.forEach(btn => {
+                if (btn.classList.contains('active')) activeSizes.push(btn.getAttribute('data-size'));
+            });
+
+            const updatedData = {
+                name: document.getElementById('edit-prod-name').value,
+                price: parseFloat(document.getElementById('edit-prod-price').value),
+                category: document.getElementById('edit-prod-category').value,
+                description: document.getElementById('edit-prod-desc').value,
+                sizes: activeSizes
+            };
+
+            // If a new image was uploaded, include it
+            if (newEditBase64Image) {
+                updatedData.image = newEditBase64Image;
+            }
+
+            const submitBtn = editForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Guardando...';
+            submitBtn.disabled = true;
+
+            try {
+                const { error } = await _supabase
+                    .from('products')
+                    .update(updatedData)
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                closeEditProductModal();
+                showAdminToast('¡Producto actualizado con éxito!', 'success');
+                await renderInventory(searchInput ? searchInput.value : '');
+            } catch (err) {
+                showAdminToast('Error al actualizar: ' + err.message, 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
         });
+    }
 
-        const updatedData = {
-            name: document.getElementById('edit-prod-name').value,
-            price: parseFloat(document.getElementById('edit-prod-price').value),
-            category: document.getElementById('edit-prod-category').value,
-            description: document.getElementById('edit-prod-desc').value,
-            sizes: activeSizes
-        };
+    // ==========================================
+    // QUICK PRICE EDIT MODAL LOGIC
+    // ==========================================
+    const quickPriceModal = document.getElementById('quick-price-modal');
+    const closeQuickPriceBtn = document.getElementById('close-quick-price-modal');
+    const cancelQuickPriceBtn = document.getElementById('btn-cancel-quick-price');
+    const quickPriceForm = document.getElementById('quick-price-form');
+    const quickPriceInput = document.getElementById('quick-price-input');
+    const quickPriceProdName = document.getElementById('quick-price-prod-name');
+    const quickPriceProdId = document.getElementById('quick-price-prod-id');
 
-        const submitBtn = editForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Guardando...';
-        submitBtn.disabled = true;
+    function openQuickPriceModal(prod) {
+        if (!quickPriceModal) return;
+        quickPriceProdId.value = prod.id;
+        quickPriceProdName.textContent = prod.name;
+        quickPriceInput.value = prod.price || 0;
+        quickPriceModal.style.display = 'flex';
+        setTimeout(() => quickPriceInput.focus(), 150);
+    }
 
-        try {
-            const { error } = await _supabase
-                .from('products')
-                .update(updatedData)
-                .eq('id', id);
+    function closeQuickPriceModal() {
+        if (quickPriceModal) quickPriceModal.style.display = 'none';
+    }
 
-            if (error) throw error;
-            
-            editModal.style.display = 'none';
-            renderInventory(searchInput.value);
-            alert('Producto actualizado correctamente.');
-        } catch (err) {
-            alert('Error actualizando producto: ' + err.message);
-        } finally {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }
-    });
+    if (closeQuickPriceBtn) closeQuickPriceBtn.addEventListener('click', closeQuickPriceModal);
+    if (cancelQuickPriceBtn) cancelQuickPriceBtn.addEventListener('click', closeQuickPriceModal);
+
+    if (quickPriceForm) {
+        quickPriceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = quickPriceProdId.value;
+            const newPrice = parseFloat(quickPriceInput.value);
+
+            if (isNaN(newPrice) || newPrice < 0) {
+                showAdminToast('Por favor introduce un precio válido.', 'error');
+                return;
+            }
+
+            const submitBtn = quickPriceForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Guardando...';
+            submitBtn.disabled = true;
+
+            try {
+                const { error } = await _supabase
+                    .from('products')
+                    .update({ price: newPrice })
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                closeQuickPriceModal();
+                showAdminToast(`¡Precio actualizado a RD$${newPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}!`, 'success');
+                await renderInventory(searchInput ? searchInput.value : '');
+            } catch (err) {
+                showAdminToast('Error actualizando precio: ' + err.message, 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
 
     async function deleteProduct(id) {
         if (confirm('¿Estás seguro de que deseas eliminar este producto de la base de datos?')) {
@@ -482,21 +814,54 @@ document.addEventListener('DOMContentLoaded', () => {
                     .eq('id', id);
 
                 if (error) throw error;
-                
-                renderInventory(searchInput.value);
+
+                showAdminToast('Producto eliminado de la base de datos.', 'info');
+                await renderInventory(searchInput ? searchInput.value : '');
             } catch (err) {
-                alert('Error eliminando el producto: ' + err.message);
+                showAdminToast('Error eliminando producto: ' + err.message, 'error');
             }
         }
     }
 
-    // Search filter keyup
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            renderInventory(e.target.value);
-        });
+    // ==========================================
+    // SUPABASE REALTIME SUBSCRIPTION
+    // ==========================================
+    function initRealtimeProducts() {
+        try {
+            const realtimeBadge = document.getElementById('realtime-status-badge');
+            _supabase
+                .channel('products-live-stream')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
+                    console.log('Realtime change received on products:', payload);
+                    const eventType = payload.eventType;
+                    let actionText = 'actualizado';
+                    if (eventType === 'INSERT') actionText = 'agregado';
+                    if (eventType === 'DELETE') actionText = 'eliminado';
+                    showAdminToast(`⚡ Cambio en tiempo real: Producto ${actionText}`, 'info');
+                    renderInventory(searchInput ? searchInput.value : '');
+                })
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        if (realtimeBadge) {
+                            realtimeBadge.classList.add('connected');
+                            const textEl = realtimeBadge.querySelector('.realtime-text');
+                            if (textEl) textEl.textContent = 'En tiempo real';
+                        }
+                    } else if (status === 'CHANNEL_ERROR') {
+                        if (realtimeBadge) {
+                            realtimeBadge.classList.remove('connected');
+                            const textEl = realtimeBadge.querySelector('.realtime-text');
+                            if (textEl) textEl.textContent = 'Reconectando...';
+                        }
+                    }
+                });
+        } catch (e) {
+            console.warn('Realtime subscription warning:', e);
+        }
     }
 
+    initRealtimeProducts();
+    
     // ==========================================
     // AJUSTES DE PASARELA DE PAGO LOGIC
     // ==========================================

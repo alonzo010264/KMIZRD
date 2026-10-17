@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Panel de Control - KMIZRD</title>
-    <link rel="stylesheet" href="../style.css?v=1.8">
+    <link rel="stylesheet" href="../style.css?v=2.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
@@ -59,8 +59,16 @@
     </div>
 
     <div class="admin-container">
+        <!-- Mobile Sidebar Backdrop -->
+        <div id="admin-mobile-backdrop" class="admin-mobile-backdrop"></div>
         <!-- Sidebar -->
-        <aside class="admin-sidebar" style="overflow-y:auto;">
+        <aside class="admin-sidebar" id="admin-sidebar" style="overflow-y:auto;">
+            <div class="admin-sidebar-mobile-bar">
+                <span class="sidebar-brand-title">KMIZRD ADMIN</span>
+                <button type="button" id="admin-sidebar-close-btn" class="admin-sidebar-close-btn" aria-label="Cerrar menú">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
             <div class="admin-logo-wrapper">
                 <img src="../assets/logo.jpg" alt="KMIZRD Logo" class="admin-logo-img">
             </div>
@@ -102,10 +110,29 @@
         <main class="admin-main">
             <!-- Header -->
             <header class="admin-header">
-                <h2>Panel de Administración</h2>
-                <div class="admin-profile">
-                    <span>Administrador</span>
-                    <div class="admin-avatar"><i data-lucide="user"></i></div>
+                <div class="admin-header-left">
+                    <button type="button" id="admin-mobile-toggle-btn" class="admin-mobile-toggle-btn" aria-label="Abrir menú">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <div class="admin-header-title-wrap">
+                        <h2>Panel de Administración</h2>
+                        <div class="admin-header-status-row">
+                            <div id="realtime-status-badge" class="realtime-status-badge connected" title="Sincronización en vivo con Supabase">
+                                <span class="realtime-dot"></span>
+                                <span class="realtime-text">En tiempo real</span>
+                            </div>
+                            <span id="products-total-count" class="products-quick-counter">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-header-right">
+                    <button type="button" id="admin-refresh-btn" class="admin-header-refresh-btn" title="Actualizar inventario ahora">
+                        <i class="fa fa-sync-alt"></i> <span class="refresh-btn-text">Actualizar</span>
+                    </button>
+                    <div class="admin-profile">
+                        <span class="admin-profile-name">Administrador</span>
+                        <div class="admin-avatar"><i data-lucide="user"></i></div>
+                    </div>
                 </div>
             </header>
 
@@ -131,11 +158,16 @@
                                     <div class="form-group">
                                         <label for="prod-category">Categoría *</label>
                                         <select id="prod-category" required>
+                                            <option value="COLECCIONES">Catálogo Digital (Colecciones)</option>
                                             <option value="CAMISETAS">Camisetas</option>
-                                            <option value="HOODIES">Hoodies</option>
-                                            <option value="ACCESORIOS">Accesorios</option>
-                                            <option value="BOLSAS">Bolsas</option>
-                                            <option value="COLECCIONES">Colecciones</option>
+                                            <option value="OVERSIZE">Camisetas Oversize</option>
+                                            <option value="HOODIES">Hoodies / Abrigos</option>
+                                            <option value="POLOS">Polos</option>
+                                            <option value="ACCESORIOS">Gorras y Accesorios</option>
+                                            <option value="BOLSAS">Bolsas Ecológicas</option>
+                                            <option value="NOVEDADES">Nuevos Lanzamientos (Novedades)</option>
+                                            <option value="OFERTAS">Ofertas Especiales</option>
+                                            <option value="OTROS">Otros / Personalizados</option>
                                         </select>
                                     </div>
                                 </div>
@@ -186,34 +218,65 @@
             <!-- Manage Inventory Section -->
             <section id="manage-section" class="admin-content-section">
                 <div class="admin-card">
-                    <div class="admin-card-header">
-                        <h3>Inventario de Productos</h3>
-                        <div class="search-bar">
-                            <i data-lucide="search"></i>
-                            <input type="text" id="admin-search-input" placeholder="Buscar por nombre o categoría...">
+                    <div class="admin-card-header admin-inventory-header">
+                        <div class="inventory-header-info">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <h3>Inventario de Productos</h3>
+                                <span id="inventory-counter-badge" class="inventory-counter-badge">Cargando...</span>
+                            </div>
+                            <p class="card-subtitle">Consulta, edita en tiempo real o elimina los productos existentes en la tienda.</p>
+                        </div>
+                        <div class="inventory-actions-bar">
+                            <div class="search-bar">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="admin-search-input" placeholder="Buscar por nombre o precio...">
+                            </div>
+                            <select id="admin-category-filter" class="admin-category-filter" aria-label="Filtrar por categoría">
+                                <option value="ALL">Todas las Categorías</option>
+                                <option value="COLECCIONES">Catálogo Digital</option>
+                                <option value="CAMISETAS">Camisetas</option>
+                                <option value="OVERSIZE">Oversize</option>
+                                <option value="HOODIES">Hoodies</option>
+                                <option value="POLOS">Polos</option>
+                                <option value="ACCESORIOS">Accesorios</option>
+                                <option value="BOLSAS">Bolsas</option>
+                                <option value="NOVEDADES">Novedades</option>
+                                <option value="OFERTAS">Ofertas</option>
+                                <option value="OTROS">Otros</option>
+                            </select>
+                            <button type="button" id="btn-quick-new-prod" class="admin-btn btn-primary btn-sm">
+                                <i class="fa fa-plus"></i> <span class="hide-mobile-sm">Nuevo Producto</span>
+                            </button>
                         </div>
                     </div>
                     
-                    <div class="table-responsive">
+                    <!-- Desktop Table View (>=769px) -->
+                    <div class="table-responsive admin-desktop-table-wrap">
                         <table class="admin-table">
                             <thead>
                                 <tr>
-                                    <th>Imagen</th>
+                                    <th style="width: 80px;">Imagen</th>
                                     <th>Producto</th>
                                     <th>Categoría</th>
                                     <th>Precio</th>
                                     <th>Tallas</th>
-                                    <th>Acciones</th>
+                                    <th style="text-align: center; width: 140px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="admin-products-tbody">
                                 <!-- Dynamic rows go here -->
                             </tbody>
                         </table>
-                        <div id="no-products-msg" class="empty-state" style="display:none;">
-                            <i data-lucide="package-open"></i>
-                            <p>No hay productos subidos todavía.</p>
-                        </div>
+                    </div>
+
+                    <!-- Mobile Card View (<=768px) -->
+                    <div id="admin-products-cards" class="admin-products-cards">
+                        <!-- Dynamic mobile product cards go here -->
+                    </div>
+
+                    <div id="no-products-msg" class="empty-state" style="display:none;">
+                        <i data-lucide="package-open"></i>
+                        <p>No se encontraron productos con los filtros aplicados.</p>
                     </div>
                 </div>
             </section>
@@ -529,29 +592,49 @@
                 
                 <div class="form-group">
                     <label for="edit-prod-name">Nombre del Producto *</label>
-                    <input type="text" id="edit-prod-name" required>
+                    <input type="text" id="edit-prod-name" required placeholder="Nombre descriptivo">
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="edit-prod-price">Precio (RD$) *</label>
-                        <input type="number" id="edit-prod-price" step="0.01" min="0" required>
+                        <input type="number" id="edit-prod-price" step="0.01" min="0" required placeholder="0.00">
                     </div>
                     <div class="form-group">
                         <label for="edit-prod-category">Categoría *</label>
                         <select id="edit-prod-category" required>
-                            <option value="CAMISETAS">Camisetas</option>
-                            <option value="HOODIES">Hoodies</option>
-                            <option value="ACCESORIOS">Accesorios</option>
-                            <option value="BOLSAS">Bolsas</option>
                             <option value="COLECCIONES">Catálogo Digital (Colecciones)</option>
+                            <option value="CAMISETAS">Camisetas</option>
+                            <option value="OVERSIZE">Camisetas Oversize</option>
+                            <option value="HOODIES">Hoodies / Abrigos</option>
+                            <option value="POLOS">Polos</option>
+                            <option value="ACCESORIOS">Gorras y Accesorios</option>
+                            <option value="BOLSAS">Bolsas Ecológicas</option>
+                            <option value="NOVEDADES">Nuevos Lanzamientos (Novedades)</option>
+                            <option value="OFERTAS">Ofertas Especiales</option>
+                            <option value="OTROS">Otros / Personalizados</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- Product Image Edit & Preview -->
+                <div class="form-group">
+                    <label>Imagen del Producto</label>
+                    <div class="edit-img-preview-box">
+                        <img id="edit-prod-img-preview" src="../assets/logo.jpg" alt="Vista previa" class="edit-prod-thumb">
+                        <div class="edit-img-actions">
+                            <label for="edit-prod-image-file" class="admin-btn btn-secondary btn-sm" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fa fa-camera"></i> <span>Cambiar Foto</span>
+                            </label>
+                            <input type="file" id="edit-prod-image-file" accept="image/*" style="display: none;">
+                            <span id="edit-img-status" class="edit-img-hint">Mantener foto actual</span>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="edit-prod-desc">Descripción del Producto *</label>
-                    <textarea id="edit-prod-desc" required style="min-height: 80px;"></textarea>
+                    <textarea id="edit-prod-desc" required style="min-height: 80px;" placeholder="Detalles de la prenda..."></textarea>
                 </div>
                 
                 <div class="form-group" style="margin-top: 15px;">
@@ -567,8 +650,9 @@
                     </div>
                 </div>
                 
-                <div class="form-actions" style="margin-top: 25px;">
-                    <button type="submit" class="admin-btn btn-primary"><i class="fa fa-save"></i> Guardar Cambios</button>
+                <div class="form-actions" style="margin-top: 25px; display: flex; gap: 12px;">
+                    <button type="submit" class="admin-btn btn-primary" style="flex: 1;"><i class="fa fa-save"></i> Guardar Cambios</button>
+                    <button type="button" id="btn-cancel-edit-modal" class="admin-btn btn-secondary">Cancelar</button>
                 </div>
             </form>
         </div>
@@ -628,10 +712,34 @@
 
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../admin.js?v=1.3"></script>
+    <script src="../admin.js?v=2.0"></script>
     <script>
         lucide.createIcons();
     </script>
+
+    <!-- Quick Price Edit Modal -->
+    <div id="quick-price-modal" class="admin-login-overlay" style="display: none; z-index: 1050;">
+        <div class="admin-card quick-price-card" style="width: 90%; max-width: 440px; margin: auto; position: relative;">
+            <button type="button" id="close-quick-price-modal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b;"><i class="fa fa-times"></i></button>
+            <h3 style="margin-bottom: 5px;"><i class="fa fa-tag" style="color: var(--accent-color);"></i> Modificar Precio Rápido</h3>
+            <p id="quick-price-prod-name" class="card-subtitle" style="margin-bottom: 15px; font-weight: 700; color: #0f172a;"></p>
+            <form id="quick-price-form" class="admin-form">
+                <input type="hidden" id="quick-price-prod-id">
+                <div class="form-group">
+                    <label for="quick-price-input">Nuevo Precio (RD$) *</label>
+                    <input type="number" id="quick-price-input" step="0.01" min="0" required placeholder="0.00" style="font-size: 20px; font-weight: 800; color: #0272ba; padding: 12px 16px;">
+                </div>
+                <div class="form-actions" style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button type="submit" class="admin-btn btn-primary" style="flex: 1;"><i class="fa fa-check"></i> Actualizar Precio</button>
+                    <button type="button" id="btn-cancel-quick-price" class="admin-btn btn-secondary">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Floating Toast Notification Container -->
+    <div id="admin-toast-container" class="admin-toast-container"></div>
+
 </body>
 </html>
 
