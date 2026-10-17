@@ -25,7 +25,10 @@ if (!window.location.hash || window.location.hash === '#') {
     let colorMap = {};
 
     function getBaseName(name) {
-        if (name.toLowerCase().startsWith('camiseta oversize') && CATEGORY !== 'COLECCIONES') return name;
+        if (!name) return '';
+        const lower = name.toLowerCase();
+        if (lower.includes('abrigo') || lower.includes('hoodie')) return name;
+        if (lower.startsWith('camiseta oversize') && CATEGORY !== 'COLECCIONES') return name;
         if (CATEGORY === 'OVERSIZE' || CATEGORY === 'HOODIES') return name;
         return name.replace(/[-_]\d{2,}$/, '').replace(/\s+\d+$/, '').trim();
     }
@@ -400,7 +403,7 @@ if (!window.location.hash || window.location.hash === '#') {
         if (!grid) return;
 
         // Instant render from session cache if available
-        const cacheKey = 'kmizrd_cache_cat_' + CATEGORY;
+        const cacheKey = 'kmizrd_cache_cat_v3_' + CATEGORY;
         let renderedFromCache = false;
         try {
             const cached = sessionStorage.getItem(cacheKey);
@@ -429,6 +432,8 @@ if (!window.location.hash || window.location.hash === '#') {
             if (CATEGORY) {
                 if (CATEGORY === 'CAMISETAS' || CATEGORY === 'CAMISETA') {
                     query = query.or('category.ilike.%COLECCION%,category.ilike.%OVERSIZE%,category.ilike.%CAMISETA%');
+                } else if (CATEGORY === 'COLECCIONES' || CATEGORY === 'CATALOGO') {
+                    query = query.or('category.ilike.%COLECCION%,category.ilike.%HOODIE%,category.ilike.%OVERSIZE%');
                 } else {
                     query = query.ilike('category', `%${CATEGORY.toLowerCase().replace('hoodies','hoodie').replace('accesorios','accesorio').replace('colecciones','coleccion').replace('novedades','nuevo').replace('ofertas','oferta')}%`);
                 }

@@ -52,6 +52,10 @@ let galleryIndex = 0;
 let colorMap = {};
 
 function getBaseName(name) {
+    if (!name) return '';
+    const lower = name.toLowerCase();
+    if (lower.includes('abrigo') || lower.includes('hoodie')) return name;
+    if (lower.startsWith('camiseta oversize')) return name;
     return name.replace(/[-_]\d{2,}$/, '').replace(/\s+\d+$/, '').trim();
 }
 
@@ -176,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadProducts() {
         if (!productGrid) return;
 
-        const cacheKey = 'kmizrd_cache_home_products';
+        const cacheKey = 'kmizrd_cache_home_products_v3';
         let renderedFromCache = false;
 
         // 1. Instant display from sessionStorage if valid (< 5 min)
@@ -283,8 +287,24 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Curate featured products for the home page (maximum 6 prominent items)
-        const featuredProducts = allProducts.slice(0, 6);
+        // Curate featured products for the home page (balanced mix including abrigos and oversize)
+        const featuredProducts = [];
+        const hoodies = allProducts.filter(p => (p.category || '').toUpperCase() === 'HOODIES' || (p.name || '').toLowerCase().includes('abrigo'));
+        const oversize = allProducts.filter(p => (p.category || '').toUpperCase() === 'OVERSIZE');
+        const others = allProducts.filter(p => !hoodies.includes(p) && !oversize.includes(p));
+
+        if (hoodies.length > 0) featuredProducts.push(...hoodies.slice(0, 2));
+        if (oversize.length > 0) featuredProducts.push(...oversize.slice(0, 2));
+        if (others.length > 0) featuredProducts.push(...others.slice(0, 2));
+
+        if (featuredProducts.length < 6) {
+            allProducts.forEach(p => {
+                if (!featuredProducts.includes(p) && featuredProducts.length < 6) {
+                    featuredProducts.push(p);
+                }
+            });
+        }
+
         featuredProducts.forEach(prod => {
             const card = document.createElement('div');
             card.className = 'product-card';
@@ -296,12 +316,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `<span class="badge sale">-20%</span>` 
                 : `<span class="badge">NUEVO</span>`;
             
-            const catLower = (prod.category || '').toLowerCase();
-            const isColeccionCard = catLower === 'colección' || catLower === 'colecciones' || catLower === 'coleccion';
+            const numPrice = parseNumericPrice(prod.price);
             const priceHTML = isDiscount
                 ? `<span class="old-price">RD$1,500.00</span> RD$1,200.00`
-                : isColeccionCard
-                    ? prod.price
+                : numPrice > 0
+                    ? (prod.price.toString().startsWith('RD$') ? prod.price : `RD$${numPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}`)
                     : `<span style="font-size:13px;font-weight:700;color:#64748b;font-style:italic;">Precio por cotizar</span>`;
 
             let imageHTML = '';
