@@ -264,7 +264,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        allProducts.forEach(prod => {
+        // Curate featured products for the home page (maximum 6 prominent items)
+        const featuredProducts = allProducts.slice(0, 6);
+        featuredProducts.forEach(prod => {
             const card = document.createElement('div');
             card.className = 'product-card';
             card.setAttribute('data-id', prod.id);
