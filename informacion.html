@@ -34,16 +34,7 @@
                 <button class="mobile-menu-close" aria-label="Cerrar"><i data-lucide="x"></i></button>
             </div>
             <a href="./">INICIO</a>
-            <div class="dropdown">
-                <a href="#" class="dropdown-trigger">ARTÍCULOS PERSONALIZADOS <i class="fa fa-chevron-down"></i></a>
-                <div class="dropdown-menu">
-                    <a href="camisetas/">Camisetas</a>
-                    <a href="hoodies/">Abrigos</a>
-                    <a href="accesorios/">Gorras</a>
-                    <a href="polos/">Polos</a>
-                    <a href="otros/">Otros</a>
-                </div>
-            </div>
+            
             <div class="dropdown">
                 <a href="#" class="dropdown-trigger">KOLECCION KMIZ <i class="fa fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
@@ -54,7 +45,7 @@
                 </div>
             </div>
             <a href="informacion.html" class="active">INFORMACIÓN</a>
-            <a href="#" class="nav-custom-item" data-product-name="Prenda Personalizada" data-product-cat="PERSONALIZACIÓN" data-product-img="assets/logo.jpg" style="border:1px solid rgba(255,255,255,0.4); padding: 5px 15px; border-radius: 4px;">CREA TU PEDIDO</a>
+            <a href="#" class="nav-custom-item" data-product-name="Prenda Personalizada" data-product-cat="CAMISETAS"  style="border:1px solid rgba(255,255,255,0.4); padding: 5px 15px; border-radius: 4px;">CREA TU PEDIDO</a>
         </nav>
         <div class="nav-icons">
             <button aria-label="Search"><i data-lucide="search"></i></button>
@@ -287,18 +278,18 @@
         </div>
     </footer>
 
-    <!-- Personalization Modal -->
+        <!-- Personalization Modal -->
     <div id="personalization-modal" class="modal-overlay">
-        <div class="modal-container" style="max-width: 780px; padding: 0; overflow: hidden; border-radius: 20px;">
-            <div style="display: grid; grid-template-columns: 220px 1fr;">
+        <div class="modal-container personalization-modal-container" style="max-width: 780px; padding: 0; overflow: hidden; border-radius: 20px;">
+            <div class="personalization-grid" style="display: grid; grid-template-columns: 220px 1fr;">
                 <!-- Left: Product Preview -->
                 <div style="background: #0f172a; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 30px 20px;">
                     <div style="position: relative; width: 100%; max-height: 180px; aspect-ratio: 1.2; display: flex; justify-content: center; align-items: center; border-radius: 12px; overflow: hidden; background: #1e293b; margin-bottom: 16px;">
-                        <img id="custom-modal-product-img" src="" alt="Producto" style="width: 100%; height: 100%; object-fit: contain;">
+                        <img id="custom-modal-product-img" src="assets/plain_tshirt.png" alt="Producto" style="width: 100%; height: 100%; object-fit: contain;">
                         <div id="custom-modal-product-overlay" style="position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; transition: all 0.3s; background-color: transparent;"></div>
                     </div>
                     <div style="text-align: center; width: 100%; margin-bottom: 15px;">
-                        <span id="custom-modal-product-cat" style="font-size: 10px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">CATEGORÍA</span>
+                        <span id="custom-modal-product-cat" style="font-size: 10px; font-weight: 800; color: var(--accent-color, #0272ba); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">CATEGORÍA</span>
                         <select id="custom-modal-cat-select" style="width: 100%; padding: 7px 10px; font-size: 11px; font-weight: 800; color: #38bdf8; background: #1e293b; border: 1px solid #38bdf8; border-radius: 6px; margin-bottom: 8px; cursor: pointer; text-transform: uppercase;">
                             <option value="CAMISETAS">Camisetas</option>
                             <option value="ABRIGOS">Abrigos</option>
@@ -316,7 +307,7 @@
                         </select>
                         <div id="custom-modal-sizes-label" style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">TALLAS DISPONIBLES</div>
                         <div id="custom-modal-sizes" style="display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
-                            <button type="button" class="custom-size-btn active" style="font-size: 10px; padding: 4px 8px; border: 1px solid var(--accent-color); background: var(--accent-color); color: #0f172a; font-weight: 700; border-radius: 4px; cursor: pointer;">XS</button>
+                            <button type="button" class="custom-size-btn active" style="font-size: 10px; padding: 4px 8px; border: 1px solid var(--accent-color, #0272ba); background: var(--accent-color, #0272ba); color: #0f172a; font-weight: 700; border-radius: 4px; cursor: pointer;">XS</button>
                             <button type="button" class="custom-size-btn" style="font-size: 10px; padding: 4px 8px; border: 1px solid #475569; background: transparent; color: #fff; border-radius: 4px; cursor: pointer;">S</button>
                             <button type="button" class="custom-size-btn" style="font-size: 10px; padding: 4px 8px; border: 1px solid #475569; background: transparent; color: #fff; border-radius: 4px; cursor: pointer;">M</button>
                             <button type="button" class="custom-size-btn" style="font-size: 10px; padding: 4px 8px; border: 1px solid #475569; background: transparent; color: #fff; border-radius: 4px; cursor: pointer;">L</button>
@@ -365,7 +356,7 @@
                         </div>
                         
                         <!-- Cantidad y Size Type -->
-                        <div style="margin-bottom: 18px; display: flex; gap: 10px; align-items: center; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; background: #f8fafc;">
+                        <div class="custom-qty-row" style="margin-bottom: 18px; display: flex; gap: 10px; align-items: center; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; background: #f8fafc; flex-wrap: wrap;">
                             <div style="flex-shrink: 0; display: flex; align-items: center; gap: 8px;">
                                 <label style="font-size: 11px; font-weight: 800; color: #ef4444;">CANTIDAD*</label>
                                 <input type="number" id="custom-quantity" value="1" min="1" style="width: 60px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; text-align: center;" required>
@@ -381,7 +372,7 @@
                         </div>
 
                         <!-- Name & Phone -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
+                        <div class="custom-contact-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
                             <div>
                                 <label for="custom-name" style="font-size: 12px; font-weight: 700; color: #475569; display: block; margin-bottom: 6px;">TU NOMBRE *</label>
                                 <input type="text" id="custom-name" placeholder="Juan Pérez" style="width: 100%; padding: 11px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; box-sizing: border-box;" required>

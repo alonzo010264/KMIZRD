@@ -1888,36 +1888,49 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'CAMISETAS';
     }
 
-    function setupCustomModalForCategory(catKey, selectedTypeName) {
-        const resolvedKey = resolveCustomCategory(catKey);
-        const config = CUSTOM_CATALOG[resolvedKey] || CUSTOM_CATALOG['CAMISETAS'];
+    function openPersonalizationModal(product, size) {
+        if (!product) product = { category: 'CAMISETAS', name: 'Prenda Personalizada' };
+        const catKey = resolveCustomCategory(product.category || product.product_type);
+        const config = CUSTOM_CATALOG[catKey] || CUSTOM_CATALOG['CAMISETAS'];
+
+        let resolvedImg = product.image;
+        if (!resolvedImg || resolvedImg.includes('logo.jpg') || resolvedImg.includes('logo.png')) {
+            resolvedImg = config.image;
+        }
+
+        const chosenName = product.name || config.types[0];
+        customCurrentProduct = {
+            name: chosenName,
+            category: config.label,
+            image: resolvedImg
+        };
+        customCurrentSize = size || (product.sizes && product.sizes[0]) || config.sizes[0] || 'Única';
 
         const catSelect = document.getElementById('custom-modal-cat-select');
-        if (catSelect) catSelect.value = resolvedKey;
+        if (catSelect) catSelect.value = catKey;
 
         const catSpan = document.getElementById('custom-modal-product-cat');
         if (catSpan) catSpan.textContent = config.label.toUpperCase();
 
         const imgEl = document.getElementById('custom-modal-product-img');
-        if (imgEl) imgEl.src = config.image;
+        if (imgEl) imgEl.src = resolvedImg;
 
         const typeSelect = document.getElementById('custom-modal-type-select');
         if (typeSelect) {
             typeSelect.innerHTML = config.types.map(t =>
-                `<option value="${t}" ${t === selectedTypeName ? 'selected' : ''}>${t}</option>`
+                `<option value="${t}" ${t === chosenName ? 'selected' : ''}>${t}</option>`
             ).join('');
         }
 
-        const chosenType = (typeSelect && typeSelect.value) ? typeSelect.value : (selectedTypeName || config.types[0]);
         const modalName = document.getElementById('custom-modal-product-name');
-        if (modalName) modalName.textContent = chosenType;
+        if (modalName) modalName.textContent = chosenName;
 
         const sizesContainer = document.getElementById('custom-modal-sizes');
         if (sizesContainer) {
-            sizesContainer.innerHTML = config.sizes.map((s, idx) =>
-                `<button type="button" class="custom-size-btn ${idx === 0 ? 'active' : ''}" style="font-size: 10px; padding: 4px 8px; border: 1px solid ${idx === 0 ? 'var(--accent-color)' : '#475569'}; background: ${idx === 0 ? 'var(--accent-color)' : 'transparent'}; color: ${idx === 0 ? '#0f172a' : '#fff'}; font-weight: 700; border-radius: 4px; cursor: pointer;">${s}</button>`
-            ).join('');
-            customCurrentSize = config.sizes[0] || 'Única';
+            sizesContainer.innerHTML = config.sizes.map((s, idx) => {
+                const isActive = (s === customCurrentSize) || (!size && idx === 0);
+                return `<button type="button" class="custom-size-btn ${isActive ? 'active' : ''}" style="font-size: 10px; padding: 4px 8px; border: 1px solid ${isActive ? 'var(--accent-color)' : '#475569'}; background: ${isActive ? 'var(--accent-color)' : 'transparent'}; color: ${isActive ? '#0f172a' : '#fff'}; font-weight: 700; border-radius: 4px; cursor: pointer;">${s}</button>`;
+            }).join('');
 
             sizesContainer.querySelectorAll('.custom-size-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1936,31 +1949,50 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        customCurrentProduct = {
-            name: chosenType,
-            category: config.label,
-            image: config.image
-        };
-        customBase64Image = config.image;
+        // Reset color picker
+        const customColorsContainer = document.getElementById('custom-colors');
+        if (customColorsContainer) {
+            customColorsContainer.querySelectorAll('.color-circle').forEach(b => b.classList.remove('active'));
+            const firstColor = customColorsContainer.querySelector('.color-circle');
+            if (firstColor) firstColor.classList.add('active');
+        }
+        
+        // Reset preview color overlay
+        const overlay = document.getElementById('custom-modal-product-overlay');
+        if (overlay) overlay.style.backgroundColor = 'transparent';
 
-        const previewImg = document.getElementById('custom-image-preview');
-        const previewCont = document.getElementById('custom-image-preview-container');
-        const customDragArea = document.getElementById('custom-drag-area');
-        if (previewImg) previewImg.src = config.image;
+        // Reset description
+        const descTextarea = document.getElementById('custom-desc');
+        if (descTextarea) descTextarea.value = '';
+
+        // Reset user reference image upload box (NEVER put logo or garment image in it!)
+        customBase64Image = '';
+        if (customPreviewImage) customPreviewImage.src = '';
+        if (customFileInput) customFileInput.value = '';
         if (customDragArea) {
             const di = customDragArea.querySelector('.drag-icon');
             const dt = customDragArea.querySelector('.drag-text');
-            if (di) di.style.display = 'none';
-            if (dt) dt.style.display = 'none';
+            if (di) di.style.display = '';
+            if (dt) dt.style.display = '';
         }
-        if (previewCont) previewCont.style.display = 'flex';
+        if (customPreviewContainer) customPreviewContainer.style.display = 'none';
+
+        if (personalizationModal) {
+            personalizationModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function setupCustomModalForCategory(catKey, selectedTypeName) {
+        openPersonalizationModal({ category: catKey, name: selectedTypeName });
     }
 
     // Modal Category & Type Select Change Listeners
     const modalCatSelect = document.getElementById('custom-modal-cat-select');
     if (modalCatSelect) {
         modalCatSelect.addEventListener('change', (e) => {
-            setupCustomModalForCategory(e.target.value);
+            openPersonalizationModal({ category: e.target.value });
         });
     }
 
@@ -1979,30 +2011,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const cat = item.getAttribute('data-product-cat') || 'CAMISETAS';
             const name = item.getAttribute('data-product-name') || '';
-
-            const personalizationModal = document.getElementById('personalization-modal');
-            if (personalizationModal) {
-                setupCustomModalForCategory(cat, name);
-
-                // Reset color picker
-                const customColorsContainer = document.getElementById('custom-colors');
-                if (customColorsContainer) {
-                    customColorsContainer.querySelectorAll('.color-circle').forEach(b => b.classList.remove('active'));
-                    const firstColor = customColorsContainer.querySelector('.color-circle');
-                    if (firstColor) firstColor.classList.add('active');
-                }
-                
-                // Reset preview color overlay
-                const overlay = document.getElementById('custom-modal-product-overlay');
-                if (overlay) overlay.style.backgroundColor = 'transparent';
-
-                // Reset description
-                const descTextarea = document.getElementById('custom-desc');
-                if (descTextarea) descTextarea.value = '';
-
-                personalizationModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
+            const img = item.getAttribute('data-product-img') || '';
+            openPersonalizationModal({ name, category: cat, image: img });
         });
     });
 
@@ -2158,16 +2168,21 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Enviando...';
 
             // Use product context stored when the modal was opened
-            const prodType = customCurrentProduct ? customCurrentProduct.category : 'Personalizado';
+            const prodType = customCurrentProduct ? customCurrentProduct.category : 'Camisetas';
+            const prodName = customCurrentProduct ? customCurrentProduct.name : 'Prenda Personalizada';
             const size = customCurrentSize || 'Única';
             const activeColorBtn = customColorsContainer ? customColorsContainer.querySelector('.color-circle.active') : null;
             const color = activeColorBtn ? activeColorBtn.getAttribute('data-color') : 'Negro';
-            const desc = document.getElementById('custom-desc').value;
-            const name = document.getElementById('custom-name').value;
-            const phone = document.getElementById('custom-phone').value;
-            const email = document.getElementById('custom-email').value;
-            const productName = customCurrentProduct ? customCurrentProduct.name : '';
-            const referenceImage = customBase64Image || (customCurrentProduct ? customCurrentProduct.image : '');
+            const qtyInput = document.getElementById('custom-quantity');
+            const quantity = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
+            const sizeTypeRadio = document.querySelector('input[name="size_type"]:checked');
+            const sizeType = sizeTypeRadio ? sizeTypeRadio.value : 'mismo';
+            const sizeTypeLabel = sizeType === 'mismo' ? 'Mismo size' : 'Diferente size';
+            const desc = (document.getElementById('custom-desc')?.value || '').trim();
+            const name = (document.getElementById('custom-name')?.value || '').trim();
+            const phone = (document.getElementById('custom-phone')?.value || '').trim();
+            const email = (document.getElementById('custom-email')?.value || '').trim();
+            const referenceImage = customBase64Image || '';
 
             try {
                 const { error } = await _supabase
@@ -2177,17 +2192,31 @@ document.addEventListener('DOMContentLoaded', () => {
                         customer_phone: phone,
                         customer_email: email,
                         product_type: prodType,
-                        product_name: productName,
+                        product_name: prodName,
                         color: color,
                         size: size,
-                        description: desc,
+                        description: `[Cantidad: ${quantity} | Modalidad: ${sizeTypeLabel}] ${desc}`,
                         reference_image: referenceImage,
                         status: 'pending'
                     }]);
 
-                if (error) throw error;
+                if (error) console.warn('Supabase custom_requests insert note:', error);
 
-                alert('¡Tu solicitud de personalización ha sido enviada con éxito! Nuestro equipo revisará el diseño y te contactará pronto.');
+                // Build WhatsApp message
+                const whatsappMsg = `¡Hola KMIZRD! Quiero solicitar una personalización:%0A%0A` +
+                    `*Prenda:* ${prodName} (${prodType})%0A` +
+                    `*Color:* ${color}%0A` +
+                    `*Talla:* ${size}%0A` +
+                    `*Cantidad:* ${quantity} (${sizeTypeLabel})%0A` +
+                    `*Detalles:* ${desc || 'Sin detalles adicionales'}%0A` +
+                    `*Cliente:* ${name}%0A` +
+                    `*Teléfono:* ${phone}` +
+                    (email ? `%0A*Email:* ${email}` : '');
+
+                const targetNumber = (typeof storeWhatsAppNumber !== 'undefined' && storeWhatsAppNumber) ? storeWhatsAppNumber : '18090000000';
+                window.open(`https://wa.me/${targetNumber}?text=${whatsappMsg}`, '_blank');
+
+                alert('¡Tu solicitud de personalización ha sido generada con éxito! Se abrirá WhatsApp para coordinar tu diseño.');
 
                 // Close modal and reset
                 if (personalizationModal) {

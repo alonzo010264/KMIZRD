@@ -443,7 +443,8 @@
     .custom-items-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 
     /* Personalization Modal on Category Pages */
-    #personalization-modal .modal-container {
+    #personalization-modal .modal-container,
+    .personalization-modal-container {
         width: 94% !important;
         max-width: 94% !important;
         max-height: 90vh !important;
@@ -454,18 +455,39 @@
     }
 
     #personalization-modal .modal-container > div[style*="grid-template-columns"],
-    #personalization-modal .personalization-grid {
+    #personalization-modal .personalization-grid,
+    .personalization-grid {
         grid-template-columns: 1fr !important;
         display: flex !important;
         flex-direction: column !important;
     }
 
-    #personalization-modal .modal-container > div > div:first-child {
+    #personalization-modal .modal-container > div > div:first-child,
+    .personalization-grid > div:first-child {
         padding: 22px 16px !important;
     }
 
-    #personalization-modal .modal-container > div > div:last-child {
+    #personalization-modal .modal-container > div > div:last-child,
+    .personalization-grid > div:last-child {
         padding: 24px 16px !important;
+    }
+
+    #personalization-modal .custom-contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    #personalization-modal .custom-qty-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+
+    #personalization-modal .custom-qty-row > div:last-child {
+        margin-left: 0 !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: space-between !important;
     }
 }
 
