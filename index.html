@@ -200,13 +200,26 @@
             </div>
         </section>
 
-        <!-- Premium Product Showcase (Interactive Scroll-Driven Video) -->
-        <section class="premium-showcase" id="premium-showcase" aria-label="Sección Interactiva Poloches Premium">
+        <!-- Premium Product Showcase (Interactive 3D Three.js Poloche) -->
+        <section class="premium-showcase" id="premium-showcase" aria-label="Sección Interactiva Poloche 3D">
             <div class="premium-sticky-container">
-                <!-- Video Container (Left & Center Protagonists) -->
-                <div class="premium-video-wrapper">
-                    <video id="premium-scroll-video" class="premium-video" src="assets/poloches_premium.mp4" muted playsinline preload="none" tabindex="-1"></video>
-                    <div class="premium-video-overlay"></div>
+                <!-- 3D Three.js Canvas Container (Left / Center Stage) -->
+                <div class="premium-3d-wrapper" id="premium-3d-wrapper">
+                    <canvas id="poloche-3d-canvas" class="poloche-3d-canvas"></canvas>
+                    
+                    <!-- 3D Rotate Hint Badge -->
+                    <div class="poloche-3d-hint" id="poloche-3d-hint" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                        </svg>
+                        <span>Gira 360° en 3D</span>
+                    </div>
+
+                    <!-- Loader Spinner -->
+                    <div class="poloche-3d-loader" id="poloche-3d-loader">
+                        <div class="poloche-spinner"></div>
+                        <span>Cargando 3D...</span>
+                    </div>
                 </div>
 
                 <!-- Right Side HTML/CSS Content Overlay -->
@@ -214,6 +227,19 @@
                     <div class="premium-content-inner">
                         <span class="premium-tag" id="ps-tag">POLOCHES PREMIUM</span>
                         <h2 class="premium-heading" id="ps-heading">Diseños que hablan por ti</h2>
+
+                        <!-- Interactive 3D Color Picker -->
+                        <div class="poloche-color-picker" id="ps-color-picker" aria-label="Selecciona un color para el poloche 3D">
+                            <span class="color-picker-label">Color en 3D:</span>
+                            <div class="color-options">
+                                <button type="button" class="color-swatch active" data-color="#0e131f" data-name="Negro Onix" title="Negro Onix" style="--swatch-color: #0e131f;" aria-label="Negro Onix"></button>
+                                <button type="button" class="color-swatch" data-color="#f8fafc" data-name="Blanco Puro" title="Blanco Puro" style="--swatch-color: #f8fafc;" aria-label="Blanco Puro"></button>
+                                <button type="button" class="color-swatch" data-color="#0272ba" data-name="Azul KMIZ" title="Azul KMIZ" style="--swatch-color: #0272ba;" aria-label="Azul KMIZ"></button>
+                                <button type="button" class="color-swatch" data-color="#b91c1c" data-name="Rojo Carmesí" title="Rojo Carmesí" style="--swatch-color: #b91c1c;" aria-label="Rojo Carmesí"></button>
+                                <button type="button" class="color-swatch" data-color="#14532d" data-name="Verde Bosque" title="Verde Bosque" style="--swatch-color: #14532d;" aria-label="Verde Bosque"></button>
+                            </div>
+                        </div>
+
                         <div class="premium-btn-wrapper" id="ps-btn-wrap">
                             <a href="colecciones/" class="btn-premium-collection" id="ps-btn" title="Ver Colección de Poloches">
                                 <span>VER COLECCIÓN</span>
@@ -226,12 +252,6 @@
                 <!-- Subtle Scroll Progress Indicator -->
                 <div class="premium-scroll-indicator" aria-hidden="true">
                     <div class="premium-scroll-progress" id="premium-scroll-progress"></div>
-                </div>
-
-                <!-- Subtle Scroll Prompt Hint -->
-                <div class="premium-scroll-hint" id="ps-scroll-hint" aria-hidden="true">
-                    <span>Desliza para explorar</span>
-                    <svg class="hint-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
                 </div>
             </div>
         </section>
@@ -676,6 +696,8 @@
     <!-- Stripe JS SDK -->
     <script src="https://js.stripe.com/v3/" defer></script>
     <script src="script.js?v=1.0.1"></script>
+    <!-- Three.js 3D Poloche Viewer Module -->
+    <script type="module" src="poloche-3d.js?v=1.0.0"></script>
     <script>
         lucide.createIcons();
     </script>
