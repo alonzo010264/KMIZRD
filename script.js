@@ -1,3 +1,14 @@
+// Ensure page refresh always starts cleanly at the top of the storefront
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+window.addEventListener('beforeunload', () => {
+    window.scrollTo(0, 0);
+});
+if (!window.location.hash || window.location.hash === '#') {
+    window.scrollTo(0, 0);
+}
+
 // Initialize Supabase Client
 const supabaseUrl = 'https://hgjcmsqforkvcfatygsl.supabase.co';
 const supabaseKey = 'sb_publishable_Ij2NSppTJRCxCpLzOOtLNA_OZY1RKZS';
@@ -2318,18 +2329,18 @@ function initPremiumScrollVideo() {
     if ('IntersectionObserver' in window) {
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.2) {
                     ensureVideoPreload();
                     if (isMobile()) {
                         video.play().catch(() => {});
                     }
-                } else {
+                } else if (!entry.isIntersecting || entry.intersectionRatio < 0.1) {
                     if (isMobile() && !video.paused) {
                         video.pause();
                     }
                 }
             });
-        }, { rootMargin: '250px 0px' });
+        }, { threshold: [0, 0.2, 0.5] });
         videoObserver.observe(showcase);
     } else {
         ensureVideoPreload();
@@ -2360,8 +2371,6 @@ function initPremiumScrollVideo() {
             if (!isMobile()) {
                 video.pause();
                 onScroll();
-            } else {
-                video.play().catch(() => {});
             }
         }
     }
@@ -2390,8 +2399,14 @@ function initPremiumScrollVideo() {
             if (tag) { tag.style.opacity = '1'; tag.style.transform = 'none'; }
             if (heading) { heading.style.opacity = '1'; heading.style.transform = 'none'; }
             if (btnWrap) { btnWrap.style.opacity = '1'; btnWrap.style.transform = 'none'; }
-            if (video && video.paused && hasLoadedSource) {
-                video.play().catch(() => {});
+            const rect = showcase.getBoundingClientRect();
+            const isInView = rect.top < window.innerHeight && rect.bottom > 0;
+            if (video && hasLoadedSource) {
+                if (isInView && video.paused) {
+                    video.play().catch(() => {});
+                } else if (!isInView && !video.paused) {
+                    video.pause();
+                }
             }
             return;
         }
