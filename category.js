@@ -429,13 +429,11 @@ if (!window.location.hash || window.location.hash === '#') {
                 .neq('category', 'TRACKING')
                 .neq('category', 'SYSTEM_USERS')
                 .order('created_at', { ascending: false });
-            if (CATEGORY) {
+            if (CATEGORY && CATEGORY !== 'COLECCIONES' && CATEGORY !== 'CATALOGO') {
                 if (CATEGORY === 'CAMISETAS' || CATEGORY === 'CAMISETA') {
                     query = query.or('category.ilike.%COLECCION%,category.ilike.%OVERSIZE%,category.ilike.%CAMISETA%');
-                } else if (CATEGORY === 'COLECCIONES' || CATEGORY === 'CATALOGO') {
-                    query = query.or('category.ilike.%COLECCION%,category.ilike.%HOODIE%,category.ilike.%OVERSIZE%');
                 } else {
-                    query = query.ilike('category', `%${CATEGORY.toLowerCase().replace('hoodies','hoodie').replace('accesorios','accesorio').replace('colecciones','coleccion').replace('novedades','nuevo').replace('ofertas','oferta')}%`);
+                    query = query.ilike('category', `%${CATEGORY.toLowerCase().replace('hoodies','hoodie').replace('accesorios','accesorio').replace('novedades','nuevo').replace('ofertas','oferta')}%`);
                 }
             }
             const { data, error } = await query;
