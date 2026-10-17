@@ -155,25 +155,85 @@
         if (totalEl) totalEl.textContent = `RD$${total.toLocaleString('en-US', {minimumFractionDigits:2})}`;
     }
 
+    // High-visibility floating cart toast notification
+    function showCartToast(productName, productImage) {
+        let toast = document.getElementById('kmizrd-cart-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'kmizrd-cart-toast';
+            toast.className = 'kmizrd-cart-toast';
+            document.body.appendChild(toast);
+        }
+
+        const cleanName = productName || 'Producto KMIZRD';
+        toast.innerHTML = `
+            <div class="toast-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <div class="toast-body">
+                <span class="toast-title">¡Producto añadido al carrito!</span>
+                <span class="toast-sub">${cleanName}</span>
+            </div>
+            <button class="toast-view-cart" type="button" aria-label="Ver carrito">Ver carrito &rarr;</button>
+        `;
+
+        toast.onclick = () => {
+            const drawer = document.getElementById('cart-drawer');
+            if (drawer) {
+                drawer.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            toast.classList.remove('active');
+        };
+
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            try { navigator.vibrate(40); } catch (e) {}
+        }
+
+        requestAnimationFrame(() => {
+            toast.classList.add('active');
+        });
+
+        if (window.__cartToastTimer) {
+            clearTimeout(window.__cartToastTimer);
+        }
+
+        window.__cartToastTimer = setTimeout(() => {
+            toast.classList.remove('active');
+        }, 3200);
+    }
+
     function addToCart(product, size) {
         if (!product) return;
+
+        // Re-sync with latest cart from localStorage
+        try {
+            const stored = localStorage.getItem('kmizrd_cart');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) cart = parsed.filter(i => i && typeof i === 'object');
+            }
+        } catch (e) {}
+
         const color = getProductColor(product);
         const selectedSize = size || (product.sizes && product.sizes[0]) || 'Única';
-        const numPrice = parseNumericPrice(product.price);
+        const numPrice = parseNumericPrice(product.price) || 1500;
 
         let rawImg = product.image || (product.images && product.images[0]) || 'assets/logo.jpg';
         if (typeof rawImg === 'string' && rawImg.includes(',')) {
             rawImg = rawImg.split(',')[0].trim();
         }
-        const cleanImg = rawImg.replace(/^(\.\.\/)+/, '');
+        const cleanImg = typeof rawImg === 'string' ? rawImg.replace(/^(\.\.\/)+/, '') : 'assets/logo.jpg';
 
-        const existing = cart.find(i => i.id === product.id && i.size === selectedSize && i.color === color);
+        const existing = cart.find(i => i && String(i.id) === String(product.id) && i.size === selectedSize && i.color === color);
         if (existing) { 
             existing.quantity += 1; 
         } else { 
             cart.push({ 
-                id: product.id, 
-                name: product.name, 
+                id: product.id || ('prod-' + Date.now()), 
+                name: product.name || 'Producto KMIZRD', 
                 price: numPrice, 
                 size: selectedSize, 
                 color: color, 
@@ -183,6 +243,10 @@
         }
         localStorage.setItem('kmizrd_cart', JSON.stringify(cart));
         updateCartUI();
+
+        // Show instant confirmation toast
+        showCartToast(product.name || 'Producto KMIZRD', cleanImg);
+
         const drawer = document.getElementById('cart-drawer');
         if (drawer) { 
             drawer.classList.add('active'); 
@@ -412,6 +476,9 @@
                     <div class="cat-card-name">${getBaseName(prod.name)}</div>
                     <div class="cat-card-price">${priceText}</div>
                     <div class="cat-card-sizes">${(prod.sizes || []).slice(0, 4).map(s => `<span class="cat-size-dot">${s}</span>`).join('')}${(prod.variants && prod.variants.length > 1) ? `<span class="cat-size-dot" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;">${prod.variants.length} colores</span>` : ''}</div>
+                    <button class="btn-card-add-cart" data-action="cart" title="Añadir al carrito">
+                        <i class="fa fa-shopping-cart"></i> Añadir al Carrito
+                    </button>
                 </div>`;
             card.addEventListener('click', (e) => {
                 const actionBtn = e.target.closest('[data-action]');
@@ -671,7 +738,14 @@
     }
 
     function closeProductModal() {
-        if (modal) { modal.classList.remove('active'); document.body.style.overflow = ''; currentProduct = null; }
+        if (modal) { 
+            modal.classList.remove('active'); 
+            const drawer = document.getElementById('cart-drawer');
+            if (!drawer || !drawer.classList.contains('active')) {
+                document.body.style.overflow = ''; 
+            }
+            currentProduct = null; 
+        }
     }
 
     if (closeBtn) closeBtn.addEventListener('click', closeProductModal);
@@ -679,12 +753,37 @@
 
     const addCartBtn = document.querySelector('.modal-add-cart-btn');
     if (addCartBtn) {
-        addCartBtn.addEventListener('click', () => {
-            if (!currentProduct) return;
+        addCartBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const productToAdd = currentProduct || {
+                id: document.querySelector('.cat-product-card[data-id]')?.getAttribute('data-id') || ('prod-' + Date.now()),
+                name: document.getElementById('modal-product-name')?.textContent || 'Producto KMIZRD',
+                price: document.getElementById('modal-product-price')?.textContent || 'RD$1,500.00',
+                image: document.getElementById('modal-product-img')?.getAttribute('src') || '../assets/logo.jpg',
+                category: document.getElementById('modal-product-category')?.textContent || CATEGORY
+            };
             const activeSize = document.querySelector('.size-badge-modal.active');
             const size = activeSize ? activeSize.textContent : 'Única';
-            addToCart(currentProduct, size);
-            closeProductModal();
+
+            // Button feedback
+            const originalHTML = addCartBtn.innerHTML;
+            addCartBtn.innerHTML = '<i class="fa fa-check"></i> ¡Producto Añadido!';
+            addCartBtn.style.backgroundColor = '#10b981';
+            addCartBtn.style.borderColor = '#10b981';
+
+            addToCart(productToAdd, size);
+
+            setTimeout(() => {
+                addCartBtn.innerHTML = originalHTML;
+                addCartBtn.style.backgroundColor = '';
+                addCartBtn.style.borderColor = '';
+                closeProductModal();
+                const drawer = document.getElementById('cart-drawer');
+                if (drawer) {
+                    drawer.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            }, 300);
         });
     }
 

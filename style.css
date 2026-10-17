@@ -3915,3 +3915,222 @@ input:checked + .slider:before {
     gap: 14px;
 }
 
+/* ========================================================
+   🛍️ PRODUCT CARD ACTIONS & QUICK ADD BUTTON
+   ======================================================== */
+.product-card-actions {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 5;
+}
+
+.product-card:hover .product-card-actions {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.product-action-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.product-action-btn:hover {
+    transform: scale(1.12);
+}
+
+.product-action-btn.cart {
+    background: #0f172a;
+    color: #fff;
+}
+
+.product-action-btn.customize {
+    background: var(--accent-color);
+    color: #fff;
+}
+
+/* Prominent Add to Cart Button on Card Exterior */
+.btn-card-add-cart {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #0f172a;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+}
+
+.btn-card-add-cart:hover {
+    background: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(2, 114, 186, 0.32);
+}
+
+.btn-card-add-cart:active {
+    transform: scale(0.97);
+}
+
+.btn-card-add-cart i,
+.btn-card-add-cart svg {
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+/* ========================================================
+   🛒 KMIZRD UNIVERSAL CART TOAST NOTIFICATION
+   ======================================================== */
+.kmizrd-cart-toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-140px);
+    background: rgba(15, 23, 42, 0.94);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 999999;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    max-width: 92vw;
+}
+
+.kmizrd-cart-toast.active {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.kmizrd-cart-toast .toast-icon-wrap {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #10b981;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.55);
+}
+
+.kmizrd-cart-toast .toast-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.kmizrd-cart-toast .toast-title {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.2px;
+}
+
+.kmizrd-cart-toast .toast-sub {
+    font-size: 11.5px;
+    color: #94a3b8;
+    max-width: 210px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kmizrd-cart-toast .toast-view-cart {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #38bdf8;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+    margin-left: 6px;
+}
+
+.kmizrd-cart-toast .toast-view-cart:hover {
+    background: rgba(56, 189, 248, 0.25);
+    color: #fff;
+}
+
+/* Touch & Mobile Responsive Rules */
+@media (max-width: 768px), (hover: none) {
+    .product-card-actions {
+        opacity: 1 !important;
+        transform: none !important;
+        bottom: 8px !important;
+        right: 8px !important;
+        gap: 6px !important;
+    }
+    .product-action-btn {
+        width: 34px !important;
+        height: 34px !important;
+    }
+    .btn-card-add-cart {
+        padding: 8px 10px !important;
+        font-size: 12px !important;
+        margin-top: 8px !important;
+        border-radius: 16px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .kmizrd-cart-toast {
+        top: 14px;
+        padding: 10px 16px;
+        gap: 10px;
+        border-radius: 30px;
+    }
+    .kmizrd-cart-toast .toast-icon-wrap {
+        width: 24px;
+        height: 24px;
+    }
+    .kmizrd-cart-toast .toast-icon-wrap svg {
+        width: 14px;
+        height: 14px;
+    }
+    .kmizrd-cart-toast .toast-title {
+        font-size: 12px;
+    }
+    .kmizrd-cart-toast .toast-sub {
+        font-size: 10.5px;
+        max-width: 135px;
+    }
+    .kmizrd-cart-toast .toast-view-cart {
+        font-size: 10.5px;
+        padding: 5px 10px;
+    }
+}
+
+
