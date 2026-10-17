@@ -2172,7 +2172,7 @@ function initPremiumScrollVideo() {
 
     if (!showcase || !video) return;
 
-    const isMobile = () => window.innerWidth <= 900;
+    const isMobile = () => window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth <= 1024);
 
     let hasLoadedSource = false;
     function ensureVideoPreload() {

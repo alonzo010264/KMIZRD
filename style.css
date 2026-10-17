@@ -3414,7 +3414,7 @@ input:checked + .slider:before {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 28% center; /* Keep the 3 shirts prominently visible on left/center */
+    object-position: 18% center; /* Tucks the 3 shirts on the left side */
     display: block;
     pointer-events: none;
     background-color: #080c14;
@@ -3424,9 +3424,9 @@ input:checked + .slider:before {
 .premium-video-overlay {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 35% 50%, transparent 42%, rgba(8, 12, 20, 0.45) 70%, rgba(8, 12, 20, 0.95) 100%),
-                linear-gradient(90deg, transparent 30%, rgba(8, 12, 20, 0.4) 55%, rgba(8, 12, 20, 0.9) 80%, #080c14 100%),
-                linear-gradient(to bottom, rgba(8, 12, 20, 0.85) 0%, transparent 18%, transparent 82%, rgba(8, 12, 20, 0.85) 100%);
+    background: radial-gradient(circle at 22% 50%, transparent 30%, rgba(8, 12, 20, 0.45) 55%, rgba(8, 12, 20, 0.95) 90%),
+                linear-gradient(90deg, transparent 15%, rgba(8, 12, 20, 0.35) 35%, rgba(8, 12, 20, 0.85) 58%, rgba(8, 12, 20, 0.98) 78%, #080c14 95%),
+                linear-gradient(to bottom, rgba(8, 12, 20, 0.85) 0%, transparent 15%, transparent 85%, rgba(8, 12, 20, 0.9) 100%);
     pointer-events: none;
     z-index: 2;
 }
@@ -3440,7 +3440,7 @@ input:checked + .slider:before {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    padding: 0 8vw 0 0;
+    padding: 0 6vw 0 0;
     box-sizing: border-box;
     pointer-events: none;
 }
@@ -3451,6 +3451,13 @@ input:checked + .slider:before {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    background: rgba(8, 12, 20, 0.6);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 38px 34px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
 .premium-tag {
@@ -3576,62 +3583,145 @@ input:checked + .slider:before {
     50% { transform: translateY(6px); opacity: 1; }
 }
 
-/* Responsive Styles for Tablets & Smartphones */
-@media (max-width: 900px) {
+/* Responsive Styles for Tablets & Medium Screens (769px to 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .premium-video {
+        object-position: 8% center !important;
+    }
+    .premium-content-wrapper {
+        padding: 0 4vw 0 0 !important;
+    }
+    .premium-content-inner {
+        max-width: 410px !important;
+        padding: 28px 24px !important;
+        background: rgba(8, 12, 20, 0.68) !important;
+    }
+    .premium-heading {
+        font-size: clamp(28px, 4vw, 36px) !important;
+        margin-bottom: 20px !important;
+    }
+}
+
+/* Responsive Styles for Mobile Devices (<= 768px) */
+@media (max-width: 768px) {
     .premium-showcase {
         height: auto !important;
-        min-height: 520px !important;
+        min-height: 100svh !important;
         position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        background-color: #080c14 !important;
     }
 
     .premium-sticky-container {
         position: relative !important;
-        height: 80vh !important;
-        min-height: 500px !important;
+        height: 100svh !important;
+        min-height: 560px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        padding: 0 !important;
     }
 
-    .premium-tag,
-    .premium-heading,
-    .premium-btn-wrapper {
+    .premium-video-wrapper {
+        position: absolute !important;
+        inset: 0 !important;
+        height: 100% !important;
+    }
+
+    .premium-video {
+        object-position: 45% 15% !important; /* Prominently frames shirts and hangers in upper half */
+        height: 100% !important;
+    }
+
+    .premium-video-overlay {
+        background: linear-gradient(to top, 
+            #080c14 0%, 
+            rgba(8, 12, 20, 0.95) 30%, 
+            rgba(8, 12, 20, 0.65) 55%, 
+            rgba(8, 12, 20, 0.25) 75%, 
+            rgba(8, 12, 20, 0.4) 100%) !important;
+    }
+
+    .premium-content-wrapper {
+        position: relative !important;
+        z-index: 10 !important;
+        width: 100% !important;
+        height: auto !important;
+        padding: 0 16px 28px 16px !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        box-sizing: border-box !important;
+    }
+
+    .premium-content-inner {
+        width: 100% !important;
+        max-width: 380px !important;
+        background: rgba(8, 12, 20, 0.78) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 22px !important;
+        padding: 22px 18px !important;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
+        align-items: center !important;
+        text-align: center !important;
+        margin: 0 auto !important;
+    }
+
+    .premium-tag {
+        font-size: 11px !important;
+        letter-spacing: 2px !important;
+        margin-bottom: 8px !important;
         opacity: 1 !important;
         transform: none !important;
+    }
+
+    .premium-heading {
+        font-size: clamp(22px, 6.5vw, 30px) !important;
+        margin-bottom: 16px !important;
+        line-height: 1.15 !important;
+        text-shadow: 0 2px 15px rgba(0, 0, 0, 0.95) !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .premium-btn-wrapper {
+        width: 100% !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .btn-premium-collection {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 14px 20px !important;
+        font-size: 13px !important;
+        border-radius: 30px !important;
     }
 
     .premium-scroll-indicator,
     .premium-scroll-hint {
         display: none !important;
     }
+}
 
-    .premium-video {
-        object-position: center center !important;
-    }
-
-    .premium-video-overlay {
-        background: radial-gradient(circle at center, rgba(8, 12, 20, 0.45) 0%, rgba(8, 12, 20, 0.88) 75%, #080c14 100%),
-                    linear-gradient(to top, rgba(8, 12, 20, 0.95) 0%, rgba(8, 12, 20, 0.5) 50%, rgba(8, 12, 20, 0.8) 100%) !important;
-    }
-
-    .premium-content-wrapper {
-        justify-content: center !important;
-        align-items: center !important;
-        padding: 40px 20px !important;
-        text-align: center !important;
-    }
-
+/* Extra small devices (phones <= 400px) */
+@media (max-width: 400px) {
     .premium-content-inner {
-        align-items: center !important;
-        max-width: 100% !important;
+        padding: 18px 14px !important;
     }
 
     .premium-heading {
-        font-size: clamp(26px, 6.5vw, 38px) !important;
-        margin-bottom: 22px !important;
-        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9) !important;
+        font-size: 21px !important;
+        margin-bottom: 14px !important;
     }
 
     .btn-premium-collection {
-        padding: 14px 28px !important;
-        font-size: 13px !important;
+        padding: 12px 16px !important;
+        font-size: 12px !important;
     }
 }
 
