@@ -88,9 +88,9 @@ async function loadColorMap() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // Load colors map and WhatsApp configuration
-    await loadColorMap();
+document.addEventListener('DOMContentLoaded', () => {
+    // Non-blocking concurrent data loading
+    loadColorMap();
     loadDynamicWhatsAppNumber();
     const productGrid = document.querySelector('.product-grid');
     const modal = document.getElementById('product-detail-modal');
@@ -126,9 +126,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cartFooter = document.getElementById('cart-drawer-footer');
     const cartCountBadge = document.querySelector('.cart-count');
 
-    // Load products from Supabase and group by base name (e.g., 'CAO Toji')
+    // Skeleton loader for instant visual feedback (0ms perceived latency)
+    function renderSkeletons() {
+        if (!productGrid) return;
+        productGrid.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+            const sk = document.createElement('div');
+            sk.className = 'skeleton-card';
+            sk.innerHTML = `
+                <div class="skeleton-box skeleton-img"></div>
+                <div class="skeleton-box skeleton-text-lg"></div>
+                <div class="skeleton-box skeleton-text-sm"></div>
+            `;
+            productGrid.appendChild(sk);
+        }
+    }
+
+    // Load products with instant session cache + background revalidation
     async function loadProducts() {
         if (!productGrid) return;
+
+        const cacheKey = 'kmizrd_cache_home_products';
+        let renderedFromCache = false;
+
+        // 1. Instant display from sessionStorage if valid (< 5 min)
+        try {
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                const parsed = JSON.parse(cached);
+                if (Date.now() - parsed.time < 300000 && Array.isArray(parsed.products) && parsed.products.length > 0) {
+                    allProducts = parsed.products;
+                    window.__productGroups = parsed.groups || {};
+                    renderProducts();
+                    renderedFromCache = true;
+                }
+            }
+        } catch (e) {}
+
+        // Show skeletons immediately if no cache exists
+        if (!renderedFromCache && allProducts.length === 0) {
+            renderSkeletons();
+        }
 
         try {
             const { data, error } = await _supabase
@@ -174,12 +212,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             allProducts = representativeProducts;
-            window.__productGroups = groupMap; // expose for later use
+            window.__productGroups = groupMap;
+
+            // Store in sessionStorage for instant 0ms revisits
+            try {
+                sessionStorage.setItem(cacheKey, JSON.stringify({
+                    time: Date.now(),
+                    products: representativeProducts,
+                    groups: groupMap
+                }));
+            } catch (e) {}
+
             renderProducts();
         } catch (err) {
             console.error('Error cargando productos de Supabase:', err);
-            allProducts = [];
-            renderProducts();
+            if (!renderedFromCache) {
+                allProducts = [];
+                renderProducts();
+            }
         }
     }
 
@@ -299,12 +349,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     function setGalleryImage(index) {
         galleryIndex = index;
         const mainImg = document.getElementById('modal-product-img');
+        const mainWrap = mainImg ? mainImg.closest('.gallery-main-wrap') : null;
         if (mainImg) {
+            if (mainWrap) mainWrap.classList.add('is-loading');
             mainImg.style.opacity = '0';
-            setTimeout(() => {
-                mainImg.src = encodeURI(galleryImages[galleryIndex]);
+            mainImg.onload = () => {
                 mainImg.style.opacity = '1';
-            }, 150);
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            };
+            mainImg.onerror = () => {
+                mainImg.src = 'assets/logo.jpg';
+                mainImg.style.opacity = '1';
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            };
+            mainImg.src = encodeURI(galleryImages[galleryIndex]);
+            if (mainImg.complete && mainImg.naturalHeight !== 0) {
+                mainImg.style.opacity = '1';
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            }
         }
         // Update active thumbnail inline styles
         const thumbs = document.querySelectorAll('.gallery-thumb');
@@ -360,7 +422,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         galleryIndex = 0;
 
         const mainImg = document.getElementById('modal-product-img');
-        if (mainImg) mainImg.src = encodeURI(galleryImages[0]);
+        const mainWrap = mainImg ? mainImg.closest('.gallery-main-wrap') : null;
+        if (mainImg) {
+            if (mainWrap) mainWrap.classList.add('is-loading');
+            mainImg.style.opacity = '0';
+            mainImg.onload = () => {
+                mainImg.style.opacity = '1';
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            };
+            mainImg.onerror = () => {
+                mainImg.src = 'assets/logo.jpg';
+                mainImg.style.opacity = '1';
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            };
+            mainImg.src = encodeURI(galleryImages[0]);
+            if (mainImg.complete && mainImg.naturalHeight !== 0) {
+                mainImg.style.opacity = '1';
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            }
+        }
 
         // Build thumbnails
         const thumbStrip = document.getElementById('gallery-thumbnails');
@@ -2094,6 +2174,36 @@ function initPremiumScrollVideo() {
 
     const isMobile = () => window.innerWidth <= 900;
 
+    let hasLoadedSource = false;
+    function ensureVideoPreload() {
+        if (!hasLoadedSource) {
+            hasLoadedSource = true;
+            if (video.preload === 'none') {
+                video.preload = 'metadata';
+            }
+        }
+    }
+
+    if ('IntersectionObserver' in window) {
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    ensureVideoPreload();
+                    if (isMobile()) {
+                        video.play().catch(() => {});
+                    }
+                } else {
+                    if (isMobile() && !video.paused) {
+                        video.pause();
+                    }
+                }
+            });
+        }, { rootMargin: '250px 0px' });
+        videoObserver.observe(showcase);
+    } else {
+        ensureVideoPreload();
+    }
+
     if (isMobile()) {
         if (tag) { tag.style.opacity = '1'; tag.style.transform = 'none'; }
         if (heading) { heading.style.opacity = '1'; heading.style.transform = 'none'; }
@@ -2103,7 +2213,6 @@ function initPremiumScrollVideo() {
         video.playsInline = true;
         video.setAttribute('playsinline', '');
         video.setAttribute('webkit-playsinline', '');
-        video.play().catch(() => {});
     } else {
         video.pause();
         video.currentTime = 0;
@@ -2150,7 +2259,7 @@ function initPremiumScrollVideo() {
             if (tag) { tag.style.opacity = '1'; tag.style.transform = 'none'; }
             if (heading) { heading.style.opacity = '1'; heading.style.transform = 'none'; }
             if (btnWrap) { btnWrap.style.opacity = '1'; btnWrap.style.transform = 'none'; }
-            if (video && video.paused) {
+            if (video && video.paused && hasLoadedSource) {
                 video.play().catch(() => {});
             }
             return;
@@ -2171,21 +2280,18 @@ function initPremiumScrollVideo() {
         }
 
         // Animate editorial text elements smoothly based on progress
-        // Tag appears from progress 0.08 to 0.26
         const tagProgress = Math.max(0, Math.min(1, (progress - 0.08) / 0.18));
         if (tag) {
             tag.style.opacity = tagProgress;
             tag.style.transform = `translateY(${(1 - tagProgress) * 18}px)`;
         }
 
-        // Heading appears from progress 0.20 to 0.45
         const headProgress = Math.max(0, Math.min(1, (progress - 0.20) / 0.25));
         if (heading) {
             heading.style.opacity = headProgress;
             heading.style.transform = `translateY(${(1 - headProgress) * 22}px)`;
         }
 
-        // CTA Button appears from progress 0.38 to 0.65
         const btnProgress = Math.max(0, Math.min(1, (progress - 0.38) / 0.27));
         if (btnWrap) {
             btnWrap.style.opacity = btnProgress;
@@ -2229,9 +2335,45 @@ function initPremiumScrollVideo() {
     onScroll();
 }
 
+// ==========================================
+// Lazy Load Instagram Embed Iframes on Scroll
+// ==========================================
+function initLazyInstagramIframes() {
+    const igSection = document.querySelector('.instagram-carousel-section');
+    if (!igSection) return;
+
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const iframes = igSection.querySelectorAll('iframe[data-src]');
+                    iframes.forEach((iframe, idx) => {
+                        setTimeout(() => {
+                            if (iframe.dataset.src) {
+                                iframe.src = iframe.dataset.src;
+                                delete iframe.dataset.src;
+                            }
+                        }, idx * 120);
+                    });
+                    obs.unobserve(entry.target);
+                }
+            });
+        }, { rootMargin: '350px 0px' });
+        observer.observe(igSection);
+    } else {
+        igSection.querySelectorAll('iframe[data-src]').forEach(iframe => {
+            iframe.src = iframe.dataset.src;
+        });
+    }
+}
+
 // Run on DOMContentLoaded or immediately if DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initPremiumScrollVideo);
+    document.addEventListener('DOMContentLoaded', () => {
+        initPremiumScrollVideo();
+        initLazyInstagramIframes();
+    });
 } else {
     initPremiumScrollVideo();
+    initLazyInstagramIframes();
 }

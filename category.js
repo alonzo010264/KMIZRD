@@ -283,6 +283,22 @@
     let customCurrentSize = 'Única';
     let customBase64Image = '';
 
+    function renderSkeletons() {
+        const grid = document.getElementById('cat-product-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+            const sk = document.createElement('div');
+            sk.className = 'skeleton-card';
+            sk.innerHTML = `
+                <div class="skeleton-box skeleton-img"></div>
+                <div class="skeleton-box skeleton-text-lg"></div>
+                <div class="skeleton-box skeleton-text-sm"></div>
+            `;
+            grid.appendChild(sk);
+        }
+    }
+
     async function loadProducts() {
         const grid = document.getElementById('cat-product-grid');
         const emptyEl = document.getElementById('cat-empty');
@@ -291,16 +307,22 @@
 
         // Instant render from session cache if available
         const cacheKey = 'kmizrd_cache_cat_' + CATEGORY;
+        let renderedFromCache = false;
         try {
             const cached = sessionStorage.getItem(cacheKey);
             if (cached) {
                 const parsed = JSON.parse(cached);
-                if (Date.now() - parsed.time < 180000 && Array.isArray(parsed.products) && parsed.products.length > 0) {
+                if (Date.now() - parsed.time < 300000 && Array.isArray(parsed.products) && parsed.products.length > 0) {
                     allProducts = parsed.products;
                     renderProducts(allProducts);
+                    renderedFromCache = true;
                 }
             }
         } catch (e) {}
+
+        if (!renderedFromCache && allProducts.length === 0) {
+            renderSkeletons();
+        }
 
         try {
             let query = _supabase
@@ -433,12 +455,24 @@
     function setGalleryImage(index) {
         galleryIndex = index;
         const mainImg = document.getElementById('modal-product-img');
+        const mainWrap = mainImg ? mainImg.closest('.gallery-main-wrap') : null;
         if (mainImg) {
+            if (mainWrap) mainWrap.classList.add('is-loading');
             mainImg.style.opacity = '0';
-            setTimeout(() => {
-                mainImg.src = galleryImages[galleryIndex];
+            mainImg.onload = () => {
                 mainImg.style.opacity = '1';
-            }, 150);
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            };
+            mainImg.onerror = () => {
+                mainImg.src = '../assets/logo.jpg';
+                mainImg.style.opacity = '1';
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            };
+            mainImg.src = galleryImages[galleryIndex];
+            if (mainImg.complete && mainImg.naturalHeight !== 0) {
+                mainImg.style.opacity = '1';
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            }
         }
         // Update active thumbnail inline styles
         const thumbs = document.querySelectorAll('.gallery-thumb');
@@ -472,7 +506,25 @@
         galleryImages = (images && images.length > 0) ? images : [];
         galleryIndex = 0;
         const mainImg = document.getElementById('modal-product-img');
-        if (mainImg && galleryImages.length > 0) mainImg.src = galleryImages[0];
+        const mainWrap = mainImg ? mainImg.closest('.gallery-main-wrap') : null;
+        if (mainImg && galleryImages.length > 0) {
+            if (mainWrap) mainWrap.classList.add('is-loading');
+            mainImg.style.opacity = '0';
+            mainImg.onload = () => {
+                mainImg.style.opacity = '1';
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            };
+            mainImg.onerror = () => {
+                mainImg.src = '../assets/logo.jpg';
+                mainImg.style.opacity = '1';
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            };
+            mainImg.src = galleryImages[0];
+            if (mainImg.complete && mainImg.naturalHeight !== 0) {
+                mainImg.style.opacity = '1';
+                if (mainWrap) mainWrap.classList.remove('is-loading');
+            }
+        }
         const thumbStrip = document.getElementById('gallery-thumbnails');
         if (thumbStrip) {
             thumbStrip.innerHTML = '';
@@ -1065,8 +1117,9 @@
     // ---------- INIT ----------
     initMobileNav();
     updateCartUI();
+    loadColorMap();
     loadDynamicWhatsAppNumber();
-    loadColorMap().then(() => loadProducts());
+    loadProducts();
 
     // Catalog links smooth scroll on same page
     document.querySelectorAll('.catalog-nav-link').forEach(link => {
